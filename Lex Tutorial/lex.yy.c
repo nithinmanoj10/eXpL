@@ -322,9 +322,6 @@ void yyfree ( void *  );
 #define YY_AT_BOL() (YY_CURRENT_BUFFER_LVALUE->yy_at_bol)
 
 /* Begin user sect3 */
-
-#define yywrap() (/*CONSTCOND*/1)
-#define YY_SKIP_YYWRAP
 typedef flex_uint8_t YY_CHAR;
 
 FILE *yyin = NULL, *yyout = NULL;
@@ -439,12 +436,13 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "yytext_example.l"
-#line 3 "yytext_example.l"
-	#include <stdlib.h>
+#line 1 "yywrap_ex_3.l"
+#line 2 "yywrap_ex_3.l"
 	#include <stdio.h>
-#line 447 "lex.yy.c"
-#line 448 "lex.yy.c"
+	#include <stdlib.h>
+	int consoleInputIsOver = 0;
+#line 445 "lex.yy.c"
+#line 446 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -661,11 +659,10 @@ YY_DECL
 		}
 
 	{
-#line 9 "yytext_example.l"
+#line 9 "yywrap_ex_3.l"
 
-#line 11 "yytext_example.l"
- 
-#line 669 "lex.yy.c"
+
+#line 666 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -724,20 +721,15 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 12 "yytext_example.l"
-{
-	if(atoi(yytext) % 2 == 0)
-		printf("Even Number: %d", atoi(yytext));
-	else
-		printf("Odd Number: %d", atoi(yytext));
-}
+#line 11 "yywrap_ex_3.l"
+{printf("Number: %d", atoi(yytext));}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 19 "yytext_example.l"
+#line 13 "yywrap_ex_3.l"
 ECHO;
 	YY_BREAK
-#line 741 "lex.yy.c"
+#line 733 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1742,19 +1734,23 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 19 "yytext_example.l"
+#line 13 "yywrap_ex_3.l"
 
 
-int main(int argc, char* argv[])
-{
+int yywrap(){
 
-	if(argc > 1)
-	{
-		FILE *fp = fopen(argv[1], "r");
-		if(fp)
-			yyin = fp;
+	if(!consoleInputIsOver){
+		consoleInputIsOver = 1;
+		yyin = stdin;
+		printf("%s", yyin);
+		return 0;
 	}
 
+	return 1;
+
+}
+
+int main(){
 	yylex();
 	return 1;
 }
