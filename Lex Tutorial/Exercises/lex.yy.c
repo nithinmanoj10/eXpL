@@ -363,27 +363,28 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static const flex_int16_t yy_accept[10] =
+static const flex_int16_t yy_accept[14] =
     {   0,
-        2,    2,    4,    2,    3,    1,    2,    1,    0
+        2,    2,    4,    2,    2,    3,    2,    2,    2,    2,
+        1,    1,    0
     } ;
 
 static const YY_CHAR yy_ec[256] =
     {   0,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    2,
+        1,    1,    1,    1,    1,    1,    1,    1,    2,    3,
+        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+        1,    2,    1,    1,    1,    1,    1,    1,    1,    1,
+        1,    1,    1,    1,    1,    1,    4,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    3,    3,    3,
-        3,    3,    3,    3,    3,    3,    3,    1,    1,    1,
-        1,    1,    1,    1,    4,    3,    3,    3,    3,    3,
-        3,    3,    3,    3,    3,    3,    3,    3,    3,    3,
-        3,    3,    3,    3,    3,    3,    3,    3,    3,    3,
-        1,    1,    1,    1,    1,    1,    3,    3,    3,    3,
+        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
 
-        3,    3,    3,    3,    3,    3,    3,    3,    3,    3,
-        3,    3,    3,    3,    3,    3,    3,    3,    3,    3,
-        3,    3,    1,    1,    1,    1,    1,    1,    1,    1,
+        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -402,31 +403,31 @@ static const YY_CHAR yy_ec[256] =
 
 static const YY_CHAR yy_meta[5] =
     {   0,
-        1,    2,    1,    1
+        1,    1,    2,    1
     } ;
 
-static const flex_int16_t yy_base[12] =
+static const flex_int16_t yy_base[16] =
     {   0,
-        0,    0,    9,    0,   10,    7,    0,    6,   10,    5,
-        4
+        0,    0,   11,    0,    4,   12,    6,    0,    0,    0,
+        0,    0,   12,    8,    6
     } ;
 
-static const flex_int16_t yy_def[12] =
+static const flex_int16_t yy_def[16] =
     {   0,
-        9,    1,    9,   10,    9,   11,   10,   11,    0,    9,
-        9
+       13,    1,   13,   14,   13,   13,   14,   14,    5,    7,
+       15,   15,    0,   13,   13
     } ;
 
-static const flex_int16_t yy_nxt[15] =
+static const flex_int16_t yy_nxt[17] =
     {   0,
-        4,    5,    4,    6,    8,    7,    7,    7,    9,    3,
-        9,    9,    9,    9
+        4,    5,    6,    7,    8,    9,   12,   10,    8,   11,
+       13,    3,   13,   13,   13,   13
     } ;
 
-static const flex_int16_t yy_chk[15] =
+static const flex_int16_t yy_chk[17] =
     {   0,
-        1,    1,    1,    1,   11,   10,    8,    6,    3,    9,
-        9,    9,    9,    9
+        1,    1,    1,    1,    5,    5,   15,    5,   14,    7,
+        3,   13,   13,   13,   13,   13
     } ;
 
 static yy_state_type yy_last_accepting_state;
@@ -443,17 +444,14 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "yyex_3.l"
-#line 2 "yyex_3.l"
-	// Lex program to list out all words of length three, starting with "A" to uppercase
-
+#line 1 "yyex_4.l"
+#line 2 "yyex_4.l"
+	// Lex Program to list out all C-like comments (both single line and multi line comments) from a text file
+	
 	#include <stdio.h>
 	#include <stdlib.h>
-	#include <wchar.h>
-	#include <locale.h>
-
-#line 456 "lex.yy.c"
-#line 457 "lex.yy.c"
+#line 454 "lex.yy.c"
+#line 455 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -670,10 +668,11 @@ YY_DECL
 		}
 
 	{
-#line 15 "yyex_3.l"
+#line 13 "yyex_4.l"
 
-
-#line 677 "lex.yy.c"
+#line 15 "yyex_4.l"
+	
+#line 676 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -700,13 +699,13 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 10 )
+				if ( yy_current_state >= 14 )
 					yy_c = yy_meta[yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
 			++yy_cp;
 			}
-		while ( yy_base[yy_current_state] != 10 );
+		while ( yy_base[yy_current_state] != 12 );
 
 yy_find_action:
 		yy_act = yy_accept[yy_current_state];
@@ -732,33 +731,24 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 17 "yyex_3.l"
+#line 16 "yyex_4.l"
 {
-	setlocale(LC_ALL, "en_US.utf8");
-	const wchar_t correctEmoji = 0x2705;
-	const wchar_t wrongEmoji = 0x274c;
-
-	if(yyleng == 3)
-		printf("%lc %s", correctEmoji,yytext);
-	else
-		printf("%lc %s", wrongEmoji,yytext);
-} 
+	printf("\U00002705 %s", yytext);
+}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 28 "yyex_3.l"
+#line 20 "yyex_4.l"
 {
-	setlocale(LC_ALL, "en_US.utf8");
-	const wchar_t wrongEmoji = 0x274c;
-	printf("%lc %s", wrongEmoji,yytext);
-} 
+	printf("\U0001F539 %s", yytext);
+}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 34 "yyex_3.l"
+#line 25 "yyex_4.l"
 ECHO;
 	YY_BREAK
-#line 762 "lex.yy.c"
+#line 752 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1055,7 +1045,7 @@ static int yy_get_next_buffer (void)
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 10 )
+			if ( yy_current_state >= 14 )
 				yy_c = yy_meta[yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
@@ -1083,11 +1073,11 @@ static int yy_get_next_buffer (void)
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 10 )
+		if ( yy_current_state >= 14 )
 			yy_c = yy_meta[yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
-	yy_is_jam = (yy_current_state == 9);
+	yy_is_jam = (yy_current_state == 13);
 
 		return yy_is_jam ? 0 : yy_current_state;
 }
@@ -1763,22 +1753,15 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 34 "yyex_3.l"
+#line 25 "yyex_4.l"
 
 
 int main(){
 
-	setlocale(LC_ALL, "en_US.utf8");
-	const wchar_t codeEmoji = 0x1F4D1;
-	const wchar_t stageEmoji = 0x1F4C0;
-	const wchar_t inputEmoji = 0x1F4E5;
-	const wchar_t resultEmoji = 0x2728;
-	const wchar_t diamondEmoji = 0x1F539;
+	printf("\n\U0001F4C0 Stage 0 : LEX Tutorial\n");
+	printf("\n\U0001F4D1 Lex Program to list out all C-like comments (both single line and multi line comments) from a text file\n\n");
 
-	printf("%lc Stage 0 : Lex Tutorial\n", stageEmoji);
-        printf("\n%lc Lex program to list out all words of length three, starting with 'A' to uppercase\n\n", codeEmoji);
-
-	FILE* fp = fopen("input_3.txt", "r");
+	FILE* fp = fopen("input_4.txt", "r");
 	if(fp)
 		yyin = fp;
 
