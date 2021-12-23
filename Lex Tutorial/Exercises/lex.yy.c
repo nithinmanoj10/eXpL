@@ -354,8 +354,8 @@ static void yynoreturn yy_fatal_error ( const char* msg  );
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
-#define YY_NUM_RULES 3
-#define YY_END_OF_BUFFER 4
+#define YY_NUM_RULES 5
+#define YY_END_OF_BUFFER 6
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -363,20 +363,20 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static const flex_int16_t yy_accept[14] =
+static const flex_int16_t yy_accept[16] =
     {   0,
-        2,    2,    4,    2,    2,    3,    2,    2,    2,    2,
-        1,    1,    0
+        0,    0,    6,    5,    5,    5,    1,    1,    0,    2,
+        0,    0,    3,    4,    0
     } ;
 
 static const YY_CHAR yy_ec[256] =
     {   0,
-        1,    1,    1,    1,    1,    1,    1,    1,    2,    3,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    2,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    4,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+        1,    1,    2,    1,    3,    4,    1,    5,    6,    6,
+        6,    6,    6,    6,    6,    6,    6,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -401,33 +401,35 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1
     } ;
 
-static const YY_CHAR yy_meta[5] =
+static const YY_CHAR yy_meta[7] =
     {   0,
-        1,    1,    2,    1
+        1,    1,    1,    2,    3,    3
     } ;
 
-static const flex_int16_t yy_base[16] =
+static const flex_int16_t yy_base[20] =
     {   0,
-        0,    0,   11,    0,    4,   12,    6,    0,    0,    0,
-        0,    0,   12,    8,    6
+        0,    0,   17,   18,    0,    2,   12,    0,   11,   10,
+        0,    0,    0,    0,   18,   10,    7,    9,    8
     } ;
 
-static const flex_int16_t yy_def[16] =
+static const flex_int16_t yy_def[20] =
     {   0,
-       13,    1,   13,   14,   13,   13,   14,   14,    5,    7,
-       15,   15,    0,   13,   13
+       15,    1,   15,   15,   16,   15,   16,    7,   17,    6,
+       18,   19,   18,   19,    0,   15,   15,   15,   15
     } ;
 
-static const flex_int16_t yy_nxt[17] =
+static const flex_int16_t yy_nxt[25] =
     {   0,
-        4,    5,    6,    7,    8,    9,   12,   10,    8,   11,
-       13,    3,   13,   13,   13,   13
+        4,    5,    6,    4,    7,    7,    9,   10,    9,    9,
+       14,   13,    8,   12,   12,   11,   15,    3,   15,   15,
+       15,   15,   15,   15
     } ;
 
-static const flex_int16_t yy_chk[17] =
+static const flex_int16_t yy_chk[25] =
     {   0,
-        1,    1,    1,    1,    5,    5,   15,    5,   14,    7,
-        3,   13,   13,   13,   13,   13
+        1,    1,    1,    1,    1,    1,    6,    6,   17,   17,
+       19,   18,   16,   10,    9,    7,    3,   15,   15,   15,
+       15,   15,   15,   15
     } ;
 
 static yy_state_type yy_last_accepting_state;
@@ -444,14 +446,18 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "yyex_4.l"
-#line 2 "yyex_4.l"
-	// Lex Program to list out all C-like comments (both single line and multi line comments) from a text file
-	
+#line 1 "yyex_2.l"
+#line 2 "yyex_2.l"
+	// Lex program to count the number of integers and floating point numbers appearing in the input
+
 	#include <stdio.h>
 	#include <stdlib.h>
-#line 454 "lex.yy.c"
-#line 455 "lex.yy.c"
+	#include <wchar.h>
+	#include <locale.h>
+	
+	int intCount = 0, floatCount = 0;
+#line 460 "lex.yy.c"
+#line 461 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -668,11 +674,10 @@ YY_DECL
 		}
 
 	{
-#line 13 "yyex_4.l"
+#line 19 "yyex_2.l"
 
-#line 15 "yyex_4.l"
-	
-#line 676 "lex.yy.c"
+
+#line 681 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -699,13 +704,13 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 14 )
+				if ( yy_current_state >= 16 )
 					yy_c = yy_meta[yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
 			++yy_cp;
 			}
-		while ( yy_base[yy_current_state] != 12 );
+		while ( yy_base[yy_current_state] != 18 );
 
 yy_find_action:
 		yy_act = yy_accept[yy_current_state];
@@ -731,24 +736,30 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 16 "yyex_4.l"
-{
-	printf("\U00002705 %s", yytext);
-}
+#line 21 "yyex_2.l"
+{++intCount;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 20 "yyex_4.l"
-{
-	printf("\U0001F539 %s", yytext);
-}
+#line 22 "yyex_2.l"
+{++intCount;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 25 "yyex_4.l"
+#line 23 "yyex_2.l"
+{++floatCount;}
+	YY_BREAK
+case 4:
+YY_RULE_SETUP
+#line 24 "yyex_2.l"
+{++floatCount;}
+	YY_BREAK
+case 5:
+YY_RULE_SETUP
+#line 26 "yyex_2.l"
 ECHO;
 	YY_BREAK
-#line 752 "lex.yy.c"
+#line 763 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1045,7 +1056,7 @@ static int yy_get_next_buffer (void)
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 14 )
+			if ( yy_current_state >= 16 )
 				yy_c = yy_meta[yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
@@ -1073,11 +1084,11 @@ static int yy_get_next_buffer (void)
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 14 )
+		if ( yy_current_state >= 16 )
 			yy_c = yy_meta[yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
-	yy_is_jam = (yy_current_state == 13);
+	yy_is_jam = (yy_current_state == 15);
 
 		return yy_is_jam ? 0 : yy_current_state;
 }
@@ -1753,19 +1764,27 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 25 "yyex_4.l"
+#line 26 "yyex_2.l"
 
 
 int main(){
 
-	printf("\n\U0001F4C0 Stage 0 : LEX Tutorial\n");
-	printf("\n\U0001F4D1 Lex Program to list out all C-like comments (both single line and multi line comments) from a text file\n\n");
+	setlocale(LC_ALL, "en_US.utf8");
+	const wchar_t codeEmoji = 0x1F4D1;
+	const wchar_t stageEmoji = 0x1F4C0;
+	const wchar_t inputEmoji = 0x1F4E5;
+	const wchar_t resultEmoji = 0x2728;
+	const wchar_t diamondEmoji = 0x1F539;
 
-	FILE* fp = fopen("input_4.txt", "r");
-	if(fp)
-		yyin = fp;
+	printf("%lc Stage 0 : Lex Tutorial\n", stageEmoji);
+	printf("\n%lc Lex Program to count the number of integers and floating point numbers appearing in the input\n", codeEmoji);
+	printf("\n%lc Input integers or float numbers. ctrl+d to get the result\n\n", inputEmoji);
 
 	yylex();
+
+	printf("\n%lc Result:\n\n", resultEmoji);
+	printf("%lc Number of Integers: %d\n", diamondEmoji, intCount);
+	printf("%lc Number of Floats: %d\n", diamondEmoji, floatCount);
 	return 1;
 }
 
