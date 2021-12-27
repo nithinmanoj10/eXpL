@@ -322,9 +322,6 @@ void yyfree ( void *  );
 #define YY_AT_BOL() (YY_CURRENT_BUFFER_LVALUE->yy_at_bol)
 
 /* Begin user sect3 */
-
-#define yywrap() (/*CONSTCOND*/1)
-#define YY_SKIP_YYWRAP
 typedef flex_uint8_t YY_CHAR;
 
 FILE *yyin = NULL, *yyout = NULL;
@@ -365,8 +362,8 @@ struct yy_trans_info
 	};
 static const flex_int16_t yy_accept[15] =
     {   0,
-        0,    0,   11,    9,    8,    7,    3,    1,    2,    4,
-        6,    5,    6,    0
+        0,    0,   11,    9,    8,    7,    6,    4,    2,    3,
+        5,    1,    1,    0
     } ;
 
 static const YY_CHAR yy_ec[256] =
@@ -374,9 +371,9 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1,    1,    1,    1,    2,    3,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    2,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    4,    5,    1,    6,    1,    7,    8,    8,    8,
-        8,    8,    8,    8,    8,    8,    8,    1,    1,    1,
+        1,    2,    1,    1,    1,    1,    1,    1,    1,    4,
+        4,    5,    6,    1,    7,    1,    8,    9,    9,    9,
+        9,    9,    9,    9,    9,    9,    9,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -384,7 +381,7 @@ static const YY_CHAR yy_ec[256] =
 
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    9,    1,    1,    1,    1,    1,    1,
+        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -409,7 +406,7 @@ static const YY_CHAR yy_meta[10] =
 static const flex_int16_t yy_base[15] =
     {   0,
         0,    0,   12,   13,   13,   13,   13,   13,   13,   13,
-        3,   13,    2,   13
+       13,    2,    1,   13
     } ;
 
 static const flex_int16_t yy_def[15] =
@@ -428,7 +425,7 @@ static const flex_int16_t yy_nxt[23] =
 static const flex_int16_t yy_chk[23] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    1,   13,
-       11,    3,   14,   14,   14,   14,   14,   14,   14,   14,
+       12,    3,   14,   14,   14,   14,   14,   14,   14,   14,
        14,   14
     } ;
 
@@ -446,26 +443,16 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "yydesk_calc.l"
-/* Simple Calculator */
-#line 4 "yydesk_calc.l"
+#line 1 "exprtree.l"
+#line 2 "exprtree.l"
 	#include <stdio.h>
 	#include <stdlib.h>
+	#include "exprtree.h"
 	#include "y.tab.h"
 
-	enum yytokentype{
-		NUMBER = 258,
-		ADD = 259,
-		SUB = 260,
-		MUL = 261,
-		DIV = 262,
-		ABS = 263,
-		EOL = 264		
-	};
-
-	int yylval;
-#line 468 "lex.yy.c"
-#line 469 "lex.yy.c"
+	int number;
+#line 455 "lex.yy.c"
+#line 456 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -682,10 +669,10 @@ YY_DECL
 		}
 
 	{
-#line 33 "yydesk_calc.l"
+#line 10 "exprtree.l"
 
 
-#line 689 "lex.yy.c"
+#line 676 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -744,59 +731,63 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 35 "yydesk_calc.l"
-{return ADD;}
+#line 12 "exprtree.l"
+{
+		number = atoi(yytext);
+		yylval.node = makeLeafNode(number);
+		return NUM;
+	}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 36 "yydesk_calc.l"
-{return SUB;}
+#line 18 "exprtree.l"
+{	return PLUS;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 37 "yydesk_calc.l"
-{return MUL;}
+#line 19 "exprtree.l"
+{	return MINUS;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 38 "yydesk_calc.l"
-{return DIV;}
+#line 20 "exprtree.l"
+{	return MUL;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 39 "yydesk_calc.l"
-{return ABS;}
+#line 21 "exprtree.l"
+{	return DIV;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 41 "yydesk_calc.l"
-{
-	yylval = atoi(yytext);
-	return NUMBER;
-}	
+#line 23 "exprtree.l"
+{	return *yytext;}
 	YY_BREAK
 case 7:
 /* rule 7 can match eol */
 YY_RULE_SETUP
-#line 46 "yydesk_calc.l"
-{return EOL;}
+#line 25 "exprtree.l"
+{	return END;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 47 "yydesk_calc.l"
+#line 26 "exprtree.l"
 {}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 48 "yydesk_calc.l"
-{printf("Other Char: %c\n", *yytext);}
+#line 28 "exprtree.l"
+{
+		printf("\nError: Unknown Character\n");
+		exit(1);
+	}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 50 "yydesk_calc.l"
+#line 33 "exprtree.l"
 ECHO;
 	YY_BREAK
-#line 800 "lex.yy.c"
+#line 791 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1801,7 +1792,10 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 50 "yydesk_calc.l"
+#line 33 "exprtree.l"
 
 
+int yywrap(void){
+	return 1;
+}
 

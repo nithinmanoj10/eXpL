@@ -1,0 +1,4 @@
+#define KRED  "\x1B[31m"
+#define KMAG  "\x1B[35m"
+#define KYEL  "\x1B[33m"
+#define KNRM  "\x1B[0m"
