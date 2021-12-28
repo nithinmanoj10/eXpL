@@ -1,0 +1,3 @@
+#!/bin/zsh
+cd ../..
+./xsm -l library.lib -e Stages/1/target.xsm
