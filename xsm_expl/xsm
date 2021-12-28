@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 cd xfs-interface
 
 if [ "$1" == "-l" ]; then
