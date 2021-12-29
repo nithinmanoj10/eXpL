@@ -14,10 +14,10 @@ int Write(FILE* filePtr, int arg1, char* arg2, int arg3);
 
 /**
  * Writes the header in XEXE Format to the first 8 lines
- * of the file given
+ * of the given file
  *
  * @params	filePtr:	File to which the XEXE Header has to be written into
  *
- * @return	nothing
+ * @return	-
  */
 void writeXexeHeader(FILE* filePtr);

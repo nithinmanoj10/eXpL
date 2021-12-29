@@ -1,3 +1,10 @@
 #!/bin/zsh
+clear
+echo Compiling and running exprtree.y and exprtree.l
+yacc -d exprtree.y
+lex exprtree.l
+gcc y.tab.c lex.yy.c -o exprtree
+clear
+./exprtree
 cd ../..
 ./xsm -l library.lib -e Stages/1/target.xsm

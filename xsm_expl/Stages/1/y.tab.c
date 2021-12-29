@@ -1339,7 +1339,7 @@ yyreduce:
  
 			// for time being, value to be printed is stored in
 			// register R2
-			Write(filePtr, -2, "null", 0); 
+			INT_7(filePtr, -2, NULL); 
 			INT_10(filePtr);		
 
 			printf("Answer: %d\n", evaluateTree((yyvsp[-1].node)));

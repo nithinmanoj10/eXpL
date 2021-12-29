@@ -7,19 +7,9 @@ int codeGen(struct treeNode* root, FILE* targetFile){
 	// if it is a leaf node
 	if (root->op == NULL){
 		
-		// allocating a free register to store
-		// the leaf node value
 		int regNo = getReg();
 
-		/* --------------------------------------------- 
-		 | eg.	regNo = 1				|
-		 |	root->val = 3				|
-		 |	targetFile = target.xsm			|
-		 |						|
-		 |	"MOV R1, 3" written in target.xsm	|
-		  ----------------------------------------------
-		 */
-		fprintf(targetFile, "MOV R%d, %d\n", regNo, root->val);
+		fprintf(targetFile, "MOV R%d, %d\n", regNo, root->val);			// MOV R0, 3
 		return regNo;
 	}	
 
@@ -32,26 +22,18 @@ int codeGen(struct treeNode* root, FILE* targetFile){
 	leftRegNo = codeGen(root->left, targetFile);
 	rightRegNo = codeGen(root->right, targetFile);
 
-	// freeing the right register used
 	freeReg();
 
 	char op = *(root->op);
 
-	/** 
-	 * eg.	leftRegNo = 1
-	 *	rightRegNo = 2
-	 *	targetFile = target.xsm	
-	 *
-	 *	"ADD R1, R2" written in target.xsm
-	 */
 	if (op == '+')
-		fprintf(targetFile, "ADD R%d, R%d\n", leftRegNo, rightRegNo);	
+		fprintf(targetFile, "ADD R%d, R%d\n", leftRegNo, rightRegNo);		// ADD R0, R1	
 	if (op == '-')
-		fprintf(targetFile, "SUB R%d, R%d\n", leftRegNo, rightRegNo);	
+		fprintf(targetFile, "SUB R%d, R%d\n", leftRegNo, rightRegNo);		// SUB R0, R1
 	if (op == '*')
-		fprintf(targetFile, "MUL R%d, R%d\n", leftRegNo, rightRegNo);	
+		fprintf(targetFile, "MUL R%d, R%d\n", leftRegNo, rightRegNo);		// MUL R0, R1
 	if (op == '/')
-		fprintf(targetFile, "DIV R%d, R%d\n", leftRegNo, rightRegNo);	
+		fprintf(targetFile, "DIV R%d, R%d\n", leftRegNo, rightRegNo);		// DIV R0, R1
 
 	// returning the register number where the
 	// result for the subtree is stored
