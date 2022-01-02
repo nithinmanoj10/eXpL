@@ -1,0 +1,9 @@
+#!/bin/zsh
+clear
+yacc -d ast.y
+lex ast.l
+gcc y.tab.c lex.yy.c -g -o ast
+clear
+
+cd ../..
+./xsm -l library.lib -e Stages/2/target.xsm --debug
