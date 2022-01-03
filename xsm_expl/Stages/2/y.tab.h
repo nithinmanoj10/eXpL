@@ -59,7 +59,9 @@ extern int yydebug;
     MINUS = 265,
     MUL = 266,
     DIV = 267,
-    EQUAL = 268
+    EQUAL = 268,
+    COLON = 269,
+    SEMICOLON = 270
   };
 #endif
 /* Tokens.  */
@@ -74,16 +76,18 @@ extern int yydebug;
 #define MUL 266
 #define DIV 267
 #define EQUAL 268
+#define COLON 269
+#define SEMICOLON 270
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 16 "ast.y"
+#line 19 "ast.y"
 
 	struct ASTNode* node;
 
-#line 87 "y.tab.h"
+#line 91 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

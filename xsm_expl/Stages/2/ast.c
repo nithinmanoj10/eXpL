@@ -1,4 +1,11 @@
 #include "../Functions/reg.h"
+#include "ast.h"
+
+int initVariableStorage(){
+	for(int i = 0; i < 26; ++i)
+		variableStorage[i] = 0;
+	return 1;
+}
 
 struct ASTNode* createASTNode(int val, int nodetype, char* varname, struct ASTNode* left, struct ASTNode* right) {
 
@@ -98,3 +105,5 @@ int evalExprTree(FILE* filePtr, struct ASTNode* root){
 	
 	return leftRegNo;
 }
+
+

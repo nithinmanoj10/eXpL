@@ -1,0 +1,20 @@
+#!/bin/zsh
+clear
+yacc -d ast.y
+lex ast.l
+gcc y.tab.c lex.yy.c ../Functions/copyFile.c -g -o ast
+clear
+
+echo "⏳ Compiling $1:\n"
+cat -n $1
+
+./ast $1 < $1
+
+if [ $? -eq 0 ]
+then
+	cat target.xsm > $1.xsm
+	echo "\n🚀 Running $1.xsm\n"
+
+	cd ../..
+	./xsm -l library.lib -e Stages/2/$1.xsm
+fi

@@ -8,6 +8,11 @@ struct ASTNode{
 	struct ASTNode *left,*right;	// left and right branches  	
 }anode;
 
+// Static Array that stores values of all 26 variables [a-z]
+int variableStorage[26];
+
+int initVariableStorage();
+
 /**
  * Function to dynamically create a node for an AST
  *

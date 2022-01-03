@@ -1,0 +1,10 @@
+#!/bin/zsh
+clear
+yacc -d ast.y
+lex ast.l
+gcc y.tab.c lex.yy.c ../Functions/copyFile.c -g -o ast
+
+echo "⏳ Compiling $1:\n"
+cat -n $1
+
+gdb ast

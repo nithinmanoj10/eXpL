@@ -5,6 +5,7 @@
 	#include "ast.h"
 
 	int yywrap();
+	int line = 0;
 %}
 
 %%
@@ -32,12 +33,15 @@
 
 [()]	{return *yytext;}	/* Others */
 [ \t]	{}
-[\n]	{}
-";"	{}
+[\n]	{++line;}
+":"	{return COLON;}
+";"	{return SEMICOLON;}
 .	{
-		printf("Unknown Character\n");
+		printf("\n❓ Unidentified Token, at line %d\n", line+1);
 		exit(1);
 	}
+
+[ \t]*\/\/.* {}			/* Comments */
 
 %%
 

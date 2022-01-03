@@ -1,0 +1,4 @@
+echo "🚀 Running $1\n"
+
+cd ../..
+./xsm -l library.lib -e Stages/2/$1
