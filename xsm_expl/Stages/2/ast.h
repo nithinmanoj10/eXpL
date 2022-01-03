@@ -48,3 +48,12 @@ int printAST(struct ASTNode* root);
  * @return 	[4096-4121]:	The memory address
  */
 int getVariableAddress(char variable);
+
+/**
+ * Function to translate an expression tree into XSM instructions.
+ * 
+ * @params	root:		Root of the Expression Tree
+ *
+ * @return	[0-19]:		Register number in which the result is stored
+ */
+int evalExprTree(FILE* filePtr, struct ASTNode* root);

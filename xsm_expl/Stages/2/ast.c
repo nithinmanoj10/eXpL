@@ -1,3 +1,5 @@
+#include "../Functions/reg.h"
+
 struct ASTNode* createASTNode(int val, int nodetype, char* varname, struct ASTNode* left, struct ASTNode* right) {
 
 	// dynamically allocates space for the new node
@@ -44,10 +46,55 @@ int printAST(struct ASTNode* root){
  *
  * Calculated as :
  *
- * address = 4056 + ascii(variable) - 97
+ * address = 4096 + ascii(variable) - 97
  */
 int getVariableAddress(char variable){
 
 	int asciiValue = variable;
-	return 4056 + asciiValue - 97;
+	return 4096 + asciiValue - 97;
+}
+
+int evalExprTree(FILE* filePtr, struct ASTNode* root){
+
+ 	// if its a leaf node - NUM or Variable
+	if (root->nodetype == 1 || root->nodetype == 2) {
+
+		int reg1 = getReg();
+		int val;		
+
+		// NUM Node
+		if (root->nodetype == 1)	
+			fprintf(filePtr, "MOV R%d, %d\n", reg1, root->val);
+
+		if (root->nodetype == 2)
+			fprintf(filePtr, "MOV R%d, [%d]\n", reg1, getVariableAddress(*root->varname));
+
+		return reg1;	
+	
+	}
+
+	// For internal nodes in the Expression Tree
+
+	int leftRegNo, rightRegNo;
+
+	leftRegNo = evalExprTree(filePtr, root->left);
+	rightRegNo = evalExprTree(filePtr, root->right);
+
+	freeReg();
+
+	char op = *root->varname; 
+
+	if (op == '+')
+		fprintf(filePtr, "ADD R%d, R%d\n", leftRegNo, rightRegNo);
+	
+	if (op == '-')
+		fprintf(filePtr, "SUB R%d, R%d\n", leftRegNo, rightRegNo);
+
+	if (op == '*')
+		fprintf(filePtr, "MUL R%d, R%d\n", leftRegNo, rightRegNo);
+
+	if (op == '/')
+		fprintf(filePtr, "DIV R%d, R%d\n", leftRegNo, rightRegNo);
+	
+	return leftRegNo;
 }

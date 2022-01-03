@@ -6,6 +6,8 @@
 	#include "codegen.c"
 	#include "../Functions/xsm_library.h"
 	#include "../Functions/xsm_library.c"
+	#include "../Functions/xsm_syscalls.c"
+	#include "../Functions/xsm_syscalls.h"
 
 	int yylex(void);
 	void yyerror(char const *s);
@@ -29,9 +31,11 @@ start 	: BEGIN_ Slist END	{
 
 					FILE* filePtr = fopen("target.xsm", "w");
 						
-					writeXexeHeader(filePtr);			
+					writeXexeHeader(filePtr);		
+					initVariables(filePtr);	
 					codeGen($2, filePtr);
-	
+					INT_10(filePtr);
+
 					printf("\nFinished\n");
 					exit(1);
 				}

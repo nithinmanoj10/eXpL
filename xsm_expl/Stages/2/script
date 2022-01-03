@@ -5,5 +5,7 @@ lex ast.l
 gcc y.tab.c lex.yy.c -g -o ast
 clear
 
+./ast
+
 cd ../..
-./xsm -l library.lib -e Stages/2/target.xsm --debug
+./xsm -l library.lib -e Stages/2/target.xsm

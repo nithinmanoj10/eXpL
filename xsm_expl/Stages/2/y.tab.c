@@ -75,11 +75,13 @@
 	#include "codegen.c"
 	#include "../Functions/xsm_library.h"
 	#include "../Functions/xsm_library.c"
+	#include "../Functions/xsm_syscalls.c"
+	#include "../Functions/xsm_syscalls.h"
 
 	int yylex(void);
 	void yyerror(char const *s);
 
-#line 83 "y.tab.c"
+#line 85 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -157,11 +159,11 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 14 "ast.y"
+#line 16 "ast.y"
 
 	struct ASTNode* node;
 
-#line 165 "y.tab.c"
+#line 167 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -537,8 +539,8 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    28,    28,    39,    42,    43,    46,    46,    46,    49,
-      52,    55,    59,    60,    61,    62,    63,    64,    65
+       0,    30,    30,    43,    46,    47,    50,    50,    50,    53,
+      56,    59,    63,    64,    65,    66,    67,    68,    69
 };
 #endif
 
@@ -1343,106 +1345,108 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 28 "ast.y"
+#line 30 "ast.y"
                                 {
 
 					FILE* filePtr = fopen("target.xsm", "w");
 						
-					writeXexeHeader(filePtr);			
+					writeXexeHeader(filePtr);		
+					initVariables(filePtr);	
 					codeGen((yyvsp[-1].node), filePtr);
-	
+					INT_10(filePtr);
+
 					printf("\nFinished\n");
 					exit(1);
 				}
-#line 1358 "y.tab.c"
+#line 1362 "y.tab.c"
     break;
 
   case 3:
-#line 39 "ast.y"
+#line 43 "ast.y"
                                 {	exit(1);}
-#line 1364 "y.tab.c"
+#line 1368 "y.tab.c"
     break;
 
   case 4:
-#line 42 "ast.y"
+#line 46 "ast.y"
                         {(yyval.node) = createASTNode(0, 6, "C", (yyvsp[-1].node), (yyvsp[0].node));}
-#line 1370 "y.tab.c"
+#line 1374 "y.tab.c"
     break;
 
   case 5:
-#line 43 "ast.y"
+#line 47 "ast.y"
                         {}
-#line 1376 "y.tab.c"
+#line 1380 "y.tab.c"
     break;
 
   case 8:
-#line 46 "ast.y"
+#line 50 "ast.y"
                                                 {}
-#line 1382 "y.tab.c"
+#line 1386 "y.tab.c"
     break;
 
   case 9:
-#line 49 "ast.y"
+#line 53 "ast.y"
                                         {(yyval.node) = createASTNode(0, 4, "R", (yyvsp[-1].node), NULL);}
-#line 1388 "y.tab.c"
+#line 1392 "y.tab.c"
     break;
 
   case 10:
-#line 52 "ast.y"
+#line 56 "ast.y"
                                         {(yyval.node) = createASTNode(0, 5, "W", (yyvsp[0].node), NULL);}
-#line 1394 "y.tab.c"
+#line 1398 "y.tab.c"
     break;
 
   case 11:
-#line 55 "ast.y"
+#line 59 "ast.y"
                                         {(yyval.node) = createASTNode(0, 3, "=", (yyvsp[-2].node), (yyvsp[0].node));}
-#line 1400 "y.tab.c"
+#line 1404 "y.tab.c"
     break;
 
   case 12:
-#line 59 "ast.y"
+#line 63 "ast.y"
                                 {(yyval.node) = createASTNode(0, 3, "+", (yyvsp[-2].node), (yyvsp[0].node));}
-#line 1406 "y.tab.c"
+#line 1410 "y.tab.c"
     break;
 
   case 13:
-#line 60 "ast.y"
+#line 64 "ast.y"
                                 {(yyval.node) = createASTNode(0, 3, "-", (yyvsp[-2].node), (yyvsp[0].node));}
-#line 1412 "y.tab.c"
+#line 1416 "y.tab.c"
     break;
 
   case 14:
-#line 61 "ast.y"
+#line 65 "ast.y"
                                 {(yyval.node) = createASTNode(0, 3, "*", (yyvsp[-2].node), (yyvsp[0].node));}
-#line 1418 "y.tab.c"
+#line 1422 "y.tab.c"
     break;
 
   case 15:
-#line 62 "ast.y"
+#line 66 "ast.y"
                                 {(yyval.node) = createASTNode(0, 3, "/", (yyvsp[-2].node), (yyvsp[0].node));}
-#line 1424 "y.tab.c"
+#line 1428 "y.tab.c"
     break;
 
   case 16:
-#line 63 "ast.y"
+#line 67 "ast.y"
                                 {(yyval.node) = (yyvsp[-1].node);}
-#line 1430 "y.tab.c"
+#line 1434 "y.tab.c"
     break;
 
   case 17:
-#line 64 "ast.y"
+#line 68 "ast.y"
                                 {(yyval.node) = (yyvsp[0].node);}
-#line 1436 "y.tab.c"
+#line 1440 "y.tab.c"
     break;
 
   case 18:
-#line 65 "ast.y"
+#line 69 "ast.y"
                                 {(yyval.node) = (yyvsp[0].node);}
-#line 1442 "y.tab.c"
+#line 1446 "y.tab.c"
     break;
 
 
-#line 1446 "y.tab.c"
+#line 1450 "y.tab.c"
 
       default: break;
     }
@@ -1674,7 +1678,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 68 "ast.y"
+#line 72 "ast.y"
 
 
 void yyerror(char const *s){
