@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "reg.h"
 
 #define KNRM  "\x1B[0m"

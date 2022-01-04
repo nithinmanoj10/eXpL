@@ -1,0 +1,11 @@
+#!/bin/zsh
+
+clear
+
+lex ast.l
+yacc -d ast.y
+gcc lex.yy.c y.tab.c ast.c ../Functions/reg.c -g -o ast
+
+cat -n $1
+
+./ast $1 < $1

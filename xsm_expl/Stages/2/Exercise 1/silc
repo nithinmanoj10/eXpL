@@ -1,0 +1,11 @@
+#!/bin/zsh
+clear
+yacc -d ast.y
+lex ast.l
+gcc y.tab.c lex.yy.c evalTree.c -g -o ast
+clear
+
+echo "⏳ Evaluating $1:\n"
+cat -n $1
+
+./ast $1 < $1
