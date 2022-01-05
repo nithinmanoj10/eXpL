@@ -571,9 +571,9 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    33,    33,    48,    54,    55,    58,    58,    58,    58,
-      58,    61,    64,    67,    70,    75,    78,    81,    82,    83,
-      84,    85,    86,    87,    88,    89,    90,    91,    92,    93
+       0,    33,    33,    46,    52,    53,    56,    56,    56,    56,
+      56,    59,    62,    65,    68,    73,    76,    79,    80,    81,
+      82,    83,    84,    85,    86,    87,    88,    89,    90,    91
 };
 #endif
 
@@ -1422,8 +1422,6 @@ yyreduce:
 
 							FILE* filePtr = fopen("round1.xsm", "w");
 
-							// printAST($3);
-
 							writeXexeHeader(filePtr);
 							initVariables(filePtr);
 							codeGen((yyvsp[-2].node), filePtr);							
@@ -1432,155 +1430,155 @@ yyreduce:
 							printf("\n💥 Finished\n");
 	
 				}
-#line 1436 "y.tab.c"
+#line 1434 "y.tab.c"
     break;
 
   case 3:
-#line 48 "ast.y"
+#line 46 "ast.y"
                                                 {	
 							printf("\n⛔ No Code Provided\n");
 							exit(1);
 						}
-#line 1445 "y.tab.c"
+#line 1443 "y.tab.c"
     break;
 
   case 4:
-#line 54 "ast.y"
+#line 52 "ast.y"
                                 {(yyval.node) = createASTNode(0, 1, 6, "C", (yyvsp[-2].node), NULL, (yyvsp[-1].node));}
-#line 1451 "y.tab.c"
+#line 1449 "y.tab.c"
     break;
 
   case 5:
-#line 55 "ast.y"
+#line 53 "ast.y"
                                 {}
-#line 1457 "y.tab.c"
+#line 1455 "y.tab.c"
     break;
 
   case 10:
-#line 58 "ast.y"
+#line 56 "ast.y"
                                                                         {}
-#line 1463 "y.tab.c"
+#line 1461 "y.tab.c"
     break;
 
   case 11:
-#line 61 "ast.y"
+#line 59 "ast.y"
                                         {(yyval.node) = createASTNode(0, 1, 4, "R", (yyvsp[0].node), NULL, NULL); ++lineCount;}
-#line 1469 "y.tab.c"
+#line 1467 "y.tab.c"
     break;
 
   case 12:
-#line 64 "ast.y"
+#line 62 "ast.y"
                                         {(yyval.node) = createASTNode(0, 1, 5, "W", (yyvsp[0].node), NULL, NULL); ++lineCount;}
-#line 1475 "y.tab.c"
+#line 1473 "y.tab.c"
     break;
 
   case 13:
-#line 67 "ast.y"
+#line 65 "ast.y"
                                         {(yyval.node) = createASTNode(0, 1, 3, "=", (yyvsp[-2].node), NULL, (yyvsp[0].node)); ++lineCount;}
-#line 1481 "y.tab.c"
+#line 1479 "y.tab.c"
     break;
 
   case 14:
-#line 71 "ast.y"
+#line 69 "ast.y"
         {
 		(yyval.node) = createASTNode(0, 2, 7, "I", (yyvsp[-7].node), (yyvsp[-4].node), (yyvsp[-1].node));  
 		++lineCount;	
 	}
-#line 1490 "y.tab.c"
+#line 1488 "y.tab.c"
     break;
 
   case 15:
-#line 75 "ast.y"
+#line 73 "ast.y"
                                          {(yyval.node) = createASTNode(0, 2, 7, "I", (yyvsp[-4].node), (yyvsp[-1].node), NULL); ++lineCount;}
-#line 1496 "y.tab.c"
+#line 1494 "y.tab.c"
     break;
 
   case 16:
-#line 78 "ast.y"
+#line 76 "ast.y"
                                                {(yyval.node) = createASTNode(0, 2, 7, "W", (yyvsp[-4].node), NULL, (yyvsp[-1].node)); ++lineCount;}
-#line 1502 "y.tab.c"
+#line 1500 "y.tab.c"
     break;
 
   case 17:
-#line 81 "ast.y"
+#line 79 "ast.y"
                                 {(yyval.node) = createASTNode(0, 1, 3, "+", (yyvsp[-2].node), NULL, (yyvsp[0].node));}
-#line 1508 "y.tab.c"
+#line 1506 "y.tab.c"
     break;
 
   case 18:
-#line 82 "ast.y"
+#line 80 "ast.y"
                                 {(yyval.node) = createASTNode(0, 1, 3, "-", (yyvsp[-2].node), NULL, (yyvsp[0].node));}
-#line 1514 "y.tab.c"
+#line 1512 "y.tab.c"
     break;
 
   case 19:
-#line 83 "ast.y"
+#line 81 "ast.y"
                                 {(yyval.node) = createASTNode(0, 1, 3, "*", (yyvsp[-2].node), NULL, (yyvsp[0].node));}
-#line 1520 "y.tab.c"
+#line 1518 "y.tab.c"
     break;
 
   case 20:
-#line 84 "ast.y"
+#line 82 "ast.y"
                                 {(yyval.node) = createASTNode(0, 1, 3, "/", (yyvsp[-2].node), NULL, (yyvsp[0].node));}
-#line 1526 "y.tab.c"
+#line 1524 "y.tab.c"
     break;
 
   case 21:
-#line 85 "ast.y"
+#line 83 "ast.y"
                                 {(yyval.node) = createASTNode(0, 2, 3, "==", (yyvsp[-2].node), NULL, (yyvsp[0].node));}
-#line 1532 "y.tab.c"
+#line 1530 "y.tab.c"
     break;
 
   case 22:
-#line 86 "ast.y"
+#line 84 "ast.y"
                                 {(yyval.node) = createASTNode(0, 2, 3, "!=", (yyvsp[-2].node), NULL, (yyvsp[0].node));}
-#line 1538 "y.tab.c"
+#line 1536 "y.tab.c"
     break;
 
   case 23:
-#line 87 "ast.y"
+#line 85 "ast.y"
                                 {(yyval.node) = createASTNode(0, 2, 3, "<", (yyvsp[-2].node), NULL, (yyvsp[0].node));}
-#line 1544 "y.tab.c"
+#line 1542 "y.tab.c"
     break;
 
   case 24:
-#line 88 "ast.y"
+#line 86 "ast.y"
                                 {(yyval.node) = createASTNode(0, 2, 3, "<=", (yyvsp[-2].node), NULL, (yyvsp[0].node));}
-#line 1550 "y.tab.c"
+#line 1548 "y.tab.c"
     break;
 
   case 25:
-#line 89 "ast.y"
+#line 87 "ast.y"
                                 {(yyval.node) = createASTNode(0, 2, 3, ">", (yyvsp[-2].node), NULL, (yyvsp[0].node));}
-#line 1556 "y.tab.c"
+#line 1554 "y.tab.c"
     break;
 
   case 26:
-#line 90 "ast.y"
+#line 88 "ast.y"
                                 {(yyval.node) = createASTNode(0, 2, 3, ">=", (yyvsp[-2].node), NULL, (yyvsp[0].node));}
-#line 1562 "y.tab.c"
+#line 1560 "y.tab.c"
     break;
 
   case 27:
-#line 91 "ast.y"
+#line 89 "ast.y"
                                 {(yyval.node) = (yyvsp[-1].node);}
-#line 1568 "y.tab.c"
+#line 1566 "y.tab.c"
     break;
 
   case 28:
-#line 92 "ast.y"
+#line 90 "ast.y"
                                 {(yyval.node) = (yyvsp[0].node);}
-#line 1574 "y.tab.c"
+#line 1572 "y.tab.c"
     break;
 
   case 29:
-#line 93 "ast.y"
+#line 91 "ast.y"
                                 {(yyval.node) = (yyvsp[0].node);}
-#line 1580 "y.tab.c"
+#line 1578 "y.tab.c"
     break;
 
 
-#line 1584 "y.tab.c"
+#line 1582 "y.tab.c"
 
       default: break;
     }
@@ -1812,7 +1810,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 96 "ast.y"
+#line 94 "ast.y"
 
 
 void yyerror(char const *s){

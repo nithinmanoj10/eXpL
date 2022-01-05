@@ -18,28 +18,28 @@
 %%
 
 [L][0-9]+[\n]		{
+				++lineNumber;
 				if(lexPassRound == 2){
 					int labelNum = getLabelNumber(yytext);
 					int labelAddress = getLabelAddress(labelNum);
 					fprintf(filePtrTarget, "%d\n", labelAddress);
 				}
-				else{
-					fprintf(filePtrRound2, "%s\n", yytext); 
+				else{	
+					fprintf(filePtrRound2, "%s", yytext); 
 				}
 
 			}
 
-[L][0-9]+[:][\n]	{	
+[L][0-9]+[:][\n]	{
+				++lineNumber;	
 				if(lexPassRound == 1){
-					++lineNumber;
-					
+	
 					int labelNum = getLabelNumber(yytext);
 					int labelAddress = calcLabelAddress(lineNumber);
 					struct labelAddressNode* newNode = createLabelAddressNode(labelNum, labelAddress);
 
 					insertLabelAddressNode(newNode);
-
-					--lineNumber;
+					lineNumber -= 1;
 				}
 				else{
 					fprintf(filePtrTarget, "%s", yytext);
@@ -52,11 +52,20 @@
 
 				if(lexPassRound == 2)
 					fprintf(filePtrTarget, "\n");
+			} 
+
+.			{ 	
+				if(lexPassRound == 1)
+					fprintf(filePtrRound2, "%s", yytext);
+
+				if(lexPassRound == 2)
+					fprintf(filePtrTarget, "%s", yytext);
 			}
 
 %%
 
 int yywrap(){
+
 	if (lexPassRound == 1){
 		lexPassRound = 2; 
 

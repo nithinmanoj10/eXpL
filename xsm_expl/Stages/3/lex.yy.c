@@ -351,8 +351,8 @@ static void yynoreturn yy_fatal_error ( const char* msg  );
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
-#define YY_NUM_RULES 4
-#define YY_END_OF_BUFFER 5
+#define YY_NUM_RULES 5
+#define YY_END_OF_BUFFER 6
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -362,7 +362,7 @@ struct yy_trans_info
 	};
 static const flex_int16_t yy_accept[12] =
     {   0,
-        0,    0,    5,    4,    3,    4,    0,    1,    0,    2,
+        0,    0,    6,    4,    3,    4,    0,    1,    0,    2,
         0
     } ;
 
@@ -741,13 +741,14 @@ case 1:
 YY_RULE_SETUP
 #line 20 "labelTranslator.l"
 {
+				++lineNumber;
 				if(lexPassRound == 2){
 					int labelNum = getLabelNumber(yytext);
 					int labelAddress = getLabelAddress(labelNum);
 					fprintf(filePtrTarget, "%d\n", labelAddress);
 				}
-				else{
-					fprintf(filePtrRound2, "%s\n", yytext); 
+				else{	
+					fprintf(filePtrRound2, "%s", yytext); 
 				}
 
 			}
@@ -755,18 +756,17 @@ YY_RULE_SETUP
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 32 "labelTranslator.l"
-{	
+#line 33 "labelTranslator.l"
+{
+				++lineNumber;	
 				if(lexPassRound == 1){
-					++lineNumber;
-					
+	
 					int labelNum = getLabelNumber(yytext);
 					int labelAddress = calcLabelAddress(lineNumber);
 					struct labelAddressNode* newNode = createLabelAddressNode(labelNum, labelAddress);
 
 					insertLabelAddressNode(newNode);
-
-					--lineNumber;
+					lineNumber -= 1;
 				}
 				else{
 					fprintf(filePtrTarget, "%s", yytext);
@@ -784,14 +784,25 @@ YY_RULE_SETUP
 
 				if(lexPassRound == 2)
 					fprintf(filePtrTarget, "\n");
-			}
+			} 
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
 #line 57 "labelTranslator.l"
+{ 	
+				if(lexPassRound == 1)
+					fprintf(filePtrRound2, "%s", yytext);
+
+				if(lexPassRound == 2)
+					fprintf(filePtrTarget, "%s", yytext);
+			}
+	YY_BREAK
+case 5:
+YY_RULE_SETUP
+#line 65 "labelTranslator.l"
 ECHO;
 	YY_BREAK
-#line 795 "lex.yy.c"
+#line 806 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1796,10 +1807,11 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 57 "labelTranslator.l"
+#line 65 "labelTranslator.l"
 
 
 int yywrap(){
+
 	if (lexPassRound == 1){
 		lexPassRound = 2; 
 

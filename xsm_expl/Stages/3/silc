@@ -12,9 +12,13 @@ cat -n $1
 
 if [ $? -eq 0 ]
 then
-	cat target.xsm > $1.xsm
+	# cat target.xsm > round1.xsm
 	echo "\n🚀 Running $1.xsm\n"
 
+	lex labelTranslator.l
+  	gcc lex.yy.c ../Functions/label.c  -g -o labelTranslator
+  	./labelTranslator
+
 	cd ../..
-	./xsm -l library.lib -e Stages/3/$1.xsm
+	./xsm -l library.lib -e Stages/3/target.xsm
 fi

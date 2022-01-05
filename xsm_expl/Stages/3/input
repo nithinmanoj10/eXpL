@@ -7,4 +7,11 @@ begin:
 		a = a + 1;
 	endwhile;
 
+	read(b);
+
+	a = 1;
+	while (a <= b) do:
+		write(a);
+		a = a + 2;
+	endwhile;
 end;

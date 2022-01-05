@@ -34,8 +34,6 @@ start 	: BEGIN_ COLON Slist END SEMICOLON	{
 
 							FILE* filePtr = fopen("round1.xsm", "w");
 
-							// printAST($3);
-
 							writeXexeHeader(filePtr);
 							initVariables(filePtr);
 							codeGen($3, filePtr);							
