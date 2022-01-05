@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "xsm_syscalls.h"
+#include "reg.h"
 
 int INT_6(FILE* filePtr, int arg1, int arg2){
 

@@ -1,3 +1,7 @@
+#ifndef REG_H
+
+#define REG_H
+
 /*
  * Keeps count of number of registers currently in use by the machine.
  */
@@ -21,3 +25,5 @@ int getReg();
  *		-1 if all registers are already freed.	
  */
 int freeReg();
+
+#endif

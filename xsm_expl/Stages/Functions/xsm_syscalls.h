@@ -1,3 +1,7 @@
+#ifndef XSMSYSCALLS_H
+
+#define XSMSYSCALLS_H
+
 /**
  * Low Level System Call to gracefully Exit after the
  * execution of a program
@@ -41,3 +45,5 @@ int INT_7(FILE* filePtr, int arg1, char* arg2);
  * @return	1:		Success
  */
 int INT_6(FILE* filePtr, int arg1, int arg2);
+
+#endif

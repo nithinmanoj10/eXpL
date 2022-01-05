@@ -41,7 +41,7 @@
 
 "=="	{return EQ;}		/* Conditional Operators */
 "!="	{return NEQ;}
-"<"	{printf("lesss than\n"); return LT;}
+"<"	{return LT;}
 ">"	{return GT;}
 "<="	{return LTE;}
 ">="	{return GTE;}
