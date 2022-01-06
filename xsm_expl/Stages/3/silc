@@ -2,7 +2,7 @@
 clear
 yacc -d ast.y
 lex ast.l
-gcc y.tab.c lex.yy.c ast.c codegen.c ../Functions/reg.c ../Functions/label.c ../Functions/xsm_syscalls.c ../Functions/xsm_library.c -g -o ast
+gcc y.tab.c lex.yy.c ast.c codegen.c loopStack.c  ../Functions/reg.c ../Functions/label.c ../Functions/xsm_syscalls.c ../Functions/xsm_library.c -g -o ast
  # clear
 
 echo "⏳ Compiling $1:\n"

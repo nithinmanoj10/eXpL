@@ -69,12 +69,14 @@ extern int yydebug;
     WHILE = 275,
     DO = 276,
     ENDWHILE = 277,
-    EQ = 278,
-    NEQ = 279,
-    LT = 280,
-    LTE = 281,
-    GT = 282,
-    GTE = 283
+    BREAK = 278,
+    CONTINUE = 279,
+    EQ = 280,
+    NEQ = 281,
+    LT = 282,
+    LTE = 283,
+    GT = 284,
+    GTE = 285
   };
 #endif
 /* Tokens.  */
@@ -98,22 +100,24 @@ extern int yydebug;
 #define WHILE 275
 #define DO 276
 #define ENDWHILE 277
-#define EQ 278
-#define NEQ 279
-#define LT 280
-#define LTE 281
-#define GT 282
-#define GTE 283
+#define BREAK 278
+#define CONTINUE 279
+#define EQ 280
+#define NEQ 281
+#define LT 282
+#define LTE 283
+#define GT 284
+#define GTE 285
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 16 "ast.y"
+#line 17 "ast.y"
 
 	struct ASTNode* node;
 
-#line 117 "y.tab.h"
+#line 121 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

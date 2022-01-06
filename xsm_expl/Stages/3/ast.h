@@ -37,6 +37,8 @@ struct ASTNode{
  *				N - NUM
  *				I - IF
  *				W - WHILE
+ *				B - BREAK
+ *				CN - CONTINUE
  *
  *		left, right:	Pointer to the left and right subtrees,
  *				set to NULL for variables and NUM

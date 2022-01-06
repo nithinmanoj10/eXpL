@@ -23,6 +23,8 @@
 "while"		{return WHILE;}
 "do"		{return DO;}
 "endwhile"	{return ENDWHILE;}
+"break"		{return BREAK;}
+"continue"	{return CONTINUE;}
 
 [a-z]	{			/* Variables and Numbers */
 		yylval.node = createASTNode(0, 1, 2, yytext, NULL, NULL, NULL);

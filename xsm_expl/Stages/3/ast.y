@@ -4,6 +4,7 @@
 	#include <string.h>
 	#include "ast.h"
 	#include "codegen.h"
+	#include "loopStack.h"
 	#include "../Functions/xsm_library.h"
 	#include "../Functions/xsm_syscalls.h"
 
@@ -17,10 +18,10 @@
 	struct ASTNode* node;
 }
 
-%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt VARIABLE expr NUM whileStmt
+%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt VARIABLE expr NUM whileStmt breakStmt continueStmt
 
 %token BEGIN_ END READ WRITE VARIABLE NUM PLUS MINUS MUL DIV EQUAL COLON SEMICOLON 
-%token IF THEN ELSE ENDIF WHILE DO ENDWHILE
+%token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE
 
 %left EQUAL
 %left EQ NEQ
@@ -33,11 +34,15 @@
 start 	: BEGIN_ COLON Slist END SEMICOLON	{
 
 							FILE* filePtr = fopen("round1.xsm", "w");
+							
+							printAST($3);
 
 							writeXexeHeader(filePtr);
 							initVariables(filePtr);
 							codeGen($3, filePtr);							
 							INT_10(filePtr);
+
+							// printLS();				
 
 							printf("\n💥 Finished\n");
 	
@@ -53,7 +58,7 @@ Slist	: Slist Stmt SEMICOLON 	{$$ = createASTNode(0, 1, 6, "C", $1, NULL, $2);}
 	| Stmt SEMICOLON	{}				
 	;
 
-Stmt	: inputStmt | outputStmt | assignStmt | ifStmt | whileStmt	{}
+Stmt	: inputStmt | outputStmt | assignStmt | ifStmt | whileStmt | breakStmt | continueStmt		{}
 	;
 
 inputStmt : READ expr	 		{$$ = createASTNode(0, 1, 4, "R", $2, NULL, NULL); ++lineCount;}
@@ -75,6 +80,12 @@ ifStmt	: IF expr THEN COLON Slist ELSE COLON Slist ENDIF
 
 whileStmt : WHILE expr DO COLON Slist ENDWHILE {$$ = createASTNode(0, 2, 7, "W", $2, NULL, $5); ++lineCount;}
 	  ;
+
+breakStmt : BREAK		{ $$ = createASTNode(0, 0, 7, "B", NULL, NULL, NULL);}
+	  ;
+
+continueStmt : CONTINUE		{ $$ = createASTNode(0, 0, 7, "CN", NULL, NULL, NULL);}	 
+	     ; 	
 
 expr	: expr PLUS expr	{$$ = createASTNode(0, 1, 3, "+", $1, NULL, $3);}
 	| expr MINUS expr 	{$$ = createASTNode(0, 1, 3, "-", $1, NULL, $3);}

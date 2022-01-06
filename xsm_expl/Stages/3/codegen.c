@@ -3,6 +3,7 @@
 #include <string.h>
 #include "codegen.h"
 #include "ast.h"
+#include "loopStack.h"
 #include "../Functions/reg.h"
 #include "../Functions/xsm_syscalls.h"
 #include "../Functions/label.h"
@@ -17,17 +18,50 @@ int codeGen(struct ASTNode* root, FILE* filePtr){
 	if (root->left == NULL && root->right == NULL)
 		return 1;
 
+	// for a IF Node
+	if (root->nodetype == 7 && *root->varname == 'I') {
+
+		int labelIfEnd = getLabel();
+		int labelElseEnd = 0;
+
+		codeGenWhile(filePtr, root->left, labelIfEnd);	
+		codeGen(root->middle, filePtr);
+
+		if (root->right != NULL) {
+		
+			labelElseEnd = getLabel();
+			fprintf(filePtr, "JMP L%d\n", labelElseEnd);
+		}
+
+		fprintf(filePtr, "L%d:\n", labelIfEnd);
+
+		if (root->right != NULL) { 
+			codeGen(root->right, filePtr);
+			fprintf(filePtr, "L%d:\n", labelElseEnd);
+		}
+		return 1;
+	}
+
 	// for a WHILE Node
 	if (root->nodetype == 7 && *root->varname == 'W') {
 
 		int labelStart = getLabel();
 		int labelEnd = getLabel();
-		
+
+		struct loopStackNode* labelStartNode = createLSNode(labelStart);
+		struct loopStackNode* labelEndNode = createLSNode(labelEnd);
+	
+		pushLSNode(labelStartNode, labelEndNode);
+		printLS();
+	
 		fprintf(filePtr, "L%d:\n", labelStart);
 		codeGenWhile(filePtr, root->left, labelEnd);
 		codeGen(root->right, filePtr);
 		fprintf(filePtr, "JMP L%d\n", labelStart);
 		fprintf(filePtr, "L%d:\n", labelEnd);				
+		
+		popLSNode();
+		printLS();
 
 		return 1;
 	}
@@ -35,11 +69,16 @@ int codeGen(struct ASTNode* root, FILE* filePtr){
 	codeGen(root->left, filePtr);
 	codeGen(root->right, filePtr);
 
+	char* conditionalOp = malloc(sizeof(char));
+	strcpy(conditionalOp, root->varname);
+	
+
 	// for an "=" OPERATOR Node
-	if (root->nodetype == 3 && *root->varname == '=') {
+	if (root->nodetype == 3 && strcmp(conditionalOp, "=") == 0) {
 
 		int resultRegNo = evalExprTree(filePtr, root->right);
 		fprintf(filePtr, "MOV [%d], R%d\n", getVariableAddress(*root->left->varname), resultRegNo);
+		freeReg();
 
 	}
 
@@ -56,6 +95,7 @@ int codeGen(struct ASTNode* root, FILE* filePtr){
 		fprintf(filePtr, "BRKP\n");	
 		int resultRegNo = evalExprTree(filePtr, root->left);
 		fprintf(filePtr, "MOV [5000], R%d\n", resultRegNo);
+		freeReg();
 		INT_7(filePtr, -2, "null");
 	}
 

@@ -1,17 +1,15 @@
 begin:
-	a = 1;
-	read(b);
 
-	while (a <= b) do:
+	read(a);
+
+	while (a < 10) do:
+
+		if (a == 0) then:
+			continue;
+		endif;
+
 		write(a);
-		a = a + 1;
+
 	endwhile;
 
-	read(b);
-
-	a = 1;
-	while (a <= b) do:
-		write(a);
-		a = a + 2;
-	endwhile;
 end;
