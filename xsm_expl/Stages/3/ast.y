@@ -20,14 +20,14 @@
 
 %type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt VARIABLE expr NUM whileStmt breakStmt continueStmt
 
-%token BEGIN_ END READ WRITE VARIABLE NUM PLUS MINUS MUL DIV EQUAL COLON SEMICOLON 
+%token BEGIN_ END READ WRITE VARIABLE NUM PLUS MINUS MUL DIV MOD EQUAL COLON SEMICOLON 
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE
 
 %left EQUAL
 %left EQ NEQ
 %left LT LTE GT GTE
 %left PLUS MINUS
-%left MUL DIV
+%left MUL DIV MOD
 
 %%
 
@@ -35,7 +35,7 @@ start 	: BEGIN_ COLON Slist END SEMICOLON	{
 
 							FILE* filePtr = fopen("round1.xsm", "w");
 							
-							printAST($3);
+							// printAST($3);
 
 							writeXexeHeader(filePtr);
 							initVariables(filePtr);
@@ -91,6 +91,7 @@ expr	: expr PLUS expr	{$$ = createASTNode(0, 1, 3, "+", $1, NULL, $3);}
 	| expr MINUS expr 	{$$ = createASTNode(0, 1, 3, "-", $1, NULL, $3);}
 	| expr MUL expr 	{$$ = createASTNode(0, 1, 3, "*", $1, NULL, $3);}
 	| expr DIV expr		{$$ = createASTNode(0, 1, 3, "/", $1, NULL, $3);}
+	| expr MOD expr		{$$ = createASTNode(0, 1, 3, "%", $1, NULL, $3);}
 	| expr EQ expr		{$$ = createASTNode(0, 2, 3, "==", $1, NULL, $3);}
 	| expr NEQ expr		{$$ = createASTNode(0, 2, 3, "!=", $1, NULL, $3);}
 	| expr LT expr		{$$ = createASTNode(0, 2, 3, "<", $1, NULL, $3);}

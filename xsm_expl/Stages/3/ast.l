@@ -40,6 +40,7 @@
 "*"	{return MUL;}
 "/"	{return DIV;}
 "="	{return EQUAL;}
+"%"	{return MOD;}
 
 "=="	{return EQ;}		/* Conditional Operators */
 "!="	{return NEQ;}

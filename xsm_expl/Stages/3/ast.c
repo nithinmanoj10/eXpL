@@ -105,6 +105,9 @@ int evalExprTree(FILE* filePtr, struct ASTNode* root){
 	if (op == '/')
 		fprintf(filePtr, "DIV R%d, R%d\n", leftRegNo, rightRegNo);
 	
+	if (op == '%')
+		fprintf(filePtr, "MOD R%d, R%d\n", leftRegNo, rightRegNo);
+
 	return leftRegNo;
 }
 

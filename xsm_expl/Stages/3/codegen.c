@@ -14,8 +14,8 @@ int codeGen(struct ASTNode* root, FILE* filePtr){
 	if(root == NULL)
 		return 1;
 
-	// if its a leaf node
-	if (root->left == NULL && root->right == NULL)
+	// if its a NUM or VARIABLE
+	if (root->nodetype == 1 || root->nodetype == 2)
 		return 1;
 
 	// for a IF Node
@@ -52,7 +52,6 @@ int codeGen(struct ASTNode* root, FILE* filePtr){
 		struct loopStackNode* labelEndNode = createLSNode(labelEnd);
 	
 		pushLSNode(labelStartNode, labelEndNode);
-		printLS();
 	
 		fprintf(filePtr, "L%d:\n", labelStart);
 		codeGenWhile(filePtr, root->left, labelEnd);
@@ -61,8 +60,25 @@ int codeGen(struct ASTNode* root, FILE* filePtr){
 		fprintf(filePtr, "L%d:\n", labelEnd);				
 		
 		popLSNode();
-		printLS();
 
+		return 1;
+	}
+
+	// for a BREAK Node
+	if (root->nodetype == 7 && *root->varname == 'B') {
+
+		if (LSisEmpty() == 0)
+			fprintf(filePtr, "JMP L%d\n", getEndLabel());	
+		
+		return 1;
+	}
+
+	// for a CONTINUE Node
+	if (root->nodetype == 7 && *root->varname == 'C') {
+
+		if (LSisEmpty() == 0)
+			fprintf(filePtr, "JMP L%d\n", getStartLabel());	
+		
 		return 1;
 	}
 	
@@ -127,16 +143,19 @@ int codeGenWhile(FILE* filePtr, struct ASTNode* root, int endLabel){
 	RHS = root->right;
 	strcpy(conditionalOp, root->varname);
 
-	reg1 = getReg();
-	reg2 = getReg();
+//	reg1 = getReg();
+//	reg2 = getReg();
 
-	(LHS->nodetype == 1)
-	?	fprintf(filePtr, "MOV R%d, %d\n", reg1, LHS->val)				// if its a NUM
-	:	fprintf(filePtr, "MOV R%d, [%d]\n", reg1, getVariableAddress(*LHS->varname));  	// if its a VARIABLE
+//	(LHS->nodetype == 1)
+//	?	fprintf(filePtr, "MOV R%d, %d\n", reg1, LHS->val)				// if its a NUM
+//	:	fprintf(filePtr, "MOV R%d, [%d]\n", reg1, getVariableAddress(*LHS->varname));  	// if its a VARIABLE
 
-	(RHS->nodetype == 1)
-	?	fprintf(filePtr, "MOV R%d, %d\n", reg2, RHS->val)				// if its a NUM
-	:	fprintf(filePtr, "MOV R%d, [%d]\n", reg2, getVariableAddress(*RHS->varname));  	// if its a VARIABLE
+//	(RHS->nodetype == 1)
+//	?	fprintf(filePtr, "MOV R%d, %d\n", reg2, RHS->val)				// if its a NUM
+//	:	fprintf(filePtr, "MOV R%d, [%d]\n", reg2, getVariableAddress(*RHS->varname));  	// if its a VARIABLE
+
+	reg1 = evalExprTree(filePtr, LHS);
+	reg2 = evalExprTree(filePtr, RHS);
 
 	if (strcmp(conditionalOp, "==") == 0)
 		fprintf(filePtr, "EQ R%d, R%d\n", reg1, reg2);
