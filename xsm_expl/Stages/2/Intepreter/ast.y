@@ -26,7 +26,7 @@
 
 start 	: BEGIN_ Slist END SEMICOLON	{
 						
-						printf("\n🔰 Starting Intepreter\n\n");
+						printf("\n🔰 Starting Evaluator\n\n");
 					
 						initVariableStorage();
 						codeIntepreter($2);

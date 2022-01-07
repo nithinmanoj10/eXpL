@@ -37,10 +37,15 @@ int initVariables(FILE* filePtr);
  *
  *		root:		Pointer to the WHILE Node
  * 
- *		endLabel:	Label number for the end of the while loop
+ *		label:		Label number to where the execution should continue
+ *				from after evaluating the conditon
+ *
+ *		option:		Number indicating the type of the loop
+ *				1 - While Loop
+ *				2 - Do While Loop
  *
  * @return	1: 		Success
  */
-int codeGenWhile(FILE* filePtr, struct ASTNode* root, int endLabel);
+int codeGenWhile(FILE* filePtr, struct ASTNode* root, int label, int option);
 
 #endif

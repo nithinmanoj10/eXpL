@@ -10,6 +10,8 @@ cat -n $1
 
 ./ast $1 < $1
 
+#echo $?
+
 if [ $? -eq 0 ]
 then
 	# cat target.xsm > round1.xsm

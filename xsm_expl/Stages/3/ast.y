@@ -18,9 +18,9 @@
 	struct ASTNode* node;
 }
 
-%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt VARIABLE expr NUM whileStmt breakStmt continueStmt
+%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt VARIABLE expr NUM whileStmt doWhileStmt breakStmt continueStmt
 
-%token BEGIN_ END READ WRITE VARIABLE NUM PLUS MINUS MUL DIV MOD EQUAL COLON SEMICOLON 
+%token BEGIN_ END READ WRITE VARIABLE NUM PLUS MINUS MUL DIV MOD EQUAL SEMICOLON 
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE
 
 %left EQUAL
@@ -31,15 +31,15 @@
 
 %%
 
-start 	: BEGIN_ COLON Slist END SEMICOLON	{
+start 	: BEGIN_ Slist END SEMICOLON	{
 
 							FILE* filePtr = fopen("round1.xsm", "w");
 							
-							// printAST($3);
+							// printAST($2);
 
 							writeXexeHeader(filePtr);
 							initVariables(filePtr);
-							codeGen($3, filePtr);							
+							codeGen($2, filePtr);							
 							INT_10(filePtr);
 
 							// printLS();				
@@ -48,7 +48,7 @@ start 	: BEGIN_ COLON Slist END SEMICOLON	{
 	
 				}
 
-	| BEGIN_ COLON END SEMICOLON		{	
+	| BEGIN_ END SEMICOLON		{	
 							printf("\n⛔ No Code Provided\n");
 							exit(1);
 						}
@@ -58,7 +58,9 @@ Slist	: Slist Stmt SEMICOLON 	{$$ = createASTNode(0, 1, 6, "C", $1, NULL, $2);}
 	| Stmt SEMICOLON	{}				
 	;
 
-Stmt	: inputStmt | outputStmt | assignStmt | ifStmt | whileStmt | breakStmt | continueStmt		{}
+Stmt	: inputStmt | outputStmt | assignStmt 
+	| ifStmt | whileStmt | doWhileStmt
+        | breakStmt | continueStmt		{}
 	;
 
 inputStmt : READ expr	 		{$$ = createASTNode(0, 1, 4, "R", $2, NULL, NULL); ++lineCount;}
@@ -70,16 +72,19 @@ outputStmt : WRITE expr 		{$$ = createASTNode(0, 1, 5, "W", $2, NULL, NULL); ++l
 assignStmt : VARIABLE EQUAL expr	{$$ = createASTNode(0, 1, 3, "=", $1, NULL, $3); ++lineCount;}
 	   ;
 
-ifStmt	: IF expr THEN COLON Slist ELSE COLON Slist ENDIF
+ifStmt	: IF expr THEN Slist ELSE Slist ENDIF
 	{
-		$$ = createASTNode(0, 2, 7, "I", $2, $5, $8);  
+		$$ = createASTNode(0, 2, 7, "I", $2, $4, $6);  
 		++lineCount;	
 	}
-	| IF expr THEN COLON Slist ENDIF {$$ = createASTNode(0, 2, 7, "I", $2, $5, NULL); ++lineCount;}
+	| IF expr THEN Slist ENDIF {$$ = createASTNode(0, 2, 7, "I", $2, $4, NULL); ++lineCount;}
 	;
 
-whileStmt : WHILE expr DO COLON Slist ENDWHILE {$$ = createASTNode(0, 2, 7, "W", $2, NULL, $5); ++lineCount;}
+whileStmt : WHILE expr DO Slist ENDWHILE {$$ = createASTNode(0, 2, 7, "W", $2, NULL, $4); ++lineCount;}
 	  ;
+
+doWhileStmt : DO Slist WHILE expr ENDWHILE  { $$ = createASTNode(0, 2, 7, "DW", $2, NULL, $4); ++lineCount;}
+ 	    ;			
 
 breakStmt : BREAK		{ $$ = createASTNode(0, 0, 7, "B", NULL, NULL, NULL);}
 	  ;

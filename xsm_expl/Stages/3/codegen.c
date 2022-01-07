@@ -10,6 +10,7 @@
 
 int codeGen(struct ASTNode* root, FILE* filePtr){
 
+
 	// for NULL node
 	if(root == NULL)
 		return 1;
@@ -18,13 +19,16 @@ int codeGen(struct ASTNode* root, FILE* filePtr){
 	if (root->nodetype == 1 || root->nodetype == 2)
 		return 1;
 
+	char* nodeName = malloc(sizeof(char));
+	strcpy(nodeName, root->varname);
+
 	// for a IF Node
 	if (root->nodetype == 7 && *root->varname == 'I') {
 
 		int labelIfEnd = getLabel();
 		int labelElseEnd = 0;
 
-		codeGenWhile(filePtr, root->left, labelIfEnd);	
+		codeGenWhile(filePtr, root->left, labelIfEnd, 1);	
 		codeGen(root->middle, filePtr);
 
 		if (root->right != NULL) {
@@ -54,11 +58,32 @@ int codeGen(struct ASTNode* root, FILE* filePtr){
 		pushLSNode(labelStartNode, labelEndNode);
 	
 		fprintf(filePtr, "L%d:\n", labelStart);
-		codeGenWhile(filePtr, root->left, labelEnd);
+		codeGenWhile(filePtr, root->left, labelEnd, 1);
 		codeGen(root->right, filePtr);
 		fprintf(filePtr, "JMP L%d\n", labelStart);
 		fprintf(filePtr, "L%d:\n", labelEnd);				
 		
+		popLSNode();
+
+		return 1;
+	}
+
+	// for a DO WHILE Node
+	if (root->nodetype == 7 && strcmp(nodeName, "DW") == 0) {
+
+		int labelStart = getLabel();
+		int labelEnd = getLabel();	
+
+		struct loopStackNode* labelStartNode = createLSNode(labelStart);
+		struct loopStackNode* labelEndNode = createLSNode(labelEnd);
+	
+		pushLSNode(labelStartNode, labelEndNode);
+
+		fprintf(filePtr, "L%d:\n", labelStart);
+		codeGen(root->left, filePtr);
+		codeGenWhile(filePtr, root->right, labelStart, 2);
+		fprintf(filePtr, "L%d:\n", labelEnd);				
+
 		popLSNode();
 
 		return 1;
@@ -132,7 +157,7 @@ int initVariables(FILE* filePtr){
 	return 1;
 }
 
-int codeGenWhile(FILE* filePtr, struct ASTNode* root, int endLabel){
+int codeGenWhile(FILE* filePtr, struct ASTNode* root, int label, int option){
 
 	struct ASTNode* LHS;
 	struct ASTNode* RHS;
@@ -176,7 +201,12 @@ int codeGenWhile(FILE* filePtr, struct ASTNode* root, int endLabel){
 		fprintf(filePtr, "GE R%d, R%d\n", reg1, reg2);
 
 
-	fprintf(filePtr, "JZ R%d, L%d\n", reg1, endLabel);
+	if (option == 1)
+		fprintf(filePtr, "JZ R%d, L%d\n", reg1, label);
+
+	if (option == 2)
+		fprintf(filePtr, "JNZ R%d, L%d\n", reg1, label);
+		
 
 	freeReg();
 	freeReg();

@@ -52,7 +52,6 @@
 [()]	{return *yytext;}	/* Others */
 [ \t]	{}
 [\n]	{++line;}
-":"	{return COLON;}
 ";"	{return SEMICOLON;}
 .	{
 		printf("\n❓ Unidentified Token, at line %d\n", line+1);

@@ -1347,7 +1347,7 @@ yyreduce:
 #line 27 "ast.y"
                                         {
 						
-						printf("\n🔰 Starting Intepreter\n\n");
+						printf("\n🔰 Starting Evaluator\n\n");
 					
 						initVariableStorage();
 						codeIntepreter((yyvsp[-2].node));

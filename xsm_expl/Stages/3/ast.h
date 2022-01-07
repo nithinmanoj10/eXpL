@@ -37,6 +37,7 @@ struct ASTNode{
  *				N - NUM
  *				I - IF
  *				W - WHILE
+ *				DW - DO WHILE
  *				B - BREAK
  *				CN - CONTINUE
  *
