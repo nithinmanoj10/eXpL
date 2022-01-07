@@ -1,4 +1,4 @@
-begin:
+begin
 	a = 132;
 	write(a);
 end;

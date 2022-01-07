@@ -2,8 +2,9 @@
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <string.h>
-	#include "ast.c"
+	#include "ast.h"
 	#include "codegen.c"
+	#include "./Intepreter/intepreter.h"
 	#include "../Functions/xsm_library.h"
 	#include "../Functions/xsm_library.c"
 	#include "../Functions/xsm_syscalls.c"
@@ -22,7 +23,7 @@
 
 %type <node> start Slist Stmt inputStmt outputStmt assignStmt VARIABLE expr NUM
 
-%token BEGIN_ END READ WRITE VARIABLE NUM PLUS MINUS MUL DIV EQUAL COLON SEMICOLON
+%token BEGIN_ END READ WRITE VARIABLE NUM PLUS MINUS MUL DIV EQUAL SEMICOLON
 
 %left EQUAL
 %left PLUS MINUS
@@ -30,21 +31,22 @@
 
 %%
 
-start 	: BEGIN_ COLON Slist END SEMICOLON	{
+start 	: BEGIN_ Slist END SEMICOLON	{
+						FILE* filePtr = fopen("target.xsm", "w");
 
-					FILE* filePtr = fopen("target.xsm", "w");
-						
-					writeXexeHeader(filePtr);		
-					initVariables(filePtr);	
-					codeGen($3, filePtr);
-					INT_10(filePtr);
+						initVariableStorage();							
+						writeXexeHeader(filePtr);		
+						initVariables(filePtr);	
+						codeGen($2, filePtr);
+						INT_10(filePtr);
 
-				}
+						fclose(filePtr);
+					}
 
-	| BEGIN_ COLON END SEMICOLON		{	
-							printf("\n⛔ No Code Provided\n");
-							exit(1);
-						}
+	| BEGIN_ END SEMICOLON		{	
+						printf("\n⛔ No Code Provided\n");
+						exit(1);
+					}
 	;
 
 Slist	: Slist Stmt SEMICOLON 	{$$ = createASTNode(0, 6, "C", $1, $2);}
@@ -90,10 +92,7 @@ int main(int argc, char* argv[]){
 		exit(1);
 	}
 
-	printf("\n✅ Successfully Compiled: Target code saved in %s.xsm\n", argv[1]);
+	printf("\n✅ Successfully Compiled: Target code saved in target.xsm\n");
 	
-	char targetFile[50];
-	sprintf(targetFile, "%s.xsm", argv[1]);
-
 	return 0;
 }

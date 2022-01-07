@@ -1,6 +1,6 @@
 // Program 1
 
-begin:
+begin
 	read(a);
 	read(b);
 	d = a + 2*b;

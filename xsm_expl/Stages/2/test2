@@ -1,4 +1,4 @@
-begin:
+begin
 	read(a)
 	write(a+10);
 end;

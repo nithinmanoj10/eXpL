@@ -1,4 +1,4 @@
-begin:
+begin
 	read(a);
 	read(b);
 	c = a * b;

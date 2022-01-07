@@ -1,0 +1,12 @@
+#!/bin/zsh
+clear
+yacc -d ast.y
+lex ast.l
+gcc y.tab.c lex.yy.c ast.c intepreter.c  -g -o ast
+clear
+
+echo "$(tput bold)🔨 Expl Intepreter, please enter your code\n$(tput sgr0)"
+# cat -n $1
+
+./ast
+

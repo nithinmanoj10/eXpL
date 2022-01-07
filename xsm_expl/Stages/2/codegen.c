@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "codegen.h"
+#include "ast.h"
 #include "../Functions/reg.c"
 #include "../Functions/xsm_syscalls.h"
 
@@ -29,7 +30,6 @@ int codeGen(struct ASTNode* root, FILE* filePtr){
 
 	// for a READ Node
 	if (root->nodetype == 4) {
-
 		int varAddr = getVariableAddress(*(root->left->varname));
 		INT_6(filePtr, -1, varAddr);
 

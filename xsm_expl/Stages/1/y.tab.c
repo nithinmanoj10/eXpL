@@ -78,11 +78,12 @@
 	#include "xsm_library.c"
 	#include "xsm_syscalls.h"
 	#include "xsm_syscalls.c"
+	#include "reg.h"
 
 	int yylex(void);
 	void yyerror(char const *s);
 
-#line 86 "y.tab.c"
+#line 87 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -150,11 +151,11 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 17 "exprtree.y"
+#line 18 "exprtree.y"
 
 	struct treeNode* node;
 
-#line 158 "y.tab.c"
+#line 159 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -530,7 +531,7 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    28,    28,    52,    53,    54,    55,    56,    57
+       0,    29,    29,    54,    55,    56,    57,    58,    59
 };
 #endif
 
@@ -1323,7 +1324,7 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 28 "exprtree.y"
+#line 29 "exprtree.y"
                    {
 
 			struct treeNode* root = (yyvsp[-1].node);		
@@ -1333,60 +1334,61 @@ yyreduce:
 			writeXexeHeader(filePtr);
 			resultRegNo = codeGen(root, filePtr);
 
-			// storing the result in memory address 4096
-			fprintf(filePtr, "MOV [4096], R%d\n", resultRegNo);
-			fprintf(filePtr, "MOV R2, [4096]\n");
+			// storing the result in memory address 5000
+			fprintf(filePtr, "MOV [5000], R%d\n", resultRegNo);
+			
+			freeReg();
  
 			// for time being, value to be printed is stored in
-			// register R2
+			// memory address 5000
 			INT_7(filePtr, -2, NULL); 
 			INT_10(filePtr);		
 
 			printf("Answer: %d\n", evaluateTree((yyvsp[-1].node)));
 
-			exit(1);
+			exit(0);
 		   }
-#line 1350 "y.tab.c"
+#line 1352 "y.tab.c"
     break;
 
   case 3:
-#line 52 "exprtree.y"
+#line 54 "exprtree.y"
                                 {(yyval.node) = makeInternalNode('+', (yyvsp[-2].node), (yyvsp[0].node));}
-#line 1356 "y.tab.c"
+#line 1358 "y.tab.c"
     break;
 
   case 4:
-#line 53 "exprtree.y"
+#line 55 "exprtree.y"
                                 {(yyval.node) = makeInternalNode('-', (yyvsp[-2].node), (yyvsp[0].node));}
-#line 1362 "y.tab.c"
+#line 1364 "y.tab.c"
     break;
 
   case 5:
-#line 54 "exprtree.y"
+#line 56 "exprtree.y"
                                 {(yyval.node) = makeInternalNode('*', (yyvsp[-2].node), (yyvsp[0].node));}
-#line 1368 "y.tab.c"
+#line 1370 "y.tab.c"
     break;
 
   case 6:
-#line 55 "exprtree.y"
+#line 57 "exprtree.y"
                                 {(yyval.node) = makeInternalNode('/', (yyvsp[-2].node), (yyvsp[0].node));}
-#line 1374 "y.tab.c"
+#line 1376 "y.tab.c"
     break;
 
   case 7:
-#line 56 "exprtree.y"
+#line 58 "exprtree.y"
                                 {(yyval.node) = (yyvsp[-1].node);}
-#line 1380 "y.tab.c"
+#line 1382 "y.tab.c"
     break;
 
   case 8:
-#line 57 "exprtree.y"
+#line 59 "exprtree.y"
                                 {(yyval.node) = (yyvsp[0].node);}
-#line 1386 "y.tab.c"
+#line 1388 "y.tab.c"
     break;
 
 
-#line 1390 "y.tab.c"
+#line 1392 "y.tab.c"
 
       default: break;
     }
@@ -1618,11 +1620,12 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 60 "exprtree.y"
+#line 62 "exprtree.y"
 
 
 void yyerror(char const *s){
 	printf("\nyerror: %s\n", s);
+	exit(1);
 }
 
 int main(void){

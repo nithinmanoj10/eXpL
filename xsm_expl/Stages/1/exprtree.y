@@ -9,6 +9,7 @@
 	#include "xsm_library.c"
 	#include "xsm_syscalls.h"
 	#include "xsm_syscalls.c"
+	#include "reg.h"
 
 	int yylex(void);
 	void yyerror(char const *s);
@@ -34,18 +35,19 @@ start	: expr END {
 			writeXexeHeader(filePtr);
 			resultRegNo = codeGen(root, filePtr);
 
-			// storing the result in memory address 4096
-			fprintf(filePtr, "MOV [4096], R%d\n", resultRegNo);
-			fprintf(filePtr, "MOV R2, [4096]\n");
+			// storing the result in memory address 5000
+			fprintf(filePtr, "MOV [5000], R%d\n", resultRegNo);
+			
+			freeReg();
  
 			// for time being, value to be printed is stored in
-			// register R2
+			// memory address 5000
 			INT_7(filePtr, -2, NULL); 
 			INT_10(filePtr);		
 
 			printf("Answer: %d\n", evaluateTree($1));
 
-			exit(1);
+			exit(0);
 		   }
 	;
 
@@ -61,6 +63,7 @@ expr	: expr PLUS expr 	{$$ = makeInternalNode('+', $1, $3);}
 
 void yyerror(char const *s){
 	printf("\nyerror: %s\n", s);
+	exit(1);
 }
 
 int main(void){

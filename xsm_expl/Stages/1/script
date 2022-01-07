@@ -6,13 +6,17 @@ gcc y.tab.c lex.yy.c -o exprtree
 clear
 
 echo "📑 Stage 1 : Code generation for Arithmetic Expressions\n"
-echo "Exercise 1"
-echo "Exercise 2"
-echo "Exercise 3"
-echo "\nChoose option (1-3): "
-read optionNum
-echo "\nOption: $optionNum\n"
+
+echo "Enter Arithmetic Expression: "
 
 ./exprtree
-cd ../..
-./xsm -l library.lib -e Stages/1/target.xsm
+
+if [ $? -eq 0 ] 
+then
+
+	echo "\n🚀 Executing target.xsm\n"
+
+	cd ../..
+	./xsm -l library.lib -e Stages/1/target.xsm
+
+fi

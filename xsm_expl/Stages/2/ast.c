@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include "../Functions/reg.h"
 #include "ast.h"
 
