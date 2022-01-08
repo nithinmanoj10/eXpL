@@ -1,26 +1,31 @@
 #!/bin/zsh
 clear
+
+cd ./Frontend
+
 yacc -d ast.y
 lex ast.l
-gcc y.tab.c lex.yy.c ast.c codegen.c loopStack.c  ../Functions/reg.c ../Functions/label.c ../Functions/xsm_syscalls.c ../Functions/xsm_library.c -g -o ast
+gcc y.tab.c lex.yy.c ast.c ../Backend/codegen.c ../Data_Structures/loopStack.c  ../Functions/reg.c ../Functions/label.c ../Functions/xsm_syscalls.c ../Functions/xsm_library.c -g -o ast
  # clear
 
 echo "⏳ Compiling $1:\n"
-cat -n $1
+cat -n ../Input_Files/$1
 
-./ast $1 < $1
+./ast $1 < ../Input_Files/$1
 
 #echo $?
 
 if [ $? -eq 0 ]
 then
-	# cat target.xsm > round1.xsm
-	echo "\n🚀 Running $1.xsm\n"
+
+	cd ../Backend
 
 	lex labelTranslator.l
   	gcc lex.yy.c ../Functions/label.c  -g -o labelTranslator
   	./labelTranslator
 
-	cd ../..
-	./xsm -l library.lib -e Stages/3/target.xsm
+	echo "\n🚀 Running target.xsm\n"
+
+	cd ../../..
+	./xsm -l library.lib -e Stages/3/Target_Files/target.xsm
 fi

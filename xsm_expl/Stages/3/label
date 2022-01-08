@@ -1,4 +1,0 @@
-lex labelTranslator.l
-gcc lex.yy.c ../Functions/label.c  -g -o labelTranslator
-./labelTranslator
-cat -n target.xsm
