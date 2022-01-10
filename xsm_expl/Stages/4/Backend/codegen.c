@@ -10,7 +10,6 @@
 
 int codeGen(struct ASTNode* root, FILE* filePtr){
 
-
 	// for NULL node
 	if(root == NULL)
 		return 1;
@@ -106,7 +105,14 @@ int codeGen(struct ASTNode* root, FILE* filePtr){
 		
 		return 1;
 	}
-	
+
+	// for a BREAKPOINT Node
+	if (root->nodetype == 8 && strcmp(nodeName, "BR") == 0) {
+
+		fprintf(filePtr, "BRKP\n");
+		return 1;
+	}
+
 	codeGen(root->left, filePtr);
 	codeGen(root->right, filePtr);
 
@@ -118,7 +124,7 @@ int codeGen(struct ASTNode* root, FILE* filePtr){
 	if (root->nodetype == 3 && strcmp(conditionalOp, "=") == 0) {
 
 		int resultRegNo = evalExprTree(filePtr, root->right);
-		fprintf(filePtr, "MOV [%d], R%d\n", getVariableAddress(*root->left->varname), resultRegNo);
+		fprintf(filePtr, "MOV [%d], R%d\n", getVariableAddress(root->left), resultRegNo);
 		freeReg();
 
 	}
@@ -126,14 +132,13 @@ int codeGen(struct ASTNode* root, FILE* filePtr){
 	// for a READ Node
 	if (root->nodetype == 4) {
 
-		int varAddr = getVariableAddress(*(root->left->varname));
+		int varAddr = getVariableAddress(root->left);
 		INT_6(filePtr, -1, varAddr);
 	}
 
  	// for a WRITE Node
 	if (root->nodetype == 5) {
 
-		fprintf(filePtr, "BRKP\n");	
 		int resultRegNo = evalExprTree(filePtr, root->left);
 		INT_7(filePtr, -2, resultRegNo);
 		freeReg();
@@ -166,17 +171,6 @@ int codeGenWhile(FILE* filePtr, struct ASTNode* root, int label, int option){
 	LHS = root->left;
 	RHS = root->right;
 	strcpy(conditionalOp, root->varname);
-
-//	reg1 = getReg();
-//	reg2 = getReg();
-
-//	(LHS->nodetype == 1)
-//	?	fprintf(filePtr, "MOV R%d, %d\n", reg1, LHS->val)				// if its a NUM
-//	:	fprintf(filePtr, "MOV R%d, [%d]\n", reg1, getVariableAddress(*LHS->varname));  	// if its a VARIABLE
-
-//	(RHS->nodetype == 1)
-//	?	fprintf(filePtr, "MOV R%d, %d\n", reg2, RHS->val)				// if its a NUM
-//	:	fprintf(filePtr, "MOV R%d, [%d]\n", reg2, getVariableAddress(*RHS->varname));  	// if its a VARIABLE
 
 	reg1 = evalExprTree(filePtr, LHS);
 	reg2 = evalExprTree(filePtr, RHS);

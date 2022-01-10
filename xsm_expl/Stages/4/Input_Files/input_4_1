@@ -1,0 +1,18 @@
+decl
+	int num, sum;
+	str mesg;
+enddecl
+
+begin
+	read(num);
+	sum = 0;
+
+	while (num != 0) do
+		sum = sum + num;
+		read(num);
+		breakpoint;
+	endwhile;
+
+	write(sum);
+	age = 20;
+end;

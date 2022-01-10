@@ -4,12 +4,15 @@
 
 #define AST_H
 
+#include "../Data_Structures/globalSymbolTable.h"
+
 // Structure of an Abstract Syntax Tree Node
 struct ASTNode{
-	int val;			// value of a number for NUM nodes.
-	int type;			// data type of the node
-	char *varname;			// name of a variable or operator  
-	int nodetype;  			// information about non-leaf nodes - read/write/connector
+	int val;			  												// value of a number for NUM nodes.
+	int type;																// data type of the node
+	char *varname;													// name of a variable or operator  
+	int nodetype;  													// information about non-leaf nodes - read/write/connector
+	struct globalSTNode* GSTEntry;			// Pointer to GST Entry - for variables
 	struct ASTNode *left, *middle, *right;	// left, middle and right branches  	
 }anode;
 
@@ -29,6 +32,7 @@ struct ASTNode{
  *				5 - Write
  *				6 - Connector
  *				7 - Control Flow i.e if, else, etc
+ *				8 - Break Point
  *
  *		varname:	Name of the variable and operator node, others are 
  *				R - READ
@@ -40,6 +44,7 @@ struct ASTNode{
  *				DW - DO WHILE
  *				B - BREAK
  *				CN - CONTINUE
+ *				BR - BREAKPOINT
  *
  *		left, right:	Pointer to the left and right subtrees,
  *				set to NULL for variables and NUM
@@ -67,7 +72,7 @@ int printAST(struct ASTNode* root);
  *
  * @return 	[4096-4121]:	The memory address
  */
-int getVariableAddress(char variable);
+int getVariableAddress(struct ASTNode* root);
 
 /**
  * Function to translate an expression tree into XSM instructions.

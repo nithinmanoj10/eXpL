@@ -10,12 +10,13 @@
 
 %%
 
-"begin" 	{return BEGIN_;}	/* Keywords */
-"end" 		{return END;}
-"decl"		{return DECL;}
-"enddecl"	{return ENDDECL;}
-"int"			{return INT;}
-"str"			{return STR;}
+"begin" 			{return BEGIN_;}	/* Keywords */
+"end" 				{return END;}
+"decl"				{return DECL;}
+"enddecl"			{return ENDDECL;}
+"int"					{return INT;}
+"str"					{return STR;}
+"breakpoint"	{return BREAKPOINT;}
 
 "read" 	{return READ;}		/* Functions */
 "write" {return WRITE;}

@@ -3,6 +3,7 @@
 #include <string.h>
 #include "../Functions/reg.h"
 #include "ast.h"
+#include "../Data_Structures/globalSymbolTable.h"
 
 struct ASTNode* createASTNode(int val, int type, int nodetype, char* varname, struct ASTNode* left, struct ASTNode* middle, struct ASTNode* right) {
 
@@ -18,6 +19,16 @@ struct ASTNode* createASTNode(int val, int type, int nodetype, char* varname, st
 	newASTNode->left = left;
 	newASTNode->middle = middle;
 	newASTNode->right = right;
+
+	if (nodetype != 2)
+		newASTNode->GSTEntry = NULL; 	
+	else {
+		newASTNode->GSTEntry = searchGSTNode(varname);
+		if (newASTNode->GSTEntry == NULL){
+			printf("\n❌ Undeclared variable %s used in program\n", varname);
+			exit(1);
+		}
+	}
 
 	return newASTNode;
 }
@@ -37,7 +48,8 @@ int printAST(struct ASTNode* root){
 	printf("nodetype: %d\n", root->nodetype);
 	printf("left: %p\n", root->left);
 	printf("right: %p\n", root->right);
-	
+	printf("GST: %p\n", root->GSTEntry);
+
 	printf("\n");
 	return 1;
 }
@@ -56,10 +68,8 @@ int printAST(struct ASTNode* root){
  *
  * address = 4096 + ascii(variable) - 97
  */
-int getVariableAddress(char variable){
-
-	int asciiValue = variable;
-	return 4096 + asciiValue - 97;
+int getVariableAddress(struct ASTNode* root){
+	return root->GSTEntry->binding;
 }
 
 int evalExprTree(FILE* filePtr, struct ASTNode* root){
@@ -75,7 +85,7 @@ int evalExprTree(FILE* filePtr, struct ASTNode* root){
 			fprintf(filePtr, "MOV R%d, %d\n", reg1, root->val);
 
 		if (root->nodetype == 2)
-			fprintf(filePtr, "MOV R%d, [%d]\n", reg1, getVariableAddress(*root->varname));
+			fprintf(filePtr, "MOV R%d, [%d]\n", reg1, getVariableAddress(root));
 
 		return reg1;	
 	

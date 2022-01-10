@@ -98,6 +98,7 @@ int printGST() {
 		printf("type: %d\n", temp->type);
 		printf("size: %d\n", temp->size);
 		printf("binding: %d\n", temp->binding);
+		printf("GST: %p\n", temp);
 
 		temp = temp->next;
 	}

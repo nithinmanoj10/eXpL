@@ -9,6 +9,7 @@
 	#include "../Data_Structures/globalSymbolTable.h"
 	#include "../Functions/xsm_library.h"
 	#include "../Functions/xsm_syscalls.h"
+	#include "../Functions/stackMemory.h"
 
 	int yylex(void);
 	void yyerror(char const *s);
@@ -22,11 +23,11 @@
 }
 
 /* TODO: Add rest of the nodes */
-%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt VARIABLE expr NUM whileStmt doWhileStmt breakStmt continueStmt
+%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt VARIABLE expr NUM whileStmt doWhileStmt breakStmt continueStmt breakPointStmt
 
 %type <DTNode> Declarations DeclList Decl Type VarList
 
-%token BEGIN_ END READ WRITE VARIABLE NUM PLUS MINUS MUL DIV MOD EQUAL
+%token BEGIN_ END READ WRITE VARIABLE NUM PLUS MINUS MUL DIV MOD EQUAL BREAKPOINT
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE
 %token DECL ENDDECL INT STR 
 %token SEMICOLON COMMA
@@ -42,7 +43,9 @@
 start 	: Declarations BEGIN_ Slist END SEMICOLON	{
 
 							FILE* filePtr = fopen("../Target_Files/round1.xsm", "w");
-							
+							// printAST($3);	
+							struct ASTNode* root = $3;	
+							// printf("\nGSTHead: %p\n", GSTHead);
 							writeXexeHeader(filePtr);
 							initVariables(filePtr);
 							codeGen($3, filePtr);							
@@ -60,7 +63,8 @@ Slist	: Slist Stmt SEMICOLON 	{$$ = createASTNode(0, 1, 6, "C", $1, NULL, $2);}
 
 Stmt	: inputStmt | outputStmt | assignStmt 
 			| ifStmt | whileStmt | doWhileStmt
-      | breakStmt | continueStmt		{}
+      | breakStmt | continueStmt	
+			|	breakPointStmt	{}
 			;
 
 inputStmt : READ expr	 		{$$ = createASTNode(0, 1, 4, "R", $2, NULL, NULL); ++lineCount;}
@@ -92,11 +96,15 @@ breakStmt : BREAK		{ $$ = createASTNode(0, 0, 7, "B", NULL, NULL, NULL);}
 continueStmt : CONTINUE		{ $$ = createASTNode(0, 0, 7, "CN", NULL, NULL, NULL);}	 
 	     				;
 
+breakPointStmt	:	BREAKPOINT { $$ = createASTNode(0, 0, 8, "BR", NULL, NULL, NULL); }
+							 	;
+
 Declarations	:	DECL DeclList ENDDECL	{ 
 						 														struct declarationsTree* root = $2;
 																				printDeclarationsTree($2); 
 																				createGST($2, 0);				
 																				printGST();	
+																				printf("\nLine Count: %d\n", lineCount);
 																			}
 						 	|	DECL ENDDECL	{}
 							;

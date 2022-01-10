@@ -61,27 +61,28 @@ extern int yydebug;
     DIV = 267,
     MOD = 268,
     EQUAL = 269,
-    IF = 270,
-    THEN = 271,
-    ELSE = 272,
-    ENDIF = 273,
-    WHILE = 274,
-    DO = 275,
-    ENDWHILE = 276,
-    BREAK = 277,
-    CONTINUE = 278,
-    DECL = 279,
-    ENDDECL = 280,
-    INT = 281,
-    STR = 282,
-    SEMICOLON = 283,
-    COMMA = 284,
-    EQ = 285,
-    NEQ = 286,
-    LT = 287,
-    LTE = 288,
-    GT = 289,
-    GTE = 290
+    BREAKPOINT = 270,
+    IF = 271,
+    THEN = 272,
+    ELSE = 273,
+    ENDIF = 274,
+    WHILE = 275,
+    DO = 276,
+    ENDWHILE = 277,
+    BREAK = 278,
+    CONTINUE = 279,
+    DECL = 280,
+    ENDDECL = 281,
+    INT = 282,
+    STR = 283,
+    SEMICOLON = 284,
+    COMMA = 285,
+    EQ = 286,
+    NEQ = 287,
+    LT = 288,
+    LTE = 289,
+    GT = 290,
+    GTE = 291
   };
 #endif
 /* Tokens.  */
@@ -97,38 +98,39 @@ extern int yydebug;
 #define DIV 267
 #define MOD 268
 #define EQUAL 269
-#define IF 270
-#define THEN 271
-#define ELSE 272
-#define ENDIF 273
-#define WHILE 274
-#define DO 275
-#define ENDWHILE 276
-#define BREAK 277
-#define CONTINUE 278
-#define DECL 279
-#define ENDDECL 280
-#define INT 281
-#define STR 282
-#define SEMICOLON 283
-#define COMMA 284
-#define EQ 285
-#define NEQ 286
-#define LT 287
-#define LTE 288
-#define GT 289
-#define GTE 290
+#define BREAKPOINT 270
+#define IF 271
+#define THEN 272
+#define ELSE 273
+#define ENDIF 274
+#define WHILE 275
+#define DO 276
+#define ENDWHILE 277
+#define BREAK 278
+#define CONTINUE 279
+#define DECL 280
+#define ENDDECL 281
+#define INT 282
+#define STR 283
+#define SEMICOLON 284
+#define COMMA 285
+#define EQ 286
+#define NEQ 287
+#define LT 288
+#define LTE 289
+#define GT 290
+#define GTE 291
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 19 "ast.y"
+#line 20 "ast.y"
 
 	struct ASTNode* node;
 	struct declarationsTree* DTNode;
 
-#line 132 "y.tab.h"
+#line 134 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
