@@ -6,6 +6,7 @@
 	#include "../Backend/codegen.h"
 	#include "../Data_Structures/loopStack.h"
 	#include "../Data_Structures/declarationsTree.h"
+	#include "../Data_Structures/globalSymbolTable.h"
 	#include "../Functions/xsm_library.h"
 	#include "../Functions/xsm_syscalls.h"
 
@@ -94,6 +95,8 @@ continueStmt : CONTINUE		{ $$ = createASTNode(0, 0, 7, "CN", NULL, NULL, NULL);}
 Declarations	:	DECL DeclList ENDDECL	{ 
 						 														struct declarationsTree* root = $2;
 																				printDeclarationsTree($2); 
+																				createGST($2, 0);				
+																				printGST();	
 																			}
 						 	|	DECL ENDDECL	{}
 							;

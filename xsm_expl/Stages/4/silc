@@ -5,7 +5,7 @@ cd ./Frontend
 
 yacc -d ast.y
 lex ast.l
-gcc y.tab.c lex.yy.c ast.c ../Backend/codegen.c ../Data_Structures/loopStack.c ../Data_Structures/declarationsTree.c  ../Functions/reg.c ../Functions/label.c ../Functions/xsm_syscalls.c ../Functions/xsm_library.c -g -o ast
+gcc y.tab.c lex.yy.c ast.c ../Backend/codegen.c ../Data_Structures/loopStack.c ../Data_Structures/declarationsTree.c ../Data_Structures/globalSymbolTable.c ../Functions/reg.c ../Functions/label.c ../Functions/xsm_syscalls.c ../Functions/xsm_library.c ../Functions/stackMemory.c -g -o ast
  # clear
 
 echo "⏳ Compiling $1:\n"

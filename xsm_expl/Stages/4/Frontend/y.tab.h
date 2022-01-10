@@ -123,7 +123,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 18 "ast.y"
+#line 19 "ast.y"
 
 	struct ASTNode* node;
 	struct declarationsTree* DTNode;
