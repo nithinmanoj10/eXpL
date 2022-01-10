@@ -1,6 +1,6 @@
 decl
-	int num, sum;
-	str mesg;
+	int num, sum, age;
+	str msg;
 enddecl
 
 begin
@@ -12,6 +12,9 @@ begin
 		read(num);
 		breakpoint;
 	endwhile;
+	
+	// msg = "Hello World";
+	msg = 1;
 
 	write(sum);
 	age = 20;

@@ -22,7 +22,8 @@ struct ASTNode{
  * @params	val:		Value of a NUM node, set to 0 otherwise
  *
  *   		type:		1 - int
- *				2 - bool
+ *							2 - bool
+ *							3 - str
  *
  * 		nodetype:	Value identifying the type of node
  *				1 - NUM 
@@ -33,8 +34,9 @@ struct ASTNode{
  *				6 - Connector
  *				7 - Control Flow i.e if, else, etc
  *				8 - Break Point
+ *				9 - STR
  *
- *		varname:	Name of the variable and operator node, others are 
+ *		varname:	Name of the variable, value of string and operator node, others are 
  *				R - READ
  *				W - WRITE
  *				C - Connector

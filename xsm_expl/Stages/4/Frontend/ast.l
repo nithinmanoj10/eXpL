@@ -3,6 +3,7 @@
 	#include <stdlib.h>
 	#include "y.tab.h"
 	#include "ast.h"
+	#include "../Data_Structures/declarationsTree.h"
 
 	int yywrap();
 	int line = 0;
@@ -32,13 +33,27 @@
 "continue"	{return CONTINUE;}
 
 [a-zA-Z][a-zA-Z0-9]*	{			/* Variables and Numbers */
-		yylval.node = createASTNode(0, 1, 2, yytext, NULL, NULL, NULL);
-		return VARIABLE;
+
+	// if declaration of all variables are done and
+	// the given variable is not declared
+	if (getDeclarationStatus() == 1 && searchGSTNode(yytext) == NULL) {
+		printf("\n❌ There are undeclared variables in the program\n");
+		exit(1);
+	}
+
+			yylval.node = createASTNode(0, 1, 2, yytext, NULL, NULL, NULL);
+			return VARIABLE;
 	}
 [0-9]+	{
 		yylval.node = createASTNode(atoi(yytext), 1, 1, "N", NULL, NULL, NULL);
 		return NUM;
 	}
+
+["][a-zA-Z0-9" "]*["] {
+		yylval.node = createASTNode(0, 3, 9, yytext, NULL, NULL, NULL);
+		printf("\nString: %s\n", yytext);
+		return STRING;
+}
 
 "+"	{return PLUS;}		/* Operators */
 "-"	{return MINUS;}

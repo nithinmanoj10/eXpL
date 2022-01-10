@@ -2,28 +2,30 @@
 
 #define DECLTREE_H
 
+/**
+ *	Global variable that tells us if all variables are 
+ *	added to the declaration tree.
+ *
+ *	0 - Declaration of all variables are not done
+ *	1 - Declaration of all variables are done
+ */
+extern int declarationStatus;
+
+/**
+ *	Function to get the current declarationStatus value
+ */
+int getDeclarationStatus();
+
+/**
+ *	Function to set the declarationStatus value to 1
+ */
+int declarationComplete();
+
 /** 
  *	Data Structure to keep track of all the declarations
  *	made in the program.
  */
 
-/**
- *	@struct	declarationsTree
- *
- *	@fields		nodeType:		Type of the tree node
- *												1 - Type Node
- *												2 - VariableNode
- *
- *						varType:		Type of the variable
- *												1 - int
- *												2 - str
- *												0 - none variable node
- *
- *						varName:		Name of the variable
- *
- *						right,
- *						left:				Pointer to right and left subtree
- */  
 struct declarationsTree {
 	int nodeType;											
 	int varType;

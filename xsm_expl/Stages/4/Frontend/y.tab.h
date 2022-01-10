@@ -55,34 +55,35 @@ extern int yydebug;
     WRITE = 261,
     VARIABLE = 262,
     NUM = 263,
-    PLUS = 264,
-    MINUS = 265,
-    MUL = 266,
-    DIV = 267,
-    MOD = 268,
-    EQUAL = 269,
-    BREAKPOINT = 270,
-    IF = 271,
-    THEN = 272,
-    ELSE = 273,
-    ENDIF = 274,
-    WHILE = 275,
-    DO = 276,
-    ENDWHILE = 277,
-    BREAK = 278,
-    CONTINUE = 279,
-    DECL = 280,
-    ENDDECL = 281,
-    INT = 282,
-    STR = 283,
-    SEMICOLON = 284,
-    COMMA = 285,
-    EQ = 286,
-    NEQ = 287,
-    LT = 288,
-    LTE = 289,
-    GT = 290,
-    GTE = 291
+    STRING = 264,
+    PLUS = 265,
+    MINUS = 266,
+    MUL = 267,
+    DIV = 268,
+    MOD = 269,
+    EQUAL = 270,
+    BREAKPOINT = 271,
+    IF = 272,
+    THEN = 273,
+    ELSE = 274,
+    ENDIF = 275,
+    WHILE = 276,
+    DO = 277,
+    ENDWHILE = 278,
+    BREAK = 279,
+    CONTINUE = 280,
+    DECL = 281,
+    ENDDECL = 282,
+    INT = 283,
+    STR = 284,
+    SEMICOLON = 285,
+    COMMA = 286,
+    EQ = 287,
+    NEQ = 288,
+    LT = 289,
+    LTE = 290,
+    GT = 291,
+    GTE = 292
   };
 #endif
 /* Tokens.  */
@@ -92,34 +93,35 @@ extern int yydebug;
 #define WRITE 261
 #define VARIABLE 262
 #define NUM 263
-#define PLUS 264
-#define MINUS 265
-#define MUL 266
-#define DIV 267
-#define MOD 268
-#define EQUAL 269
-#define BREAKPOINT 270
-#define IF 271
-#define THEN 272
-#define ELSE 273
-#define ENDIF 274
-#define WHILE 275
-#define DO 276
-#define ENDWHILE 277
-#define BREAK 278
-#define CONTINUE 279
-#define DECL 280
-#define ENDDECL 281
-#define INT 282
-#define STR 283
-#define SEMICOLON 284
-#define COMMA 285
-#define EQ 286
-#define NEQ 287
-#define LT 288
-#define LTE 289
-#define GT 290
-#define GTE 291
+#define STRING 264
+#define PLUS 265
+#define MINUS 266
+#define MUL 267
+#define DIV 268
+#define MOD 269
+#define EQUAL 270
+#define BREAKPOINT 271
+#define IF 272
+#define THEN 273
+#define ELSE 274
+#define ENDIF 275
+#define WHILE 276
+#define DO 277
+#define ENDWHILE 278
+#define BREAK 279
+#define CONTINUE 280
+#define DECL 281
+#define ENDDECL 282
+#define INT 283
+#define STR 284
+#define SEMICOLON 285
+#define COMMA 286
+#define EQ 287
+#define NEQ 288
+#define LT 289
+#define LTE 290
+#define GT 291
+#define GTE 292
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -130,7 +132,7 @@ union YYSTYPE
 	struct ASTNode* node;
 	struct declarationsTree* DTNode;
 
-#line 134 "y.tab.h"
+#line 136 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

@@ -3,6 +3,17 @@
 #include <string.h>
 #include "declarationsTree.h"
 
+int declarationStatus = 0;
+
+int getDeclarationStatus() {
+	return declarationStatus;
+}
+
+int declarationComplete()	{
+	declarationStatus = 1;
+	return declarationStatus;
+}
+
 struct declarationsTree* createDTNode(int nodeType, int varType, char* varName, struct declarationsTree* left, struct declarationsTree* right) {
 
 	struct declarationsTree* newNode;

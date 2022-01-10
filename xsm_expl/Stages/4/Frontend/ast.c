@@ -24,10 +24,6 @@ struct ASTNode* createASTNode(int val, int type, int nodetype, char* varname, st
 		newASTNode->GSTEntry = NULL; 	
 	else {
 		newASTNode->GSTEntry = searchGSTNode(varname);
-		if (newASTNode->GSTEntry == NULL){
-			printf("\n❌ Undeclared variable %s used in program\n", varname);
-			exit(1);
-		}
 	}
 
 	return newASTNode;
