@@ -70,8 +70,8 @@ int getVariableAddress(struct ASTNode* root){
 
 int evalExprTree(FILE* filePtr, struct ASTNode* root){
 
- 	// if its a leaf node - NUM or Variable
-	if (root->nodetype == 1 || root->nodetype == 2) {
+ 	// if its a leaf node - NUM, Variable or STR
+	if (root->nodetype == 1 || root->nodetype == 2 || root->nodetype == 9) {
 
 		int reg1 = getReg();
 		int val;		
@@ -80,8 +80,13 @@ int evalExprTree(FILE* filePtr, struct ASTNode* root){
 		if (root->nodetype == 1)	
 			fprintf(filePtr, "MOV R%d, %d\n", reg1, root->val);
 
+		// Variable Node
 		if (root->nodetype == 2)
 			fprintf(filePtr, "MOV R%d, [%d]\n", reg1, getVariableAddress(root));
+
+		// STR Node
+		if (root->nodetype == 9)
+			fprintf(filePtr, "MOV R%d, \"%s\"\n", reg1, root->varname);
 
 		return reg1;	
 	

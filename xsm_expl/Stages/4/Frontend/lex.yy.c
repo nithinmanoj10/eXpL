@@ -511,11 +511,13 @@ char *yytext;
 	#include "y.tab.h"
 	#include "ast.h"
 	#include "../Data_Structures/declarationsTree.h"
+	#include "../Functions/stringMan.h"
 
 	int yywrap();
+	char* getString(char* ogString);
 	int line = 0;
-#line 518 "lex.yy.c"
-#line 519 "lex.yy.c"
+#line 520 "lex.yy.c"
+#line 521 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -732,10 +734,10 @@ YY_DECL
 		}
 
 	{
-#line 12 "ast.l"
+#line 14 "ast.l"
 
 
-#line 739 "lex.yy.c"
+#line 741 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -794,97 +796,97 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 14 "ast.l"
+#line 16 "ast.l"
 {return BEGIN_;}	/* Keywords */
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 15 "ast.l"
+#line 17 "ast.l"
 {return END;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 16 "ast.l"
+#line 18 "ast.l"
 {return DECL;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 17 "ast.l"
+#line 19 "ast.l"
 {return ENDDECL;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 18 "ast.l"
+#line 20 "ast.l"
 {return INT;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 19 "ast.l"
+#line 21 "ast.l"
 {return STR;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 20 "ast.l"
+#line 22 "ast.l"
 {return BREAKPOINT;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 22 "ast.l"
+#line 24 "ast.l"
 {return READ;}		/* Functions */
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 23 "ast.l"
+#line 25 "ast.l"
 {return WRITE;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 25 "ast.l"
+#line 27 "ast.l"
 {return IF;}		/* Control Flow */
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 26 "ast.l"
+#line 28 "ast.l"
 {return THEN;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 27 "ast.l"
+#line 29 "ast.l"
 {return ELSE;}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 28 "ast.l"
+#line 30 "ast.l"
 {return ENDIF;}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 29 "ast.l"
+#line 31 "ast.l"
 {return WHILE;}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 30 "ast.l"
+#line 32 "ast.l"
 {return DO;}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 31 "ast.l"
+#line 33 "ast.l"
 {return ENDWHILE;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 32 "ast.l"
+#line 34 "ast.l"
 {return BREAK;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 33 "ast.l"
+#line 35 "ast.l"
 {return CONTINUE;}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 35 "ast.l"
+#line 37 "ast.l"
 {			/* Variables and Numbers */
 
 	// if declaration of all variables are done and
@@ -900,7 +902,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 47 "ast.l"
+#line 49 "ast.l"
 {
 		yylval.node = createASTNode(atoi(yytext), 1, 1, "N", NULL, NULL, NULL);
 		return NUM;
@@ -908,102 +910,103 @@ YY_RULE_SETUP
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 52 "ast.l"
-{
-		yylval.node = createASTNode(0, 3, 9, yytext, NULL, NULL, NULL);
+#line 55 "ast.l"
+{	/* For strings */
+		char* stringConst = removeStringQuotes(yytext);
+		yylval.node = createASTNode(0, 3, 9, stringConst, NULL, NULL, NULL);
 		printf("\nString: %s\n", yytext);
 		return STRING;
 }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 58 "ast.l"
+#line 62 "ast.l"
 {return PLUS;}		/* Operators */
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 59 "ast.l"
+#line 63 "ast.l"
 {return MINUS;}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 60 "ast.l"
+#line 64 "ast.l"
 {return MUL;}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 61 "ast.l"
+#line 65 "ast.l"
 {return DIV;}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 62 "ast.l"
+#line 66 "ast.l"
 {return EQUAL;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 63 "ast.l"
+#line 67 "ast.l"
 {return MOD;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 65 "ast.l"
+#line 69 "ast.l"
 {return EQ;}		/* Conditional Operators */
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 66 "ast.l"
+#line 70 "ast.l"
 {return NEQ;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 67 "ast.l"
+#line 71 "ast.l"
 {return LT;}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 68 "ast.l"
+#line 72 "ast.l"
 {return GT;}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 69 "ast.l"
+#line 73 "ast.l"
 {return LTE;}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 70 "ast.l"
+#line 74 "ast.l"
 {return GTE;}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 72 "ast.l"
+#line 76 "ast.l"
 {return *yytext;}	/* Others */
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 73 "ast.l"
+#line 77 "ast.l"
 {}
 	YY_BREAK
 case 36:
 /* rule 36 can match eol */
 YY_RULE_SETUP
-#line 74 "ast.l"
+#line 78 "ast.l"
 {++line;}
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 75 "ast.l"
+#line 79 "ast.l"
 {return SEMICOLON;}
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 76 "ast.l"
+#line 80 "ast.l"
 {return COMMA;}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 77 "ast.l"
+#line 81 "ast.l"
 {
 		printf("\n❓ Unidentified Token, at line %d\n", line+1);
 		exit(1);
@@ -1011,15 +1014,15 @@ YY_RULE_SETUP
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 82 "ast.l"
+#line 86 "ast.l"
 {}			/* Comments */
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 84 "ast.l"
+#line 88 "ast.l"
 ECHO;
 	YY_BREAK
-#line 1023 "lex.yy.c"
+#line 1026 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2024,10 +2027,27 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 84 "ast.l"
+#line 88 "ast.l"
 
 
 int yywrap(){
 	return 1;
+}
+
+/**
+ * Function that returns the string after removing
+ * the quotes from both the ends
+ */
+char* getString(char* ogString) {
+	char* finalString = malloc(sizeof(char*));
+	char* finalStringPtr = finalString;
+
+	while (*ogString != '"') {
+		*finalString = *ogString;
+		++finalString;
+		++ogString;
+	}
+
+	return finalStringPtr;
 }
 

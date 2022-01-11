@@ -4,8 +4,10 @@
 	#include "y.tab.h"
 	#include "ast.h"
 	#include "../Data_Structures/declarationsTree.h"
+	#include "../Functions/stringMan.h"
 
 	int yywrap();
+	char* getString(char* ogString);
 	int line = 0;
 %}
 
@@ -49,8 +51,10 @@
 		return NUM;
 	}
 
-["][a-zA-Z0-9" "]*["] {
-		yylval.node = createASTNode(0, 3, 9, yytext, NULL, NULL, NULL);
+
+["][a-zA-Z0-9" "]*["] {	/* For strings */
+		char* stringConst = removeStringQuotes(yytext);
+		yylval.node = createASTNode(0, 3, 9, stringConst, NULL, NULL, NULL);
 		printf("\nString: %s\n", yytext);
 		return STRING;
 }
@@ -85,4 +89,21 @@
 
 int yywrap(){
 	return 1;
+}
+
+/**
+ * Function that returns the string after removing
+ * the quotes from both the ends
+ */
+char* getString(char* ogString) {
+	char* finalString = malloc(sizeof(char*));
+	char* finalStringPtr = finalString;
+
+	while (*ogString != '"') {
+		*finalString = *ogString;
+		++finalString;
+		++ogString;
+	}
+
+	return finalStringPtr;
 }

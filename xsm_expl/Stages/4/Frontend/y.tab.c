@@ -1481,7 +1481,7 @@ yyreduce:
                                                         {
 
 							FILE* filePtr = fopen("../Target_Files/round1.xsm", "w");
-							// printAST($3);	
+							printAST((yyvsp[-2].node));	
 							struct ASTNode* root = (yyvsp[-2].node);	
 							// printf("\nGSTHead: %p\n", GSTHead);
 							writeXexeHeader(filePtr);
@@ -1732,7 +1732,7 @@ yyreduce:
 
   case 48:
 #line 145 "ast.y"
-                                                                        {(yyval.node) = (yyvsp[0].node); struct ASTNode* temp = (yyvsp[0].node);}
+                                                                        {(yyval.node) = (yyvsp[0].node);}
 #line 1737 "y.tab.c"
     break;
 

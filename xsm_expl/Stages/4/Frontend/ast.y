@@ -43,7 +43,7 @@
 start 	: Declarations BEGIN_ Slist END SEMICOLON	{
 
 							FILE* filePtr = fopen("../Target_Files/round1.xsm", "w");
-							// printAST($3);	
+							printAST($3);	
 							struct ASTNode* root = $3;	
 							// printf("\nGSTHead: %p\n", GSTHead);
 							writeXexeHeader(filePtr);
@@ -142,7 +142,7 @@ expr	: expr PLUS expr	{$$ = createASTNode(0, 1, 3, "+", $1, NULL, $3);}
 			| '(' expr ')'		{$$ = $2;}
 			| VARIABLE				{$$ = $1;}
 			| NUM							{$$ = $1;}
-			| STRING					{$$ = $1; struct ASTNode* temp = $1;}
+			| STRING					{$$ = $1;}
 			;
 
 %%
