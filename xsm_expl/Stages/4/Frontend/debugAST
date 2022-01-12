@@ -1,2 +1,2 @@
-break ast.l:56
-run input_4_2 < ../Input_Files/input_4_2
+break ast.l:114
+run checking < ../Input_Files/checking

@@ -47,6 +47,9 @@ int createGSTNode(char* name, int type, int size);
  *
  *	@params		name:		Name of the variable
  *
+ *						offset:	For array indexing, set to -1 for
+ *										non-array variables
+ *
  *	@return		node:		Node to be searched, if found
  *						NULL:		If node doesnt exists
  */

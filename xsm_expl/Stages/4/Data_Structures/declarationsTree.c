@@ -14,7 +14,7 @@ int declarationComplete()	{
 	return declarationStatus;
 }
 
-struct declarationsTree* createDTNode(int nodeType, int varType, char* varName, struct declarationsTree* left, struct declarationsTree* right) {
+struct declarationsTree* createDTNode(int nodeType, int varType, char* varName, int varSize, struct declarationsTree* left, struct declarationsTree* right) {
 
 	struct declarationsTree* newNode;
 	newNode = (struct declarationsTree*)malloc(sizeof(struct declarationsTree));
@@ -23,6 +23,7 @@ struct declarationsTree* createDTNode(int nodeType, int varType, char* varName, 
 	newNode->nodeType = nodeType;
 	newNode->varType = varType;
 	strcpy(newNode->varName, varName);
+	newNode->varSize = varSize;
 	newNode->left = left;
 	newNode->right = right;
 
@@ -40,7 +41,7 @@ int printDeclarationsTree(struct declarationsTree* root) {
 			struct declarationsTree* temp = root->left;
 
 			while (temp != NULL) {
-				printf("%s ", temp->varName);
+				printf("%s (%d), ", temp->varName, temp->varSize);
 				temp = temp->left;
 			}
 			printf("\n");

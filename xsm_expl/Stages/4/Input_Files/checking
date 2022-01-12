@@ -1,0 +1,7 @@
+decl
+    str name;
+enddecl
+
+begin
+    write("Hello");
+end;

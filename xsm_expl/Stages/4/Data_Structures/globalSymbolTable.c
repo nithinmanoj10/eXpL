@@ -33,7 +33,7 @@ int createGSTNode(char* name, int type, int size) {
 	newNode->type = type;
 	newNode->size = size;
 	newNode->next = NULL;
-	newNode->binding = getFreeStackMemory();
+	newNode->binding = getFreeStackMemory(size);
 	
 	// if GST is empty
 	if (GSTHead == NULL && GSTTail == NULL) {
@@ -83,7 +83,7 @@ int createGST(struct declarationsTree* root, int varType) {
 	createGST(root->right, varType);		
 
 	if (root->nodeType == 2)
-		createGSTNode(root->varName, varType, 1);
+		createGSTNode(root->varName, varType, root->varSize);
 
 	return 1;
 }

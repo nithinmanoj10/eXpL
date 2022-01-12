@@ -1,10 +1,18 @@
-// Abstract Syntax Tree (AST)
-
 #ifndef AST_H
 
 #define AST_H
 
 #include "../Data_Structures/globalSymbolTable.h"
+
+/**
+ * @brief	Foo function
+ * 		  	hello
+ * 
+ * @param num A number
+ * @param sum The sum
+ * @return int 
+ */
+int foo(int num, int sum);
 
 // Structure of an Abstract Syntax Tree Node
 struct ASTNode{
@@ -12,18 +20,19 @@ struct ASTNode{
 	int type;																// data type of the node
 	char *varname;													// name of a variable or operator  
 	int nodetype;  													// information about non-leaf nodes - read/write/connector
-	struct globalSTNode* GSTEntry;			// Pointer to GST Entry - for variables
+	int arrayOffset;												// Offset of an array variable i.e Index
+	struct globalSTNode* GSTEntry;					// Pointer to GST Entry - for variables
 	struct ASTNode *left, *middle, *right;	// left, middle and right branches  	
 }anode;
 
 /**
  * Function to dynamically create a node for an AST
  *
- * @params	val:		Value of a NUM node, set to 0 otherwise
+ * @param	val:		Value of a NUM node, set to 0 otherwise
  *
  *   		type:		1 - int
- *							2 - bool
- *							3 - str
+ *						2 - bool
+ *						3 - str
  *
  * 		nodetype:	Value identifying the type of node
  *				1 - NUM 
@@ -48,6 +57,8 @@ struct ASTNode{
  *				CN - CONTINUE
  *				BR - BREAKPOINT
  *
+ *		arrayOffset:	Offset of an array variable. Set to -1 for non-array variables
+ *
  *		left, right:	Pointer to the left and right subtrees,
  *				set to NULL for variables and NUM
  *
@@ -56,7 +67,7 @@ struct ASTNode{
  *
  * @return	newASTNode:	The newly created AST Node
  */
-struct ASTNode* createASTNode(int val,int type, int nodetype, char* varname, struct ASTNode* left, struct ASTNode* middle, struct ASTNode* right);
+struct ASTNode* createASTNode(int val,int type, int nodetype, char* varname, int arrayOffset, struct ASTNode* left, struct ASTNode* middle, struct ASTNode* right);
 
 /**
  * Function to print nodes of the AST in a Post-Order fashion
@@ -67,14 +78,15 @@ struct ASTNode* createASTNode(int val,int type, int nodetype, char* varname, str
  */
 int printAST(struct ASTNode* root);
 
-/*
- * Function that returns the address of a variable in the XSM Machine
- *
- * @params	variable:	The variable, which is a lower case alphabet
- *
- * @return 	[4096-4121]:	The memory address
+/**
+ * @brief	Function that returns the register number in which the 
+ * 			address of the required variable is stored
+ * 
+ * @param 	filePtr	File pointer of the target file
+ * @param 	root	ASTNode of the variable	 
+ * @return 	int		Address of the variable		 
  */
-int getVariableAddress(struct ASTNode* root);
+int getVariableAddress(FILE* filePtr, struct ASTNode* root);
 
 /**
  * Function to translate an expression tree into XSM instructions.

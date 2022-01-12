@@ -1,0 +1,12 @@
+decl
+	int studentMarks[17];
+	int num, size;
+	str name;
+enddecl
+
+begin
+	write("hello");
+	studentMarks[6] = 2;
+	write(studentMarks[6]);
+	breakpoint;
+end;

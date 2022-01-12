@@ -13,29 +13,29 @@
 
 %%
 
-"begin" 			{return BEGIN_;}	/* Keywords */
-"end" 				{return END;}
-"decl"				{return DECL;}
-"enddecl"			{return ENDDECL;}
-"int"					{return INT;}
-"str"					{return STR;}
-"breakpoint"	{return BREAKPOINT;}
+"begin" 			{ECHO; return BEGIN_;}	/* Keywords */
+"end" 				{ECHO; return END;}
+"decl"				{ECHO; return DECL;}
+"enddecl"			{ECHO; return ENDDECL;}
+"int"					{ECHO; return INT;}
+"str"					{ECHO; return STR;}
+"breakpoint"	{ECHO; return BREAKPOINT;}
 
-"read" 	{return READ;}		/* Functions */
-"write" {return WRITE;}
+"read" 	{ECHO; return READ;}		/* Functions */
+"write" {ECHO; return WRITE;}
 
-"if"		{return IF;}		/* Control Flow */
-"then"		{return THEN;}
-"else"		{return ELSE;}
-"endif"		{return ENDIF;}
-"while"		{return WHILE;}
-"do"		{return DO;}
-"endwhile"	{return ENDWHILE;}
-"break"		{return BREAK;}
-"continue"	{return CONTINUE;}
+"if"		{ECHO; return IF;}		/* Control Flow */
+"then"		{ECHO; return THEN;}
+"else"		{ECHO; return ELSE;}
+"endif"		{ECHO; return ENDIF;}
+"while"		{ECHO; return WHILE;}
+"do"		{ECHO; return DO;}
+"endwhile"	{ECHO; return ENDWHILE;}
+"break"		{ECHO; return BREAK;}
+"continue"	{ECHO; return CONTINUE;}
 
 [a-zA-Z][a-zA-Z0-9]*	{			/* Variables and Numbers */
-
+	ECHO;
 	// if declaration of all variables are done and
 	// the given variable is not declared
 	if (getDeclarationStatus() == 1 && searchGSTNode(yytext) == NULL) {
@@ -43,42 +43,76 @@
 		exit(1);
 	}
 
-			yylval.node = createASTNode(0, 1, 2, yytext, NULL, NULL, NULL);
+			yylval.node = createASTNode(0, 1, 2, yytext, -1, NULL, NULL, NULL);
 			return VARIABLE;
 	}
-[0-9]+	{
-		yylval.node = createASTNode(atoi(yytext), 1, 1, "N", NULL, NULL, NULL);
+
+	/*[a-zA-Z][a-zA-Z0-9]*[\[][0-9]*[\]]	{ 
+
+	char* arrayName = getArrayName(yytext);
+	int arrayOffset = getArrayOffset(yytext);
+
+	// declaration of the array is done
+	if (getDeclarationStatus() == 1) {
+
+		struct globalSTNode* GSTnode = searchGSTNode(arrayName);
+		
+		if (GSTnode == NULL) {
+
+			printf("\n❌ Array %s is undeclared\n", arrayName);
+			exit(1);
+		}
+
+		if (arrayOffset >= GSTnode->size || arrayOffset < 0) {
+
+			printf("\n❌ Array %s out of bounds\n", arrayName);
+			exit(1);
+		}
+	}
+
+	yylval.node = createASTNode(0, 1, 2, arrayName, arrayOffset, NULL, NULL, NULL);
+
+	return ARRAY_VARIABLE;
+} */
+
+
+[0-9]+	{ECHO;
+		yylval.node = createASTNode(atoi(yytext), 1, 1, "N", -1, NULL, NULL, NULL);
 		return NUM;
 	}
 
 
+
+
 ["][a-zA-Z0-9" "]*["] {	/* For strings */
-		char* stringConst = removeStringQuotes(yytext);
-		yylval.node = createASTNode(0, 3, 9, stringConst, NULL, NULL, NULL);
-		printf("\nString: %s\n", yytext);
+		ECHO;char* stringConst = removeStringQuotes(yytext);
+		yylval.node = createASTNode(0, 3, 9, stringConst, -1, NULL, NULL, NULL);
+		 //ntf("\nString: %s\n", yytext);
 		return STRING;
 }
 
-"+"	{return PLUS;}		/* Operators */
-"-"	{return MINUS;}
-"*"	{return MUL;}
-"/"	{return DIV;}
-"="	{return EQUAL;}
-"%"	{return MOD;}
+"+"		{ECHO;return PLUS;}		/* Operators */
+"-"		{ECHO;return MINUS;}
+"*"		{ECHO;return MUL;}
+"/"		{ECHO;return DIV;}
+"="		{ECHO;return EQUAL;}
+"%"		{ECHO;return MOD;}
 
-"=="	{return EQ;}		/* Conditional Operators */
-"!="	{return NEQ;}
-"<"	{return LT;}
-">"	{return GT;}
-"<="	{return LTE;}
-">="	{return GTE;}
+"=="	{ECHO;return EQ;}		/* Conditional Operators */
+"!="	{ECHO;return NEQ;}
+"<"		{ECHO;return LT;}
+">"		{ECHO;return GT;}
+"<="	{ECHO;return LTE;}
+">="	{ECHO;return GTE;}
 
-[()]	{return *yytext;}	/* Others */
-[ \t]	{}
-[\n]	{++line;}
-";"	{return SEMICOLON;}
-","	{return COMMA;}
+[()\[\]]	{ECHO;return *yytext;}	/* Others */
+[ \t]		{ECHO;}
+[\r\n]		{ECHO;++line;}
+";"			{ECHO;return SEMICOLON;}
+","			{ECHO;return COMMA;}
 .	{
+		ECHO;
+		printf("\n%s", yytext);
 		printf("\n❓ Unidentified Token, at line %d\n", line+1);
 		exit(1);
 	}
@@ -89,21 +123,4 @@
 
 int yywrap(){
 	return 1;
-}
-
-/**
- * Function that returns the string after removing
- * the quotes from both the ends
- */
-char* getString(char* ogString) {
-	char* finalString = malloc(sizeof(char*));
-	char* finalStringPtr = finalString;
-
-	while (*ogString != '"') {
-		*finalString = *ogString;
-		++finalString;
-		++ogString;
-	}
-
-	return finalStringPtr;
 }

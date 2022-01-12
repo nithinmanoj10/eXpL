@@ -30,6 +30,7 @@ struct declarationsTree {
 	int nodeType;											
 	int varType;
 	char* varName;
+	int varSize;
 	struct declarationsTree* right;
 	struct declarationsTree* left;
 }declNode;
@@ -49,10 +50,12 @@ struct declarationsTree {
  *
  *						varName:		Name of the variable
  *
+ *						varSize:		Size of the variable, rest set to 0
+ *
  *						right,
  *						left:				Pointer to right and left subtree
  */
-struct declarationsTree* createDTNode(int nodeType, int varType, char* varName, struct declarationsTree* right, struct declarationsTree* left);
+struct declarationsTree* createDTNode(int nodeType, int varType, char* varName, int varSize, struct declarationsTree* right, struct declarationsTree* left);
 
 /**
  *	Function to print the Declarations Tree in a post order fashion

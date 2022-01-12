@@ -5,7 +5,7 @@
 #include "ast.h"
 #include "../Data_Structures/globalSymbolTable.h"
 
-struct ASTNode* createASTNode(int val, int type, int nodetype, char* varname, struct ASTNode* left, struct ASTNode* middle, struct ASTNode* right) {
+struct ASTNode* createASTNode(int val, int type, int nodetype, char* varname, int arrayOffset, struct ASTNode* left, struct ASTNode* middle, struct ASTNode* right) {
 
 	// dynamically allocates space for the new node
 	struct ASTNode* newASTNode = (struct ASTNode*)malloc(sizeof(struct ASTNode));
@@ -16,6 +16,7 @@ struct ASTNode* createASTNode(int val, int type, int nodetype, char* varname, st
 	newASTNode->type = type;
 	newASTNode->nodetype = nodetype;
 	strcpy(newASTNode->varname, varname);
+	newASTNode->arrayOffset = arrayOffset;
 	newASTNode->left = left;
 	newASTNode->middle = middle;
 	newASTNode->right = right;
@@ -42,6 +43,7 @@ int printAST(struct ASTNode* root){
 	printf("type: %d\n", root->type);
 	printf("varname: %s\n", root->varname);
 	printf("nodetype: %d\n", root->nodetype);
+	printf("arrayOffset: %d\n", root->arrayOffset);
 	printf("left: %p\n", root->left);
 	printf("right: %p\n", root->right);
 	printf("GST: %p\n", root->GSTEntry);
@@ -50,22 +52,28 @@ int printAST(struct ASTNode* root){
 	return 1;
 }
 
-/*
- * Variable name will be a lower case alphabet, and its address
- * is assigned as follows:
- *
- * a -> 4056
- * b -> 4057
- *    .
- *    .
- * z -> 4151
- *
- * Calculated as :
- *
- * address = 4096 + ascii(variable) - 97
+/**
+ * @brief	Function that returns the register number in which the 
+ * 			address of the required variable is stored
+ * 
+ * @param 	filePtr	File pointer of the target file
+ * @param 	root	ASTNode of the variable	 
+ * @return 	int		Address of the variable		 
  */
-int getVariableAddress(struct ASTNode* root){
-	return root->GSTEntry->binding;
+int getVariableAddress(FILE* filePtr, struct ASTNode* root){
+
+	int variableAddrReg = getReg();
+	int variableAddr = root->GSTEntry->binding;
+	int offset = root->arrayOffset;
+	
+	fprintf(filePtr, "MOV R%d, %d\n", variableAddrReg, variableAddr);
+
+	// for array variable
+	if (offset != -1)
+		fprintf(filePtr, "ADD R%d, %d\n", variableAddrReg, offset);
+
+	freeReg();
+	return variableAddrReg;
 }
 
 int evalExprTree(FILE* filePtr, struct ASTNode* root){
@@ -76,13 +84,20 @@ int evalExprTree(FILE* filePtr, struct ASTNode* root){
 		int reg1 = getReg();
 		int val;		
 
+		// if its an array variable
+		if (root->left != NULL && root->nodetype == 2) {
+
+			fprintf(filePtr, "MOV R%d, [R%d]\n", reg1, getVariableAddress(filePtr, root));
+			return reg1;
+		}
+
 		// NUM Node
 		if (root->nodetype == 1)	
 			fprintf(filePtr, "MOV R%d, %d\n", reg1, root->val);
 
 		// Variable Node
 		if (root->nodetype == 2)
-			fprintf(filePtr, "MOV R%d, [%d]\n", reg1, getVariableAddress(root));
+			fprintf(filePtr, "MOV R%d, [R%d]\n", reg1, getVariableAddress(filePtr, root));
 
 		// STR Node
 		if (root->nodetype == 9)

@@ -1,0 +1,6 @@
+{
+  "files.associations": {
+    "*.spl": "spl",
+    "ast.h": "c"
+  }
+}

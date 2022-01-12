@@ -14,8 +14,8 @@ int codeGen(struct ASTNode* root, FILE* filePtr){
 	if(root == NULL)
 		return 1;
 
-	// if its a NUM or VARIABLE
-	if (root->nodetype == 1 || root->nodetype == 2)
+	// if its a NUM or VARIABLE (array variable as well)
+	if (root->nodetype == 1 || root->nodetype == 2) 
 		return 1;
 
 	char* nodeName = malloc(sizeof(char));
@@ -124,7 +124,7 @@ int codeGen(struct ASTNode* root, FILE* filePtr){
 	if (root->nodetype == 3 && strcmp(conditionalOp, "=") == 0) {
 
 		int resultRegNo = evalExprTree(filePtr, root->right);
-		fprintf(filePtr, "MOV [%d], R%d\n", getVariableAddress(root->left), resultRegNo);
+		fprintf(filePtr, "MOV [R%d], R%d\n", getVariableAddress(filePtr, root->left), resultRegNo);
 		freeReg();
 
 	}
@@ -132,8 +132,8 @@ int codeGen(struct ASTNode* root, FILE* filePtr){
 	// for a READ Node
 	if (root->nodetype == 4) {
 
-		int varAddr = getVariableAddress(root->left);
-		INT_6(filePtr, -1, varAddr);
+		int varAddrReg = getVariableAddress(filePtr, root->left);
+		INT_6(filePtr, -1, varAddrReg);
 	}
 
  	// for a WRITE Node

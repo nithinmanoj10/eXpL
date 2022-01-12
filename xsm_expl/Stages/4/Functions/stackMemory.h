@@ -8,8 +8,12 @@
 extern int freeStackMemory;
 
 /**
- *	Function that returns a free stack memory
+ *	Function that returns free stack memory
+ *
+ *	@params		num:			Amount of memory required
+ *
+ *	@return		freeMem:	Amount of memory	
  */
-int getFreeStackMemory();
+int getFreeStackMemory(int num);
 
 #endif
