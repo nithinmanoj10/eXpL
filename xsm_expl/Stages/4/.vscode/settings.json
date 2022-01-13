@@ -1,6 +1,8 @@
 {
   "files.associations": {
     "*.spl": "spl",
-    "ast.h": "c"
+    "ast.h": "c",
+    "globalsymboltable.h": "c",
+    "reg.h": "c"
   }
 }

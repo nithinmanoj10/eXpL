@@ -1,23 +1,14 @@
-decl
-	int num, sum;
-	int count;
-	str name;
-	int age;
-enddecl
-
 begin
-	a = 0;
 	
-	while (a < 3 + 1) do
+	a = 0;
+
+	while (a < 10) do
+		if (a % 2 == 0) then
+			write(a);
+		else
+			break;
+		endif;
 		a = a + 1;
-		b = 0;
-		while (b < 3) do
-			b = b + 1;
-			if (b == 2) then
-				break;
-			endif;
-			write(a*b);
-		endwhile;
 	endwhile;
 
 end;

@@ -13,29 +13,29 @@
 
 %%
 
-"begin" 			{ECHO; return BEGIN_;}	/* Keywords */
-"end" 				{ECHO; return END;}
-"decl"				{ECHO; return DECL;}
-"enddecl"			{ECHO; return ENDDECL;}
-"int"					{ECHO; return INT;}
-"str"					{ECHO; return STR;}
-"breakpoint"	{ECHO; return BREAKPOINT;}
+"begin" 			{ return BEGIN_;}	/* Keywords */
+"end" 				{ return END;}
+	/* "decl"				{ return DECL;} */
+	/* "enddecl"			{ return ENDDECL;} */
+	/* "int"					{ return INT;} */
+	/* "str"					{ return STR;} */
+"breakpoint"	{ return BREAKPOINT;}
 
-"read" 	{ECHO; return READ;}		/* Functions */
-"write" {ECHO; return WRITE;}
+"read" 	{ return READ;}		/* Functions */
+"write" { return WRITE;}
 
-"if"		{ECHO; return IF;}		/* Control Flow */
-"then"		{ECHO; return THEN;}
-"else"		{ECHO; return ELSE;}
-"endif"		{ECHO; return ENDIF;}
-"while"		{ECHO; return WHILE;}
-"do"		{ECHO; return DO;}
-"endwhile"	{ECHO; return ENDWHILE;}
-"break"		{ECHO; return BREAK;}
-"continue"	{ECHO; return CONTINUE;}
+"if"		{ return IF;}		/* Control Flow */
+"then"		{ return THEN;}
+"else"		{ return ELSE;}
+"endif"		{ return ENDIF;}
+"while"		{ return WHILE;}
+"do"		{ return DO;}
+"endwhile"	{ return ENDWHILE;}
+"break"		{ return BREAK;}
+"continue"	{ return CONTINUE;}
 
 [a-zA-Z][a-zA-Z0-9]*	{			/* Variables and Numbers */
-	ECHO;
+	
 	// if declaration of all variables are done and
 	// the given variable is not declared
 	if (getDeclarationStatus() == 1 && searchGSTNode(yytext) == NULL) {
@@ -43,8 +43,9 @@
 		exit(1);
 	}
 
-			yylval.node = createASTNode(0, 1, 2, yytext, -1, NULL, NULL, NULL);
-			return VARIABLE;
+			// yylval.node = createASTNode(0, 1, 2, yytext, -1, NULL, NULL, NULL);
+			yylval.node = TreeCreate(ID_NODE, yytext, 0, NULL, NULL, NULL, NULL);
+			return ID;
 	}
 
 	/*[a-zA-Z][a-zA-Z0-9]*[\[][0-9]*[\]]	{ 
@@ -76,8 +77,9 @@
 } */
 
 
-[0-9]+	{ECHO;
-		yylval.node = createASTNode(atoi(yytext), 1, 1, "N", -1, NULL, NULL, NULL);
+[0-9]+	{
+		// yylval.node = createASTNode(atoi(yytext), 1, 1, "N", -1, NULL, NULL, NULL);
+		yylval.node = TreeCreate(CONST_INT_NODE, NULL, atoi(yytext), NULL, NULL, NULL, NULL);
 		return NUM;
 	}
 
@@ -85,33 +87,34 @@
 
 
 ["][a-zA-Z0-9" "]*["] {	/* For strings */
-		ECHO;char* stringConst = removeStringQuotes(yytext);
-		yylval.node = createASTNode(0, 3, 9, stringConst, -1, NULL, NULL, NULL);
+		char* stringConst = removeStringQuotes(yytext);
+		// yylval.node = createASTNode(0, 3, 9, stringConst, -1, NULL, NULL, NULL);
+		yylval.node = TreeCreate(CONST_STR_NODE, NULL, 0, stringConst, NULL, NULL, NULL);
 		 //ntf("\nString: %s\n", yytext);
 		return STRING;
 }
 
-"+"		{ECHO;return PLUS;}		/* Operators */
-"-"		{ECHO;return MINUS;}
-"*"		{ECHO;return MUL;}
-"/"		{ECHO;return DIV;}
-"="		{ECHO;return EQUAL;}
-"%"		{ECHO;return MOD;}
+"+"		{return PLUS;}		/* Operators */
+"-"		{return MINUS;}
+"*"		{return MUL;}
+"/"		{return DIV;}
+"="		{return EQUAL;}
+"%"		{return MOD;}
 
-"=="	{ECHO;return EQ;}		/* Conditional Operators */
-"!="	{ECHO;return NEQ;}
-"<"		{ECHO;return LT;}
-">"		{ECHO;return GT;}
-"<="	{ECHO;return LTE;}
-">="	{ECHO;return GTE;}
+"=="	{return EQ;}		/* Conditional Operators */
+"!="	{return NEQ;}
+"<"		{return LT;}
+">"		{return GT;}
+"<="	{return LTE;}
+">="	{return GTE;}
 
-[()\[\]]	{ECHO;return *yytext;}	/* Others */
-[ \t]		{ECHO;}
-[\r\n]		{ECHO;++line;}
-";"			{ECHO;return SEMICOLON;}
-","			{ECHO;return COMMA;}
+[()\[\]]	{return *yytext;}	/* Others */
+[ \t]		{}
+[\r\n]		{++line;}
+";"			{return SEMICOLON;}
+	/* ","			{return COMMA;} */
 .	{
-		ECHO;
+		
 		printf("\n%s", yytext);
 		printf("\n❓ Unidentified Token, at line %d\n", line+1);
 		exit(1);

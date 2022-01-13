@@ -15,7 +15,7 @@
  *
  * @return	1:		Success
  */
-int codeGen(struct ASTNode* root, FILE* filePtr);
+int codeGen(struct ASTNode *root, FILE *filePtr);
 
 /**
  * Function to assign the first 26 spaces in the stack for the variables
@@ -26,7 +26,7 @@ int codeGen(struct ASTNode* root, FILE* filePtr);
  *
  * @return	1:		Success
  */
-int initVariables(FILE* filePtr);
+int initVariables(FILE *filePtr);
 
 /**
  * Function that generates XSM Machine Code corresponding to the conditional
@@ -46,6 +46,6 @@ int initVariables(FILE* filePtr);
  *
  * @return	1: 		Success
  */
-int codeGenWhile(FILE* filePtr, struct ASTNode* root, int label, int option);
+int codeGenWhile(FILE *filePtr, struct ASTNode *root, int label, int option);
 
 #endif

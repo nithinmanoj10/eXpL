@@ -21,20 +21,21 @@
 	char* fileName;
 %}
 
+%start start
+
 %union {
 	struct ASTNode* node;
-	struct declarationsTree* DTNode;
+	// struct declarationsTree* DTNode;
 }
 
-/* TODO: Add rest of the nodes */
-%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt VARIABLE expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt
+%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt
 
-%type <DTNode> Declarations DeclList Decl Type VarList
+/* %type <DTNode> Declarations DeclList Decl Type VarList */
 
-%token BEGIN_ END READ WRITE VARIABLE NUM STRING PLUS MINUS MUL DIV MOD EQUAL BREAKPOINT
+%token BEGIN_ END READ WRITE ID NUM STRING PLUS MINUS MUL DIV MOD EQUAL BREAKPOINT
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE
-%token DECL ENDDECL INT STR 
-%token SEMICOLON COMMA
+	/* %token DECL ENDDECL INT STR */
+%token SEMICOLON
 
 %left EQUAL
 %left EQ NEQ
@@ -45,27 +46,25 @@
 
 %%
 
-start 	: Declarations BEGIN_ Slist END SEMICOLON	{
+start 	: BEGIN_ Slist END SEMICOLON	{
+														// printAST($2);
+														FILE* filePtr = fopen("../Target_Files/round1.xsm", "w");
+														// // printAST($3);	
+														// // printGST();
+														writeXexeHeader(filePtr);
+														initVariables(filePtr);
+														codeGen($2, filePtr);							
+														INT_10(filePtr);
+													}
 
-							FILE* filePtr = fopen("../Target_Files/round1.xsm", "w");
-							// printAST($3);	
-							
-							printGST();
-							
-							struct ASTNode* root = $3;	
-							// printf("\nGSTHead: %p\n", GSTHead);
-							writeXexeHeader(filePtr);
-							codeGen($3, filePtr);							
-							INT_10(filePtr);
-	
-				}
+		| BEGIN_ END SEMICOLON		{	
+										printf("\n⛔ No Code Provided\n");
+										exit(1);
+									};
 
-				| BEGIN_ END SEMICOLON		{	
-																		printf("\n⛔ No Code Provided\n");
-																		exit(1);
-																	};
-
-Slist	: Slist Stmt SEMICOLON 	{$$ = createASTNode(0, 1, 6, "C", -1, $1, NULL, $2);}
+Slist	: Slist Stmt SEMICOLON 	{   // $$ = createASTNode(0, 1, 6, "C", -1, $1, NULL, $2);
+									$$ = TreeCreate(SLIST_NODE, NULL, 0, NULL, $1, NULL, $2);
+								}
 		| Stmt SEMICOLON		{}				;
 
 Stmt	: inputStmt | outputStmt | assignStmt 
@@ -74,44 +73,77 @@ Stmt	: inputStmt | outputStmt | assignStmt
 		| breakPointStmt	{}
 		;
 
-inputStmt : READ expr	 		{$$ = createASTNode(0, 1, 4, "R", -1, $2, NULL, NULL); ++lineCount;}
+inputStmt : READ expr	 		{	// 	$$ = createASTNode(0, 1, 4, "R", -1, $2, NULL, NULL); 
+									$$ = TreeCreate(READ_NODE, NULL, 0, NULL, $2, NULL, NULL);
+									++lineCount;
+								}
 	  			;
 
-outputStmt : WRITE expr 		{$$ = createASTNode(0, 1, 5, "W", -1, $2, NULL, NULL); ++lineCount;}
+outputStmt : WRITE expr 		{
+									// $$ = createASTNode(0, 1, 5, "W", -1, $2, NULL, NULL); 
+									$$ = TreeCreate(WRITE_NODE, NULL, 0, NULL, $2, NULL, NULL);
+									++lineCount;
+								}
 	   			 ;
 
-assignStmt 	: VARIABLE EQUAL expr				{	$$ = createASTNode(0, 1, 3, "=", -1, $1, NULL, $3); ++lineCount;}
-			| VARIABLE '[' expr ']' EQUAL expr	{	 
+assignStmt 	: ID EQUAL expr				{
+											// $$ = createASTNode(0, 1, 3, "=", -1, $1, NULL, $3);
+											$$ = TreeCreate(ASGN_NODE, NULL, 0, NULL, $1, NULL, $3);
+											++lineCount;
+										}
+			| ID '[' expr ']' EQUAL expr	{	 
 													$1->left = $3;
-													$$ = createASTNode(0, 1, 3, "=", -1, $1, NULL, $6);
+													// $$ = createASTNode(0, 1, 3, "=", -1, $1, NULL, $6);
 													++lineCount;
 			 									}
 	   		;
 
 ifStmt	: IF expr THEN Slist ELSE Slist ENDIF
 	{
-		$$ = createASTNode(0, 2, 7, "I", -1, $2, $4, $6);  
+		// $$ = createASTNode(0, 2, 7, "I", -1, $2, $4, $6);  
+		$$ = TreeCreate(IF_NODE, NULL, 0, NULL, $2, $4, $6);
 		++lineCount;	
 	}
-	| IF expr THEN Slist ENDIF {$$ = createASTNode(0, 2, 7, "I", -1, $2, $4, NULL); ++lineCount;}
+	| IF expr THEN Slist ENDIF {
+									// $$ = createASTNode(0, 2, 7, "I", -1, $2, $4, NULL);
+									$$ = TreeCreate(IF_NODE, NULL, 0, NULL, $2, $4, NULL);
+									++lineCount;
+								}
 	;
 
-whileStmt : WHILE expr DO Slist ENDWHILE {$$ = createASTNode(0, 2, 7, "W", -1, $2, NULL, $4); ++lineCount;}
+whileStmt : WHILE expr DO Slist ENDWHILE {
+											// $$ = createASTNode(0, 2, 7, "W", -1, $2, NULL, $4);
+											$$ = TreeCreate(WHILE_NODE, NULL, 0, NULL, $2, NULL, $4);	
+											++lineCount;
+											}
 	  ;
 
-doWhileStmt : DO Slist WHILE expr ENDWHILE  { $$ = createASTNode(0, 2, 7, "DW", -1, $2, NULL, $4); ++lineCount;}
+doWhileStmt : DO Slist WHILE expr ENDWHILE  { 
+											 	// $$ = createASTNode(0, 2, 7, "DW", -1, $2, NULL, $4);
+												$$ = TreeCreate(DO_WHILE_NODE, NULL, 0, NULL, $2, NULL, $4);
+												++lineCount;
+											}
  	    ;			
 
-breakStmt : BREAK		{ $$ = createASTNode(0, 0, 7, "B", -1, NULL, NULL, NULL);}
+breakStmt : BREAK		{ 
+							// $$ = createASTNode(0, 0, 7, "B", -1, NULL, NULL, NULL);
+							$$ = TreeCreate(BREAK_NODE, NULL, 0, NULL, NULL, NULL, NULL);
+						}
 	  ;
 
-continueStmt : CONTINUE		{ $$ = createASTNode(0, 0, 7, "CN", -1, NULL, NULL, NULL);}	 
+continueStmt : CONTINUE		{ 
+								// $$ = createASTNode(0, 0, 7, "CN", -1, NULL, NULL, NULL);
+								$$ = TreeCreate(CONTINUE_NODE, NULL, 0, NULL, NULL, NULL, NULL);
+							}	 
 	     				;
 
-breakPointStmt	:	BREAKPOINT { $$ = createASTNode(0, 0, 8, "BR", -1, NULL, NULL, NULL); }
+breakPointStmt	:	BREAKPOINT { 
+									// $$ = createASTNode(0, 0, 8, "BR", -1, NULL, NULL, NULL);
+									$$ = TreeCreate(BREAKPOINT_NODE, NULL, 0, NULL, NULL, NULL, NULL);
+								}
 							 	;
 
-Declarations	:	DECL DeclList ENDDECL	{ 
+/* Declarations	:	DECL DeclList ENDDECL	{ 
 						 														struct declarationsTree* root = $2;
 																				createGST($2, 0);				
 																				declarationComplete();
@@ -137,31 +169,54 @@ Type	:	INT	{ $$ = createDTNode(1, 1, "int", 0, NULL, NULL); }
 		 	|	STR	{ $$ = createDTNode(1, 2, "str", 0, NULL, NULL); }
 		 	;
 
-VarList	:	VarList COMMA VARIABLE 							{ $$ = createDTNode(2, 0, $3->varname, 1, $1, NULL); }
-				|	VARIABLE 														{ $$ = createDTNode(2, 0, $1->varname, 1, NULL, NULL); }
-				|	VarList COMMA VARIABLE '[' NUM ']'	{ $$ = createDTNode(2, 0, $3->varname, $5->val, $1, NULL); }
-				|	VARIABLE '[' NUM ']'								{ $$ = createDTNode(2, 0, $1->varname, $3->val, NULL, NULL); }
-				;
-		
+VarList	:	VarList COMMA ID 							{ $$ = createDTNode(2, 0, $3->varname, 1, $1, NULL); }
+		|	ID 										{ $$ = createDTNode(2, 0, $1->varname, 1, NULL, NULL); }
+		|	VarList COMMA ID '[' NUM ']'				{ $$ = createDTNode(2, 0, $3->varname, $5->val, $1, NULL); }
+		|	ID '[' NUM ']'							{ $$ = createDTNode(2, 0, $1->varname, $3->val, NULL, NULL); }
+		| 	VarList COMMA ID '[' NUM ']' '[' NUM ']'	{ $$ = createDTNode(2, 0, $3->varname, $5->val * $8->val, $1, NULL); }
+		|	ID '[' NUM ']' '[' NUM ']'				{ $$ = createDTNode(2, 0, $1->varname, $3->val * $6->val, NULL, NULL); }
+		; */
 
-expr		: expr PLUS expr		{$$ = createASTNode(0, 1, 3, "+", -1, $1, NULL, $3);}
-			| expr MINUS expr 		{$$ = createASTNode(0, 1, 3, "-", -1, $1, NULL, $3);}
-			| expr MUL expr 		{$$ = createASTNode(0, 1, 3, "*", -1, $1, NULL, $3);}
-			| expr DIV expr			{$$ = createASTNode(0, 1, 3, "/", -1, $1, NULL, $3);}
-			| expr MOD expr			{$$ = createASTNode(0, 1, 3, "%", -1, $1, NULL, $3);}
-			| expr EQ expr			{$$ = createASTNode(0, 2, 3, "==", -1, $1, NULL, $3);}
-			| expr NEQ expr			{$$ = createASTNode(0, 2, 3, "!=", -1, $1, NULL, $3);}
-			| expr LT expr			{$$ = createASTNode(0, 2, 3, "<", -1, $1, NULL, $3);}
-			| expr LTE expr			{$$ = createASTNode(0, 2, 3, "<=", -1, $1, NULL, $3);}
-			| expr GT expr			{$$ = createASTNode(0, 2, 3, ">", -1, $1, NULL, $3);}
-			| expr GTE expr			{$$ = createASTNode(0, 2, 3, ">=", -1, $1, NULL, $3);}
+expr		: expr PLUS expr		{// $$ = createASTNode(0, 1, 3, "+", -1, $1, NULL, $3);
+										$$ =  TreeCreate(PLUS_NODE, NULL, 0, NULL, $1, NULL, $3);
+									}
+			| expr MINUS expr 		{// $$ = createASTNode(0, 1, 3, "-", -1, $1, NULL, $3);
+										$$ =  TreeCreate(MINUS_NODE, NULL, 0, NULL, $1, NULL, $3);			
+												}
+			| expr MUL expr 		{// $$ = createASTNode(0, 1, 3, "*", -1, $1, NULL, $3);
+										$$ =  TreeCreate(MUL_NODE, NULL, 0, NULL, $1, NULL, $3);			
+												}
+			| expr DIV expr			{// $$ = createASTNode(0, 1, 3, "/", -1, $1, NULL, $3);
+										$$ =  TreeCreate(DIV_NODE, NULL, 0, NULL, $1, NULL, $3);			
+												}
+			| expr MOD expr			{// $$ = createASTNode(0, 1, 3, "%", -1, $1, NULL, $3);
+										$$ =  TreeCreate(MOD_NODE, NULL, 0, NULL, $1, NULL, $3);			
+												}
+			| expr EQ expr			{// $$ = createASTNode(0, 2, 3, "==", -1, $1, NULL, $3)
+										$$ =  TreeCreate(EQ_NODE, NULL, 0, NULL, $1, NULL, $3);			
+												;}
+			| expr NEQ expr			{// $$ = createASTNode(0, 2, 3, "!=", -1, $1, NULL, $3)
+										$$ =  TreeCreate(NE_NODE, NULL, 0, NULL, $1, NULL, $3);			
+												;}
+			| expr LT expr			{// $$ = createASTNode(0, 2, 3, "<", -1, $1, NULL, $3);
+										$$ =  TreeCreate(LT_NODE, NULL, 0, NULL, $1, NULL, $3);			
+												}
+			| expr LTE expr			{// $$ = createASTNode(0, 2, 3, "<=", -1, $1, NULL, $3)
+										$$ =  TreeCreate(LE_NODE, NULL, 0, NULL, $1, NULL, $3);			
+												;}
+			| expr GT expr			{// $$ = createASTNode(0, 2, 3, ">", -1, $1, NULL, $3);
+										$$ =  TreeCreate(GT_NODE, NULL, 0, NULL, $1, NULL, $3);			
+												}
+			| expr GTE expr			{// $$ = createASTNode(0, 2, 3, ">=", -1, $1, NULL, $3)
+										$$ =  TreeCreate(GE_NODE, NULL, 0, NULL, $1, NULL, $3);			
+												;}
 			| '(' expr ')'			{$$ = $2;}
-			| VARIABLE '[' expr ']' 	{	
+			| ID '[' expr ']' 	{	
 										$1->left = $3;	
 										$$ = $1;
 										// $$ = createASTNode(0, 1, 2, $1->varname, 1, $3, NULL, NULL);
 									}
-			| VARIABLE				{$$ = $1;}
+			| ID				{$$ = $1;}
 			| NUM					{$$ = $1;}
 			| STRING				{$$ = $1;}
 			;

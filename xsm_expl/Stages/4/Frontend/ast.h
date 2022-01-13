@@ -1,100 +1,62 @@
-#ifndef AST_H
+#ifndef AST_N_H
 
-#define AST_H
+#define AST_N_H
 
+#include <stdio.h>
 #include "../Data_Structures/globalSymbolTable.h"
 
-/**
- * @brief	Foo function
- * 		  	hello
- * 
- * @param num A number
- * @param sum The sum
- * @return int 
- */
-int foo(int num, int sum);
+#define CONST_INT_NODE 0 // Constant Node
+#define CONST_STR_NODE 1
 
-// Structure of an Abstract Syntax Tree Node
-struct ASTNode{
-	int val;			  												// value of a number for NUM nodes.
-	int type;																// data type of the node
-	char *varname;													// name of a variable or operator  
-	int nodetype;  													// information about non-leaf nodes - read/write/connector
-	int arrayOffset;												// Offset of an array variable i.e Index
-	struct globalSTNode* GSTEntry;					// Pointer to GST Entry - for variables
-	struct ASTNode *left, *middle, *right;	// left, middle and right branches  	
-}anode;
+#define ID_NODE 2 // Identifier Node
 
-/**
- * Function to dynamically create a node for an AST
- *
- * @param	val:		Value of a NUM node, set to 0 otherwise
- *
- *   		type:		1 - int
- *						2 - bool
- *						3 - str
- *
- * 		nodetype:	Value identifying the type of node
- *				1 - NUM 
- *				2 - Variable
- *				3 - Operator
- *				4 - Read
- *				5 - Write
- *				6 - Connector
- *				7 - Control Flow i.e if, else, etc
- *				8 - Break Point
- *				9 - STR
- *
- *		varname:	Name of the variable, value of string and operator node, others are 
- *				R - READ
- *				W - WRITE
- *				C - Connector
- *				N - NUM
- *				I - IF
- *				W - WHILE
- *				DW - DO WHILE
- *				B - BREAK
- *				CN - CONTINUE
- *				BR - BREAKPOINT
- *
- *		arrayOffset:	Offset of an array variable. Set to -1 for non-array variables
- *
- *		left, right:	Pointer to the left and right subtrees,
- *				set to NULL for variables and NUM
- *
- *		middle:		Pointer to the middle subtree, used for if-then-else
- *				and if-else nodes, set to NULL for others
- *
- * @return	newASTNode:	The newly created AST Node
- */
-struct ASTNode* createASTNode(int val,int type, int nodetype, char* varname, int arrayOffset, struct ASTNode* left, struct ASTNode* middle, struct ASTNode* right);
+#define PLUS_NODE 3 // Operator Node
+#define MINUS_NODE 4
+#define MUL_NODE 5
+#define DIV_NODE 6
+#define MOD_NODE 7
 
-/**
- * Function to print nodes of the AST in a Post-Order fashion
- *
- * @params	root:		Root of the AST
- *
- * @return	1:		Upon successfully printing all the nodes	
- */
-int printAST(struct ASTNode* root);
+#define GT_NODE 8 // Relational Operator Node
+#define LT_NODE 9
+#define GE_NODE 10
+#define LE_NODE 11
+#define EQ_NODE 12
+#define NE_NODE 13
 
-/**
- * @brief	Function that returns the register number in which the 
- * 			address of the required variable is stored
- * 
- * @param 	filePtr	File pointer of the target file
- * @param 	root	ASTNode of the variable	 
- * @return 	int		Address of the variable		 
- */
-int getVariableAddress(FILE* filePtr, struct ASTNode* root);
+#define IF_NODE 14 // Control Flow Operator Node
+#define WHILE_NODE 15
+#define DO_WHILE_NODE 16
+#define BREAK_NODE 17
+#define CONTINUE_NODE 18
 
-/**
- * Function to translate an expression tree into XSM instructions.
- * 
- * @params	root:		Root of the Expression Tree
- *
- * @return	[0-19]:		Register number in which the result is stored
- */
-int evalExprTree(FILE* filePtr, struct ASTNode* root);
+#define READ_NODE 19 // I/O Functions Node
+#define WRITE_NODE 20
+
+#define ASGN_NODE 21 // Assignment Operator Node
+
+#define SLIST_NODE 22 // Statement List Node
+
+#define BREAKPOINT_NODE 23 // Breakpoint Node
+
+// TODO: Add typetable field
+struct ASTNode
+{
+    int nodeType;                          // Type of the node
+    char *nodeName;                        // Name of variable
+    int intConstVal;                       // Value of int const
+    char *strConstVal;                     // Value of str const
+    struct ASTNode *left, *middle, *right; // Left, middle and right subtrees
+    struct globalSTNode *GSTEntry;         // Pointer to Global Symbol Table entry for a variable
+} astnode;
+
+struct ASTNode *TreeCreate(int nodeType, char *nodeName, int intConstVal, char *strConstVal, struct ASTNode *left, struct ASTNode *middle, struct ASTNode *right);
+
+int printAST(struct ASTNode *root);
+
+int getVariableAddress(FILE *filePtr, struct ASTNode *root);
+
+int getAddress(FILE *filePtr, struct ASTNode *root);
+
+int evalExprTree(FILE *filePtr, struct ASTNode *root);
 
 #endif
