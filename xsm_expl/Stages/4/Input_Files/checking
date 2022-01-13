@@ -1,7 +1,17 @@
 decl
-    str name;
+    int num;
 enddecl
 
 begin
-    write("Hello");
+    num = 1;
+    breakpoint;
+    while (num < 5) do
+        if (num % 2 == 0) then
+            write("Even");
+        else
+            write("Odd");
+        endif;
+        num = num + 1;
+        breakpoint;
+    endwhile;
 end;

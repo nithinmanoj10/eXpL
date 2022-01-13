@@ -1,2 +1,3 @@
-break ast.l:114
-run checking < ../Input_Files/checking
+watch regNum
+break ../Backend/codegen.c:codeGenWhile
+run bubble < ../Input_Files/bubblesort

@@ -58,21 +58,25 @@ int printAST(struct ASTNode* root){
  * 
  * @param 	filePtr	File pointer of the target file
  * @param 	root	ASTNode of the variable	 
- * @return 	int		Address of the variable		 
+ * @return 	int		Regsiter Number [0-19]		 
  */
 int getVariableAddress(FILE* filePtr, struct ASTNode* root){
 
 	int variableAddrReg = getReg();
 	int variableAddr = root->GSTEntry->binding;
-	int offset = root->arrayOffset;
 	
 	fprintf(filePtr, "MOV R%d, %d\n", variableAddrReg, variableAddr);
 
 	// for array variable
-	if (offset != -1)
-		fprintf(filePtr, "ADD R%d, %d\n", variableAddrReg, offset);
+	if (root->left != NULL ) {
 
-	freeReg();
+		int offsetReg = getReg();
+		fprintf(filePtr, "MOV R%d, R%d\n", offsetReg, evalExprTree(filePtr, root->left));
+		fprintf(filePtr, "ADD R%d, R%d\n", variableAddrReg, offsetReg);
+		freeReg();
+		freeReg();
+	}
+
 	return variableAddrReg;
 }
 
@@ -88,6 +92,7 @@ int evalExprTree(FILE* filePtr, struct ASTNode* root){
 		if (root->left != NULL && root->nodetype == 2) {
 
 			fprintf(filePtr, "MOV R%d, [R%d]\n", reg1, getVariableAddress(filePtr, root));
+			freeReg();
 			return reg1;
 		}
 
@@ -96,8 +101,11 @@ int evalExprTree(FILE* filePtr, struct ASTNode* root){
 			fprintf(filePtr, "MOV R%d, %d\n", reg1, root->val);
 
 		// Variable Node
-		if (root->nodetype == 2)
+		if (root->nodetype == 2) {
+
 			fprintf(filePtr, "MOV R%d, [R%d]\n", reg1, getVariableAddress(filePtr, root));
+			freeReg();
+		}
 
 		// STR Node
 		if (root->nodetype == 9)

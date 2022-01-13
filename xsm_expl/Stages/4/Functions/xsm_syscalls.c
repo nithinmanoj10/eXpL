@@ -11,7 +11,7 @@ int INT_6(FILE* filePtr, int arg1, int arg2){
 	fprintf(filePtr, "PUSH R%d\n", reg1); 		
 	fprintf(filePtr, "MOV R%d, %d\n", reg1, arg1); 		
 	fprintf(filePtr, "PUSH R%d\n", reg1); 		
-	fprintf(filePtr, "MOV R%d, [R%d]\n", reg1, arg2); 		
+	fprintf(filePtr, "MOV R%d, R%d\n", reg1, arg2); 		
 	fprintf(filePtr, "PUSH R%d\n", reg1); 		
 	fprintf(filePtr, "PUSH R%d\n", reg1); 		
 	fprintf(filePtr, "PUSH R%d\n", reg2); 		

@@ -48,14 +48,13 @@
 start 	: Declarations BEGIN_ Slist END SEMICOLON	{
 
 							FILE* filePtr = fopen("../Target_Files/round1.xsm", "w");
-							printAST($3);	
+							// printAST($3);	
 							
 							printGST();
 							
 							struct ASTNode* root = $3;	
 							// printf("\nGSTHead: %p\n", GSTHead);
 							writeXexeHeader(filePtr);
-							initVariables(filePtr);
 							codeGen($3, filePtr);							
 							INT_10(filePtr);
 	
@@ -67,13 +66,13 @@ start 	: Declarations BEGIN_ Slist END SEMICOLON	{
 																	};
 
 Slist	: Slist Stmt SEMICOLON 	{$$ = createASTNode(0, 1, 6, "C", -1, $1, NULL, $2);}
-			| Stmt SEMICOLON	{}				;
+		| Stmt SEMICOLON		{}				;
 
 Stmt	: inputStmt | outputStmt | assignStmt 
-			| ifStmt | whileStmt | doWhileStmt
-      | breakStmt | continueStmt	
-			|	breakPointStmt	{}
-			;
+		| ifStmt | whileStmt | doWhileStmt
+   		| breakStmt | continueStmt	
+		| breakPointStmt	{}
+		;
 
 inputStmt : READ expr	 		{$$ = createASTNode(0, 1, 4, "R", -1, $2, NULL, NULL); ++lineCount;}
 	  			;
@@ -82,9 +81,8 @@ outputStmt : WRITE expr 		{$$ = createASTNode(0, 1, 5, "W", -1, $2, NULL, NULL);
 	   			 ;
 
 assignStmt 	: VARIABLE EQUAL expr				{	$$ = createASTNode(0, 1, 3, "=", -1, $1, NULL, $3); ++lineCount;}
-			| VARIABLE '[' NUM ']' EQUAL expr	{	 
+			| VARIABLE '[' expr ']' EQUAL expr	{	 
 													$1->left = $3;
-													$1->arrayOffset = $3->val;
 													$$ = createASTNode(0, 1, 3, "=", -1, $1, NULL, $6);
 													++lineCount;
 			 									}
@@ -158,9 +156,8 @@ expr		: expr PLUS expr		{$$ = createASTNode(0, 1, 3, "+", -1, $1, NULL, $3);}
 			| expr GT expr			{$$ = createASTNode(0, 2, 3, ">", -1, $1, NULL, $3);}
 			| expr GTE expr			{$$ = createASTNode(0, 2, 3, ">=", -1, $1, NULL, $3);}
 			| '(' expr ')'			{$$ = $2;}
-			| VARIABLE '[' NUM ']' 	{	
+			| VARIABLE '[' expr ']' 	{	
 										$1->left = $3;	
-										$1->arrayOffset = $3->val;
 										$$ = $1;
 										// $$ = createASTNode(0, 1, 2, $1->varname, 1, $3, NULL, NULL);
 									}
@@ -179,7 +176,7 @@ void yyerror(char const *s){
 int main(int argc, char* argv[]){
 
 	if (argc > 1){
-		yydebug = 1;
+		yydebug = 0;
 		yyparse();
 	}
 	else{

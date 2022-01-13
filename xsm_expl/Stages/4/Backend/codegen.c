@@ -126,7 +126,7 @@ int codeGen(struct ASTNode* root, FILE* filePtr){
 		int resultRegNo = evalExprTree(filePtr, root->right);
 		fprintf(filePtr, "MOV [R%d], R%d\n", getVariableAddress(filePtr, root->left), resultRegNo);
 		freeReg();
-
+		freeReg();
 	}
 
 	// for a READ Node
@@ -134,6 +134,7 @@ int codeGen(struct ASTNode* root, FILE* filePtr){
 
 		int varAddrReg = getVariableAddress(filePtr, root->left);
 		INT_6(filePtr, -1, varAddrReg);
+		freeReg();
 	}
 
  	// for a WRITE Node
@@ -143,7 +144,6 @@ int codeGen(struct ASTNode* root, FILE* filePtr){
 		INT_7(filePtr, -2, resultRegNo);
 		freeReg();
 	}
-
 
 	return 1;
 }

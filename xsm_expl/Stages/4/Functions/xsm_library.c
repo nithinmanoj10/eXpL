@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "xsm_library.h"
+#include "stackMemory.h"
 
 int Write(FILE* filePtr, int arg1, char* arg2, int arg3){
 
@@ -28,4 +29,6 @@ void writeXexeHeader(FILE* filePtr){
 	fprintf(filePtr, "0\n2056\n");
 	for(int i = 0; i < 6; ++i)
 		fprintf(filePtr ,"0\n");	
+
+	fprintf(filePtr, "MOV SP, %d\n", freeStackMemory);
 }

@@ -21,7 +21,7 @@
   15  outputStmt : WRITE expr
 
   16  assignStmt : VARIABLE EQUAL expr
-  17             | VARIABLE '[' NUM ']' EQUAL expr
+  17             | VARIABLE '[' expr ']' EQUAL expr
 
   18  ifStmt : IF expr THEN Slist ELSE Slist ENDIF
   19         | IF expr THEN Slist ENDIF
@@ -64,7 +64,7 @@
   45       | expr GT expr
   46       | expr GTE expr
   47       | '(' expr ')'
-  48       | VARIABLE '[' NUM ']'
+  48       | VARIABLE '[' expr ']'
   49       | VARIABLE
   50       | NUM
   51       | STRING
@@ -233,7 +233,7 @@ state 17
 
 state 18
 	assignStmt : VARIABLE . EQUAL expr  (16)
-	assignStmt : VARIABLE . '[' NUM ']' EQUAL expr  (17)
+	assignStmt : VARIABLE . '[' expr ']' EQUAL expr  (17)
 
 	EQUAL  shift 41
 	'['  shift 42
@@ -457,14 +457,19 @@ state 41
 
 
 state 42
-	assignStmt : VARIABLE '[' . NUM ']' EQUAL expr  (17)
+	assignStmt : VARIABLE '[' . expr ']' EQUAL expr  (17)
 
-	NUM  shift 58
+	VARIABLE  shift 43
+	NUM  shift 44
+	STRING  shift 45
+	'('  shift 46
 	.  error
+
+	expr  goto 58
 
 
 state 43
-	expr : VARIABLE . '[' NUM ']'  (48)
+	expr : VARIABLE . '[' expr ']'  (48)
 	expr : VARIABLE .  (49)
 
 	'['  shift 59
@@ -483,6 +488,7 @@ state 43
 	LTE  reduce 49
 	GT  reduce 49
 	GTE  reduce 49
+	']'  reduce 49
 	')'  reduce 49
 
 
@@ -717,17 +723,44 @@ state 57
 
 
 state 58
-	assignStmt : VARIABLE '[' NUM . ']' EQUAL expr  (17)
+	assignStmt : VARIABLE '[' expr . ']' EQUAL expr  (17)
+	expr : expr . PLUS expr  (36)
+	expr : expr . MINUS expr  (37)
+	expr : expr . MUL expr  (38)
+	expr : expr . DIV expr  (39)
+	expr : expr . MOD expr  (40)
+	expr : expr . EQ expr  (41)
+	expr : expr . NEQ expr  (42)
+	expr : expr . LT expr  (43)
+	expr : expr . LTE expr  (44)
+	expr : expr . GT expr  (45)
+	expr : expr . GTE expr  (46)
 
+	PLUS  shift 61
+	MINUS  shift 62
+	MUL  shift 63
+	DIV  shift 64
+	MOD  shift 65
+	EQ  shift 66
+	NEQ  shift 67
+	LT  shift 68
+	LTE  shift 69
+	GT  shift 70
+	GTE  shift 71
 	']'  shift 79
 	.  error
 
 
 state 59
-	expr : VARIABLE '[' . NUM ']'  (48)
+	expr : VARIABLE '[' . expr ']'  (48)
 
-	NUM  shift 80
+	VARIABLE  shift 43
+	NUM  shift 44
+	STRING  shift 45
+	'('  shift 46
 	.  error
+
+	expr  goto 80
 
 
 state 60
@@ -985,15 +1018,37 @@ state 78
 
 
 state 79
-	assignStmt : VARIABLE '[' NUM ']' . EQUAL expr  (17)
+	assignStmt : VARIABLE '[' expr ']' . EQUAL expr  (17)
 
 	EQUAL  shift 97
 	.  error
 
 
 state 80
-	expr : VARIABLE '[' NUM . ']'  (48)
+	expr : expr . PLUS expr  (36)
+	expr : expr . MINUS expr  (37)
+	expr : expr . MUL expr  (38)
+	expr : expr . DIV expr  (39)
+	expr : expr . MOD expr  (40)
+	expr : expr . EQ expr  (41)
+	expr : expr . NEQ expr  (42)
+	expr : expr . LT expr  (43)
+	expr : expr . LTE expr  (44)
+	expr : expr . GT expr  (45)
+	expr : expr . GTE expr  (46)
+	expr : VARIABLE '[' expr . ']'  (48)
 
+	PLUS  shift 61
+	MINUS  shift 62
+	MUL  shift 63
+	DIV  shift 64
+	MOD  shift 65
+	EQ  shift 66
+	NEQ  shift 67
+	LT  shift 68
+	LTE  shift 69
+	GT  shift 70
+	GTE  shift 71
 	']'  shift 98
 	.  error
 
@@ -1033,6 +1088,7 @@ state 82
 	LTE  reduce 36
 	GT  reduce 36
 	GTE  reduce 36
+	']'  reduce 36
 	')'  reduce 36
 
 
@@ -1065,6 +1121,7 @@ state 83
 	LTE  reduce 37
 	GT  reduce 37
 	GTE  reduce 37
+	']'  reduce 37
 	')'  reduce 37
 
 
@@ -1148,6 +1205,7 @@ state 87
 	SEMICOLON  reduce 41
 	EQ  reduce 41
 	NEQ  reduce 41
+	']'  reduce 41
 	')'  reduce 41
 
 
@@ -1180,6 +1238,7 @@ state 88
 	SEMICOLON  reduce 42
 	EQ  reduce 42
 	NEQ  reduce 42
+	']'  reduce 42
 	')'  reduce 42
 
 
@@ -1212,6 +1271,7 @@ state 89
 	LTE  reduce 43
 	GT  reduce 43
 	GTE  reduce 43
+	']'  reduce 43
 	')'  reduce 43
 
 
@@ -1244,6 +1304,7 @@ state 90
 	LTE  reduce 44
 	GT  reduce 44
 	GTE  reduce 44
+	']'  reduce 44
 	')'  reduce 44
 
 
@@ -1276,6 +1337,7 @@ state 91
 	LTE  reduce 45
 	GT  reduce 45
 	GTE  reduce 45
+	']'  reduce 45
 	')'  reduce 45
 
 
@@ -1308,6 +1370,7 @@ state 92
 	LTE  reduce 46
 	GT  reduce 46
 	GTE  reduce 46
+	']'  reduce 46
 	')'  reduce 46
 
 
@@ -1408,7 +1471,7 @@ state 96
 
 
 state 97
-	assignStmt : VARIABLE '[' NUM ']' EQUAL . expr  (17)
+	assignStmt : VARIABLE '[' expr ']' EQUAL . expr  (17)
 
 	VARIABLE  shift 43
 	NUM  shift 44
@@ -1420,7 +1483,7 @@ state 97
 
 
 state 98
-	expr : VARIABLE '[' NUM ']' .  (48)
+	expr : VARIABLE '[' expr ']' .  (48)
 
 	.  reduce 48
 
@@ -1477,7 +1540,7 @@ state 103
 
 
 state 104
-	assignStmt : VARIABLE '[' NUM ']' EQUAL expr .  (17)
+	assignStmt : VARIABLE '[' expr ']' EQUAL expr .  (17)
 	expr : expr . PLUS expr  (36)
 	expr : expr . MINUS expr  (37)
 	expr : expr . MUL expr  (38)
