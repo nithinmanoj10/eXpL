@@ -113,7 +113,7 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree)
         break;
 
     case DO_WHILE_NODE:
-        if (leftTree->dataType != TYPE_BOOL)
+        if (rightTree->dataType != TYPE_BOOL)
         {
             printf("\nType Error: Conditional Statement of DO WHILE should be of type BOOL\n");
             exit(1);

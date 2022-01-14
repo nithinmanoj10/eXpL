@@ -606,7 +606,7 @@ yyreduce:
 case 1:
 #line 49 "ast.y"
 	{
-														printAST(yystack.l_mark[-2].node);
+														/* printAST($2);*/
 														FILE* filePtr = fopen("../Target_Files/round1.xsm", "w");
 														/* // printAST($3);	*/
 														/* // printGST();*/

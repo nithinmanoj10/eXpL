@@ -47,7 +47,7 @@
 %%
 
 start 	: BEGIN_ Slist END SEMICOLON	{
-														printAST($2);
+														// printAST($2);
 														FILE* filePtr = fopen("../Target_Files/round1.xsm", "w");
 														// // printAST($3);	
 														// // printGST();
