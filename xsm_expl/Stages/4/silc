@@ -5,7 +5,7 @@ cd ./Frontend
 
 byacc -d -v -t ast.y
 lex ast.l
-gcc y.tab.c lex.yy.c ast.c ../Backend/codegen.c ../Data_Structures/loopStack.c ../Data_Structures/declarationsTree.c ../Data_Structures/globalSymbolTable.c ../Functions/reg.c ../Functions/label.c ../Functions/xsm_syscalls.c ../Functions/xsm_library.c ../Functions/stackMemory.c ../Functions/stringMan.c -g -o ast
+gcc y.tab.c lex.yy.c ast.c ../Backend/codegen.c ../Data_Structures/loopStack.c ../Data_Structures/declarationsTree.c ../Data_Structures/globalSymbolTable.c ../Functions/reg.c ../Functions/label.c ../Functions/xsm_syscalls.c ../Functions/xsm_library.c ../Functions/stackMemory.c ../Functions/stringMan.c ../Functions/typeCheck.c -g -o ast
  # clear
 
 echo "⏳ Compiling $1"

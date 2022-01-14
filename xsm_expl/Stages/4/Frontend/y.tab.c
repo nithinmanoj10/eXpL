@@ -606,7 +606,7 @@ yyreduce:
 case 1:
 #line 49 "ast.y"
 	{
-														/* printAST($2);*/
+														printAST(yystack.l_mark[-2].node);
 														FILE* filePtr = fopen("../Target_Files/round1.xsm", "w");
 														/* // printAST($3);	*/
 														/* // printGST();*/
@@ -626,7 +626,7 @@ break;
 case 3:
 #line 65 "ast.y"
 	{   /* $$ = createASTNode(0, 1, 6, "C", -1, $1, NULL, $2);*/
-									yyval.node = TreeCreate(SLIST_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[-1].node);
+									yyval.node = TreeCreate(TYPE_VOID, SLIST_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[-1].node);
 								}
 break;
 case 4:
@@ -640,7 +640,7 @@ break;
 case 14:
 #line 76 "ast.y"
 	{	/* 	$$ = createASTNode(0, 1, 4, "R", -1, $2, NULL, NULL); */
-									yyval.node = TreeCreate(READ_NODE, NULL, 0, NULL, yystack.l_mark[0].node, NULL, NULL);
+									yyval.node = TreeCreate(TYPE_VOID, READ_NODE, NULL, 0, NULL, yystack.l_mark[0].node, NULL, NULL);
 									++lineCount;
 								}
 break;
@@ -648,7 +648,7 @@ case 15:
 #line 82 "ast.y"
 	{
 									/* $$ = createASTNode(0, 1, 5, "W", -1, $2, NULL, NULL); */
-									yyval.node = TreeCreate(WRITE_NODE, NULL, 0, NULL, yystack.l_mark[0].node, NULL, NULL);
+									yyval.node = TreeCreate(TYPE_VOID, WRITE_NODE, NULL, 0, NULL, yystack.l_mark[0].node, NULL, NULL);
 									++lineCount;
 								}
 break;
@@ -656,7 +656,7 @@ case 16:
 #line 89 "ast.y"
 	{
 											/* $$ = createASTNode(0, 1, 3, "=", -1, $1, NULL, $3);*/
-											yyval.node = TreeCreate(ASGN_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node);
+											yyval.node = TreeCreate(TYPE_VOID, ASGN_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node);
 											++lineCount;
 										}
 break;
@@ -672,7 +672,7 @@ case 18:
 #line 102 "ast.y"
 	{
 		/* $$ = createASTNode(0, 2, 7, "I", -1, $2, $4, $6);  */
-		yyval.node = TreeCreate(IF_NODE, NULL, 0, NULL, yystack.l_mark[-5].node, yystack.l_mark[-3].node, yystack.l_mark[-1].node);
+		yyval.node = TreeCreate(TYPE_VOID, IF_NODE, NULL, 0, NULL, yystack.l_mark[-5].node, yystack.l_mark[-3].node, yystack.l_mark[-1].node);
 		++lineCount;	
 	}
 break;
@@ -680,7 +680,7 @@ case 19:
 #line 107 "ast.y"
 	{
 									/* $$ = createASTNode(0, 2, 7, "I", -1, $2, $4, NULL);*/
-									yyval.node = TreeCreate(IF_NODE, NULL, 0, NULL, yystack.l_mark[-3].node, yystack.l_mark[-1].node, NULL);
+									yyval.node = TreeCreate(TYPE_VOID, IF_NODE, NULL, 0, NULL, yystack.l_mark[-3].node, yystack.l_mark[-1].node, NULL);
 									++lineCount;
 								}
 break;
@@ -688,7 +688,7 @@ case 20:
 #line 114 "ast.y"
 	{
 											/* $$ = createASTNode(0, 2, 7, "W", -1, $2, NULL, $4);*/
-											yyval.node = TreeCreate(WHILE_NODE, NULL, 0, NULL, yystack.l_mark[-3].node, NULL, yystack.l_mark[-1].node);	
+											yyval.node = TreeCreate(TYPE_VOID, WHILE_NODE, NULL, 0, NULL, yystack.l_mark[-3].node, NULL, yystack.l_mark[-1].node);	
 											++lineCount;
 											}
 break;
@@ -696,7 +696,7 @@ case 21:
 #line 121 "ast.y"
 	{ 
 											 	/* $$ = createASTNode(0, 2, 7, "DW", -1, $2, NULL, $4);*/
-												yyval.node = TreeCreate(DO_WHILE_NODE, NULL, 0, NULL, yystack.l_mark[-3].node, NULL, yystack.l_mark[-1].node);
+												yyval.node = TreeCreate(TYPE_VOID, DO_WHILE_NODE, NULL, 0, NULL, yystack.l_mark[-3].node, NULL, yystack.l_mark[-1].node);
 												++lineCount;
 											}
 break;
@@ -704,87 +704,87 @@ case 22:
 #line 128 "ast.y"
 	{ 
 							/* $$ = createASTNode(0, 0, 7, "B", -1, NULL, NULL, NULL);*/
-							yyval.node = TreeCreate(BREAK_NODE, NULL, 0, NULL, NULL, NULL, NULL);
+							yyval.node = TreeCreate(TYPE_VOID, BREAK_NODE, NULL, 0, NULL, NULL, NULL, NULL);
 						}
 break;
 case 23:
 #line 134 "ast.y"
 	{ 
 								/* $$ = createASTNode(0, 0, 7, "CN", -1, NULL, NULL, NULL);*/
-								yyval.node = TreeCreate(CONTINUE_NODE, NULL, 0, NULL, NULL, NULL, NULL);
+								yyval.node = TreeCreate(TYPE_VOID, CONTINUE_NODE, NULL, 0, NULL, NULL, NULL, NULL);
 							}
 break;
 case 24:
 #line 140 "ast.y"
 	{ 
 									/* $$ = createASTNode(0, 0, 8, "BR", -1, NULL, NULL, NULL);*/
-									yyval.node = TreeCreate(BREAKPOINT_NODE, NULL, 0, NULL, NULL, NULL, NULL);
+									yyval.node = TreeCreate(TYPE_VOID, BREAKPOINT_NODE, NULL, 0, NULL, NULL, NULL, NULL);
 								}
 break;
 case 25:
 #line 180 "ast.y"
 	{/* $$ = createASTNode(0, 1, 3, "+", -1, $1, NULL, $3);*/
-										yyval.node =  TreeCreate(PLUS_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node);
+										yyval.node =  TreeCreate(TYPE_INT, PLUS_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node);
 									}
 break;
 case 26:
 #line 183 "ast.y"
 	{/* $$ = createASTNode(0, 1, 3, "-", -1, $1, NULL, $3);*/
-										yyval.node =  TreeCreate(MINUS_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node);			
+										yyval.node =  TreeCreate(TYPE_INT, MINUS_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node);			
 												}
 break;
 case 27:
 #line 186 "ast.y"
 	{/* $$ = createASTNode(0, 1, 3, "*", -1, $1, NULL, $3);*/
-										yyval.node =  TreeCreate(MUL_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node);			
+										yyval.node =  TreeCreate(TYPE_INT, MUL_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node);			
 												}
 break;
 case 28:
 #line 189 "ast.y"
 	{/* $$ = createASTNode(0, 1, 3, "/", -1, $1, NULL, $3);*/
-										yyval.node =  TreeCreate(DIV_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node);			
+										yyval.node =  TreeCreate(TYPE_INT, DIV_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node);			
 												}
 break;
 case 29:
 #line 192 "ast.y"
 	{/* $$ = createASTNode(0, 1, 3, "%", -1, $1, NULL, $3);*/
-										yyval.node =  TreeCreate(MOD_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node);			
+										yyval.node =  TreeCreate(TYPE_INT, MOD_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node);			
 												}
 break;
 case 30:
 #line 195 "ast.y"
 	{/* $$ = createASTNode(0, 2, 3, "==", -1, $1, NULL, $3)*/
-										yyval.node =  TreeCreate(EQ_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node);			
+										yyval.node =  TreeCreate(TYPE_BOOL, EQ_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node);			
 												;}
 break;
 case 31:
 #line 198 "ast.y"
 	{/* $$ = createASTNode(0, 2, 3, "!=", -1, $1, NULL, $3)*/
-										yyval.node =  TreeCreate(NE_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node);			
+										yyval.node =  TreeCreate(TYPE_BOOL, NE_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node);			
 												;}
 break;
 case 32:
 #line 201 "ast.y"
 	{/* $$ = createASTNode(0, 2, 3, "<", -1, $1, NULL, $3);*/
-										yyval.node =  TreeCreate(LT_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node);			
+										yyval.node =  TreeCreate(TYPE_BOOL, LT_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node);			
 												}
 break;
 case 33:
 #line 204 "ast.y"
 	{/* $$ = createASTNode(0, 2, 3, "<=", -1, $1, NULL, $3)*/
-										yyval.node =  TreeCreate(LE_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node);			
+										yyval.node =  TreeCreate(TYPE_BOOL, LE_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node);			
 												;}
 break;
 case 34:
 #line 207 "ast.y"
 	{/* $$ = createASTNode(0, 2, 3, ">", -1, $1, NULL, $3);*/
-										yyval.node =  TreeCreate(GT_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node);			
+										yyval.node =  TreeCreate(TYPE_BOOL, GT_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node);			
 												}
 break;
 case 35:
 #line 210 "ast.y"
 	{/* $$ = createASTNode(0, 2, 3, ">=", -1, $1, NULL, $3)*/
-										yyval.node =  TreeCreate(GE_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node);			
+										yyval.node =  TreeCreate(TYPE_BOOL, GE_NODE, NULL, 0, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node);			
 												;}
 break;
 case 36:

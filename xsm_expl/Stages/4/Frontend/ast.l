@@ -44,7 +44,7 @@
 	}
 
 			// yylval.node = createASTNode(0, 1, 2, yytext, -1, NULL, NULL, NULL);
-			yylval.node = TreeCreate(ID_NODE, yytext, 0, NULL, NULL, NULL, NULL);
+			yylval.node = TreeCreate(TYPE_INT, ID_NODE, yytext, 0, NULL, NULL, NULL, NULL);
 			return ID;
 	}
 
@@ -79,7 +79,7 @@
 
 [0-9]+	{
 		// yylval.node = createASTNode(atoi(yytext), 1, 1, "N", -1, NULL, NULL, NULL);
-		yylval.node = TreeCreate(CONST_INT_NODE, NULL, atoi(yytext), NULL, NULL, NULL, NULL);
+		yylval.node = TreeCreate(TYPE_INT, CONST_INT_NODE, NULL, atoi(yytext), NULL, NULL, NULL, NULL);
 		return NUM;
 	}
 
@@ -89,7 +89,7 @@
 ["][a-zA-Z0-9" "]*["] {	/* For strings */
 		char* stringConst = removeStringQuotes(yytext);
 		// yylval.node = createASTNode(0, 3, 9, stringConst, -1, NULL, NULL, NULL);
-		yylval.node = TreeCreate(CONST_STR_NODE, NULL, 0, stringConst, NULL, NULL, NULL);
+		yylval.node = TreeCreate(TYPE_STR, CONST_STR_NODE, NULL, 0, stringConst, NULL, NULL, NULL);
 		 //ntf("\nString: %s\n", yytext);
 		return STRING;
 }

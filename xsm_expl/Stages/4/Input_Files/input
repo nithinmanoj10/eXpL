@@ -1,14 +1,5 @@
 begin
 	
-	a = 0;
-
-	while (a < 10) do
-		if (a % 2 == 0) then
-			write(a);
-		else
-			break;
-		endif;
-		a = a + 1;
-	endwhile;
+	write(a<b);
 
 end;

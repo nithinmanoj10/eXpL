@@ -47,7 +47,7 @@
 %%
 
 start 	: BEGIN_ Slist END SEMICOLON	{
-														// printAST($2);
+														printAST($2);
 														FILE* filePtr = fopen("../Target_Files/round1.xsm", "w");
 														// // printAST($3);	
 														// // printGST();
@@ -63,7 +63,7 @@ start 	: BEGIN_ Slist END SEMICOLON	{
 									};
 
 Slist	: Slist Stmt SEMICOLON 	{   // $$ = createASTNode(0, 1, 6, "C", -1, $1, NULL, $2);
-									$$ = TreeCreate(SLIST_NODE, NULL, 0, NULL, $1, NULL, $2);
+									$$ = TreeCreate(TYPE_VOID, SLIST_NODE, NULL, 0, NULL, $1, NULL, $2);
 								}
 		| Stmt SEMICOLON		{}				;
 
@@ -74,21 +74,21 @@ Stmt	: inputStmt | outputStmt | assignStmt
 		;
 
 inputStmt : READ expr	 		{	// 	$$ = createASTNode(0, 1, 4, "R", -1, $2, NULL, NULL); 
-									$$ = TreeCreate(READ_NODE, NULL, 0, NULL, $2, NULL, NULL);
+									$$ = TreeCreate(TYPE_VOID, READ_NODE, NULL, 0, NULL, $2, NULL, NULL);
 									++lineCount;
 								}
 	  			;
 
 outputStmt : WRITE expr 		{
 									// $$ = createASTNode(0, 1, 5, "W", -1, $2, NULL, NULL); 
-									$$ = TreeCreate(WRITE_NODE, NULL, 0, NULL, $2, NULL, NULL);
+									$$ = TreeCreate(TYPE_VOID, WRITE_NODE, NULL, 0, NULL, $2, NULL, NULL);
 									++lineCount;
 								}
 	   			 ;
 
 assignStmt 	: ID EQUAL expr				{
 											// $$ = createASTNode(0, 1, 3, "=", -1, $1, NULL, $3);
-											$$ = TreeCreate(ASGN_NODE, NULL, 0, NULL, $1, NULL, $3);
+											$$ = TreeCreate(TYPE_VOID, ASGN_NODE, NULL, 0, NULL, $1, NULL, $3);
 											++lineCount;
 										}
 			| ID '[' expr ']' EQUAL expr	{	 
@@ -101,45 +101,45 @@ assignStmt 	: ID EQUAL expr				{
 ifStmt	: IF expr THEN Slist ELSE Slist ENDIF
 	{
 		// $$ = createASTNode(0, 2, 7, "I", -1, $2, $4, $6);  
-		$$ = TreeCreate(IF_NODE, NULL, 0, NULL, $2, $4, $6);
+		$$ = TreeCreate(TYPE_VOID, IF_NODE, NULL, 0, NULL, $2, $4, $6);
 		++lineCount;	
 	}
 	| IF expr THEN Slist ENDIF {
 									// $$ = createASTNode(0, 2, 7, "I", -1, $2, $4, NULL);
-									$$ = TreeCreate(IF_NODE, NULL, 0, NULL, $2, $4, NULL);
+									$$ = TreeCreate(TYPE_VOID, IF_NODE, NULL, 0, NULL, $2, $4, NULL);
 									++lineCount;
 								}
 	;
 
 whileStmt : WHILE expr DO Slist ENDWHILE {
 											// $$ = createASTNode(0, 2, 7, "W", -1, $2, NULL, $4);
-											$$ = TreeCreate(WHILE_NODE, NULL, 0, NULL, $2, NULL, $4);	
+											$$ = TreeCreate(TYPE_VOID, WHILE_NODE, NULL, 0, NULL, $2, NULL, $4);	
 											++lineCount;
 											}
 	  ;
 
 doWhileStmt : DO Slist WHILE expr ENDWHILE  { 
 											 	// $$ = createASTNode(0, 2, 7, "DW", -1, $2, NULL, $4);
-												$$ = TreeCreate(DO_WHILE_NODE, NULL, 0, NULL, $2, NULL, $4);
+												$$ = TreeCreate(TYPE_VOID, DO_WHILE_NODE, NULL, 0, NULL, $2, NULL, $4);
 												++lineCount;
 											}
  	    ;			
 
 breakStmt : BREAK		{ 
 							// $$ = createASTNode(0, 0, 7, "B", -1, NULL, NULL, NULL);
-							$$ = TreeCreate(BREAK_NODE, NULL, 0, NULL, NULL, NULL, NULL);
+							$$ = TreeCreate(TYPE_VOID, BREAK_NODE, NULL, 0, NULL, NULL, NULL, NULL);
 						}
 	  ;
 
 continueStmt : CONTINUE		{ 
 								// $$ = createASTNode(0, 0, 7, "CN", -1, NULL, NULL, NULL);
-								$$ = TreeCreate(CONTINUE_NODE, NULL, 0, NULL, NULL, NULL, NULL);
+								$$ = TreeCreate(TYPE_VOID, CONTINUE_NODE, NULL, 0, NULL, NULL, NULL, NULL);
 							}	 
 	     				;
 
 breakPointStmt	:	BREAKPOINT { 
 									// $$ = createASTNode(0, 0, 8, "BR", -1, NULL, NULL, NULL);
-									$$ = TreeCreate(BREAKPOINT_NODE, NULL, 0, NULL, NULL, NULL, NULL);
+									$$ = TreeCreate(TYPE_VOID, BREAKPOINT_NODE, NULL, 0, NULL, NULL, NULL, NULL);
 								}
 							 	;
 
@@ -178,37 +178,37 @@ VarList	:	VarList COMMA ID 							{ $$ = createDTNode(2, 0, $3->varname, 1, $1, 
 		; */
 
 expr		: expr PLUS expr		{// $$ = createASTNode(0, 1, 3, "+", -1, $1, NULL, $3);
-										$$ =  TreeCreate(PLUS_NODE, NULL, 0, NULL, $1, NULL, $3);
+										$$ =  TreeCreate(TYPE_INT, PLUS_NODE, NULL, 0, NULL, $1, NULL, $3);
 									}
 			| expr MINUS expr 		{// $$ = createASTNode(0, 1, 3, "-", -1, $1, NULL, $3);
-										$$ =  TreeCreate(MINUS_NODE, NULL, 0, NULL, $1, NULL, $3);			
+										$$ =  TreeCreate(TYPE_INT, MINUS_NODE, NULL, 0, NULL, $1, NULL, $3);			
 												}
 			| expr MUL expr 		{// $$ = createASTNode(0, 1, 3, "*", -1, $1, NULL, $3);
-										$$ =  TreeCreate(MUL_NODE, NULL, 0, NULL, $1, NULL, $3);			
+										$$ =  TreeCreate(TYPE_INT, MUL_NODE, NULL, 0, NULL, $1, NULL, $3);			
 												}
 			| expr DIV expr			{// $$ = createASTNode(0, 1, 3, "/", -1, $1, NULL, $3);
-										$$ =  TreeCreate(DIV_NODE, NULL, 0, NULL, $1, NULL, $3);			
+										$$ =  TreeCreate(TYPE_INT, DIV_NODE, NULL, 0, NULL, $1, NULL, $3);			
 												}
 			| expr MOD expr			{// $$ = createASTNode(0, 1, 3, "%", -1, $1, NULL, $3);
-										$$ =  TreeCreate(MOD_NODE, NULL, 0, NULL, $1, NULL, $3);			
+										$$ =  TreeCreate(TYPE_INT, MOD_NODE, NULL, 0, NULL, $1, NULL, $3);			
 												}
 			| expr EQ expr			{// $$ = createASTNode(0, 2, 3, "==", -1, $1, NULL, $3)
-										$$ =  TreeCreate(EQ_NODE, NULL, 0, NULL, $1, NULL, $3);			
+										$$ =  TreeCreate(TYPE_BOOL, EQ_NODE, NULL, 0, NULL, $1, NULL, $3);			
 												;}
 			| expr NEQ expr			{// $$ = createASTNode(0, 2, 3, "!=", -1, $1, NULL, $3)
-										$$ =  TreeCreate(NE_NODE, NULL, 0, NULL, $1, NULL, $3);			
+										$$ =  TreeCreate(TYPE_BOOL, NE_NODE, NULL, 0, NULL, $1, NULL, $3);			
 												;}
 			| expr LT expr			{// $$ = createASTNode(0, 2, 3, "<", -1, $1, NULL, $3);
-										$$ =  TreeCreate(LT_NODE, NULL, 0, NULL, $1, NULL, $3);			
+										$$ =  TreeCreate(TYPE_BOOL, LT_NODE, NULL, 0, NULL, $1, NULL, $3);			
 												}
 			| expr LTE expr			{// $$ = createASTNode(0, 2, 3, "<=", -1, $1, NULL, $3)
-										$$ =  TreeCreate(LE_NODE, NULL, 0, NULL, $1, NULL, $3);			
+										$$ =  TreeCreate(TYPE_BOOL, LE_NODE, NULL, 0, NULL, $1, NULL, $3);			
 												;}
 			| expr GT expr			{// $$ = createASTNode(0, 2, 3, ">", -1, $1, NULL, $3);
-										$$ =  TreeCreate(GT_NODE, NULL, 0, NULL, $1, NULL, $3);			
+										$$ =  TreeCreate(TYPE_BOOL, GT_NODE, NULL, 0, NULL, $1, NULL, $3);			
 												}
 			| expr GTE expr			{// $$ = createASTNode(0, 2, 3, ">=", -1, $1, NULL, $3)
-										$$ =  TreeCreate(GE_NODE, NULL, 0, NULL, $1, NULL, $3);			
+										$$ =  TreeCreate(TYPE_BOOL, GE_NODE, NULL, 0, NULL, $1, NULL, $3);			
 												;}
 			| '(' expr ')'			{$$ = $2;}
 			| ID '[' expr ']' 	{	

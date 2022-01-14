@@ -3,13 +3,17 @@
 #include <string.h>
 #include "ast.h"
 #include "../Functions/reg.h"
+#include "../Functions/typeCheck.h"
 #include "../Data_Structures/globalSymbolTable.h"
 
-struct ASTNode *TreeCreate(int nodeType, char *nodeName, int intConstVal, char *strConstVal, struct ASTNode *left, struct ASTNode *middle, struct ASTNode *right)
+struct ASTNode *TreeCreate(int dataType, int nodeType, char *nodeName, int intConstVal, char *strConstVal, struct ASTNode *left, struct ASTNode *middle, struct ASTNode *right)
 {
+
+    typeCheck(nodeType, left, right);
 
     struct ASTNode *newASTNode = (struct ASTNode *)malloc(sizeof(struct ASTNode));
 
+    newASTNode->dataType = dataType;
     newASTNode->nodeType = nodeType;
     newASTNode->nodeName = NULL;
     newASTNode->intConstVal = intConstVal;
@@ -45,6 +49,7 @@ int printAST(struct ASTNode *root)
     printAST(root->middle);
     printAST(root->right);
 
+    printf("Data Type: %d\n", root->dataType);
     printf("nodeType: %d\n", root->nodeType);
     printf("nodeName: %s\n", root->nodeName);
     printf("intConstVal: %d\n", root->intConstVal);

@@ -38,9 +38,15 @@
 
 #define BREAKPOINT_NODE 23 // Breakpoint Node
 
+#define TYPE_INT 50
+#define TYPE_BOOL 51
+#define TYPE_VOID 52
+#define TYPE_STR 53
+
 // TODO: Add typetable field
 struct ASTNode
 {
+    int dataType;                          // Data type of the node
     int nodeType;                          // Type of the node
     char *nodeName;                        // Name of variable
     int intConstVal;                       // Value of int const
@@ -49,7 +55,7 @@ struct ASTNode
     struct globalSTNode *GSTEntry;         // Pointer to Global Symbol Table entry for a variable
 } astnode;
 
-struct ASTNode *TreeCreate(int nodeType, char *nodeName, int intConstVal, char *strConstVal, struct ASTNode *left, struct ASTNode *middle, struct ASTNode *right);
+struct ASTNode *TreeCreate(int dataType, int nodeType, char *nodeName, int intConstVal, char *strConstVal, struct ASTNode *left, struct ASTNode *middle, struct ASTNode *right);
 
 int printAST(struct ASTNode *root);
 
