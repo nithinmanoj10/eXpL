@@ -1,21 +1,13 @@
 decl
-	int num, sum, age;
+	int num, sum, age[10];
 	str msg;
+	int dum;
 enddecl
 
 begin
-	read(num);
-	sum = 0;
-
-	while (num != 0) do
-		sum = sum + num;
-		read(num);
-		breakpoint;
-	endwhile;
+	msg = "hello world";
 	
-	// msg = "Hello World";
-	msg = 1;
+	age[0 + 3] = 3;
+	write(age[3]);
 
-	write(sum);
-	age = 20;
 end;

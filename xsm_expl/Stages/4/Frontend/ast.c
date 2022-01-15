@@ -4,7 +4,7 @@
 #include "ast.h"
 #include "../Functions/reg.h"
 #include "../Functions/typeCheck.h"
-#include "../Data_Structures/globalSymbolTable.h"
+#include "../Data_Structures/GSTable.h"
 
 struct ASTNode *TreeCreate(int dataType, int nodeType, char *nodeName, int intConstVal, char *strConstVal, struct ASTNode *left, struct ASTNode *middle, struct ASTNode *right)
 {
@@ -21,6 +21,7 @@ struct ASTNode *TreeCreate(int dataType, int nodeType, char *nodeName, int intCo
     newASTNode->left = left;
     newASTNode->right = right;
     newASTNode->middle = middle;
+    newASTNode->GSTEntry = NULL;
 
     if (nodeName != NULL)
     {
@@ -35,6 +36,20 @@ struct ASTNode *TreeCreate(int dataType, int nodeType, char *nodeName, int intCo
     }
 
     // TODO: GST Entry node
+    if (nodeType == ID_NODE && getDeclarationStatus() == DECL_END)
+    {
+
+        struct GSTNode *GSTEntry = GSTLookup(nodeName);
+
+        if (GSTEntry == NULL)
+        {
+            printf("\nVariable %s undeclared before use\n", nodeName);
+            exit(1);
+        }
+
+        newASTNode->GSTEntry = GSTEntry;
+        newASTNode->dataType = GSTEntry->type;
+    }
 
     return newASTNode;
 }
@@ -49,15 +64,15 @@ int printAST(struct ASTNode *root)
     printAST(root->middle);
     printAST(root->right);
 
-    printf("Data Type: %d\n", root->dataType);
-    printf("nodeType: %d\n", root->nodeType);
-    printf("nodeName: %s\n", root->nodeName);
-    printf("intConstVal: %d\n", root->intConstVal);
-    printf("strConstVal: %s\n", root->strConstVal);
-    printf("left: %p\n", root->left);
-    printf("middle: %p\n", root->middle);
-    printf("right: %p\n", root->right);
-    printf("GST: %p\n\n", root->GSTEntry);
+    printf("🌳 nodeName: %s\n", root->nodeName);
+    printf("➡ Data Type: %d\n", root->dataType);
+    printf("➡ nodeType: %d\n", root->nodeType);
+    printf("➡ intConstVal: %d\n", root->intConstVal);
+    printf("➡ strConstVal: %s\n", root->strConstVal);
+    printf("➡ left: %p\n", root->left);
+    printf("➡ middle: %p\n", root->middle);
+    printf("➡ right: %p\n", root->right);
+    printf("➡ GST: %p\n\n", root->GSTEntry);
 
     return 0;
 }
@@ -65,7 +80,7 @@ int printAST(struct ASTNode *root)
 int getVariableAddress(FILE *filePtr, struct ASTNode *root)
 {
     int variableAddrReg = getReg();
-    int variableAddr = root->GSTEntry->binding; // TODO: GST Struct
+    int variableAddr = root->GSTEntry->binding;
 
     fprintf(filePtr, "MOV R%d, %d\n", variableAddrReg, variableAddr);
 
@@ -103,8 +118,6 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
         int reg1 = getReg();
         int val;
 
-        // TODO: Array Variables
-
         if (root->nodeType == CONST_INT_NODE)
             fprintf(filePtr, "MOV R%d, %d\n", reg1, root->intConstVal);
 
@@ -113,7 +126,7 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
 
         if (root->nodeType == ID_NODE)
         {
-            fprintf(filePtr, "MOV R%d, [R%d]\n", reg1, getAddress(filePtr, root));
+            fprintf(filePtr, "MOV R%d, [R%d]\n", reg1, getVariableAddress(filePtr, root));
             freeReg();
         }
 

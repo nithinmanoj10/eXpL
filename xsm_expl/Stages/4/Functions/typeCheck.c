@@ -127,17 +127,17 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree)
             exit(1);
         }
 
-        if (leftTree->dataType != TYPE_INT)
+        if (leftTree->dataType != TYPE_INT && leftTree->dataType != TYPE_STR)
         {
-            printf("\nType Error: read() expects argument of type INT\n");
+            printf("\nType Error: read() expects argument of type INT or STR\n");
             exit(1);
         }
         break;
 
     case WRITE_NODE:
-        if (leftTree->dataType != TYPE_INT)
+        if (leftTree->dataType != TYPE_INT && leftTree->dataType != TYPE_STR)
         {
-            printf("\nType Error: write() expects argument of type INT\n");
+            printf("\nType Error: write() expects argument of type INT or STR\n");
             exit(1);
         }
         break;
@@ -149,9 +149,9 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree)
             exit(1);
         }
 
-        if (rightTree->dataType != TYPE_INT)
+        if (rightTree->dataType != TYPE_INT && rightTree->dataType != TYPE_STR)
         {
-            printf("\nType Error: Assignment Operator expects data type INT in RHS\n");
+            printf("\nType Error: Assignment Operator expects data type INT or STR in RHS\n");
             exit(1);
         }
 

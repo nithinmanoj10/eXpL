@@ -3,6 +3,8 @@
     "*.spl": "spl",
     "ast.h": "c",
     "globalsymboltable.h": "c",
-    "reg.h": "c"
-  }
+    "reg.h": "c",
+    "gstable.h": "c"
+  },
+  "C_Cpp.dimInactiveRegions": false
 }

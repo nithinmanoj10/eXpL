@@ -3,7 +3,6 @@
 	#include <stdlib.h>
 	#include "y.tab.h"
 	#include "ast.h"
-	#include "../Data_Structures/declarationsTree.h"
 	#include "../Functions/stringMan.h"
 
 	int yywrap();
@@ -15,11 +14,11 @@
 
 "begin" 			{ return BEGIN_;}	/* Keywords */
 "end" 				{ return END;}
-	/* "decl"				{ return DECL;} */
-	/* "enddecl"			{ return ENDDECL;} */
-	/* "int"					{ return INT;} */
-	/* "str"					{ return STR;} */
-"breakpoint"	{ return BREAKPOINT;}
+"decl"				{ setDeclarationStatus(DECL_START); return DECL;}
+"enddecl"			{ setDeclarationStatus(DECL_END); return ENDDECL;}
+"int"				{ return INT;}
+"str"				{ return STR;} 
+"breakpoint"		{ return BREAKPOINT;}
 
 "read" 	{ return READ;}		/* Functions */
 "write" { return WRITE;}
@@ -38,13 +37,13 @@
 	
 	// if declaration of all variables are done and
 	// the given variable is not declared
-	if (getDeclarationStatus() == 1 && searchGSTNode(yytext) == NULL) {
-		printf("\n❌ There are undeclared variables in the program\n");
-		exit(1);
-	}
+	// if (getDeclarationStatus() == 1 && searchGSTNode(yytext) == NULL) {
+	// 	printf("\n❌ There are undeclared variables in the program\n");
+	// 	exit(1);
+	// }
 
 			// yylval.node = createASTNode(0, 1, 2, yytext, -1, NULL, NULL, NULL);
-			yylval.node = TreeCreate(TYPE_INT, ID_NODE, yytext, 0, NULL, NULL, NULL, NULL);
+			yylval.node = TreeCreate(TYPE_VOID, ID_NODE, yytext, 0, NULL, NULL, NULL, NULL);
 			return ID;
 	}
 
@@ -112,7 +111,7 @@
 [ \t]		{}
 [\r\n]		{++line;}
 ";"			{return SEMICOLON;}
-	/* ","			{return COMMA;} */
+","			{return COMMA;}
 .	{
 		
 		printf("\n%s", yytext);

@@ -3,7 +3,7 @@
 #define AST_N_H
 
 #include <stdio.h>
-#include "../Data_Structures/globalSymbolTable.h"
+#include "../Data_Structures/GSTable.h"
 
 #define CONST_INT_NODE 0 // Constant Node
 #define CONST_STR_NODE 1
@@ -43,6 +43,10 @@
 #define TYPE_VOID 52
 #define TYPE_STR 53
 
+#define DECL_START 70
+#define DECL_END 71
+#define DECL_NULL 72
+
 // TODO: Add typetable field
 struct ASTNode
 {
@@ -52,7 +56,7 @@ struct ASTNode
     int intConstVal;                       // Value of int const
     char *strConstVal;                     // Value of str const
     struct ASTNode *left, *middle, *right; // Left, middle and right subtrees
-    struct globalSTNode *GSTEntry;         // Pointer to Global Symbol Table entry for a variable
+    struct GSTNode *GSTEntry;              // Pointer to Global Symbol Table entry for a variable
 } astnode;
 
 struct ASTNode *TreeCreate(int dataType, int nodeType, char *nodeName, int intConstVal, char *strConstVal, struct ASTNode *left, struct ASTNode *middle, struct ASTNode *right);

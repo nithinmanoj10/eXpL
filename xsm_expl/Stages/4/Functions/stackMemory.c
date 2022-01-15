@@ -4,9 +4,11 @@
 
 int freeStackMemory = 4096;
 
-int getFreeStackMemory(int num){
+int getFreeStackMemory(int num)
+{
 
-	if (freeStackMemory > 5119) {
+	if (freeStackMemory > 5119)
+	{
 		printf("\n📦 Out of Stack Memory, exiting program\n");
 		exit(1);
 	}
