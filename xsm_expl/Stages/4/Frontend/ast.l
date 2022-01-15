@@ -33,65 +33,26 @@
 "break"		{ return BREAK;}
 "continue"	{ return CONTINUE;}
 
-[a-zA-Z][a-zA-Z0-9]*	{			/* Variables and Numbers */
-	
-	// if declaration of all variables are done and
-	// the given variable is not declared
-	// if (getDeclarationStatus() == 1 && searchGSTNode(yytext) == NULL) {
-	// 	printf("\n❌ There are undeclared variables in the program\n");
-	// 	exit(1);
-	// }
+[a-zA-Z][a-zA-Z0-9]*	{	
+							yylval.node = TreeCreate(TYPE_VOID, ID_NODE, yytext, 0, NULL, NULL, NULL, NULL);
+							return ID;
+						}
 
-			// yylval.node = createASTNode(0, 1, 2, yytext, -1, NULL, NULL, NULL);
-			yylval.node = TreeCreate(TYPE_VOID, ID_NODE, yytext, 0, NULL, NULL, NULL, NULL);
-			return ID;
-	}
-
-	/*[a-zA-Z][a-zA-Z0-9]*[\[][0-9]*[\]]	{ 
-
-	char* arrayName = getArrayName(yytext);
-	int arrayOffset = getArrayOffset(yytext);
-
-	// declaration of the array is done
-	if (getDeclarationStatus() == 1) {
-
-		struct globalSTNode* GSTnode = searchGSTNode(arrayName);
-		
-		if (GSTnode == NULL) {
-
-			printf("\n❌ Array %s is undeclared\n", arrayName);
-			exit(1);
-		}
-
-		if (arrayOffset >= GSTnode->size || arrayOffset < 0) {
-
-			printf("\n❌ Array %s out of bounds\n", arrayName);
-			exit(1);
-		}
-	}
-
-	yylval.node = createASTNode(0, 1, 2, arrayName, arrayOffset, NULL, NULL, NULL);
-
-	return ARRAY_VARIABLE;
-} */
 
 
 [0-9]+	{
-		// yylval.node = createASTNode(atoi(yytext), 1, 1, "N", -1, NULL, NULL, NULL);
-		yylval.node = TreeCreate(TYPE_INT, CONST_INT_NODE, NULL, atoi(yytext), NULL, NULL, NULL, NULL);
-		return NUM;
-	}
+			yylval.node = TreeCreate(TYPE_INT, CONST_INT_NODE, NULL, atoi(yytext), NULL, NULL, NULL, NULL);
+			return NUM;
+		}
 
 
 
 
-["][a-zA-Z0-9" "]*["] {	/* For strings */
-		char* stringConst = removeStringQuotes(yytext);
-		// yylval.node = createASTNode(0, 3, 9, stringConst, -1, NULL, NULL, NULL);
-		yylval.node = TreeCreate(TYPE_STR, CONST_STR_NODE, NULL, 0, stringConst, NULL, NULL, NULL);
-		 //ntf("\nString: %s\n", yytext);
-		return STRING;
-}
+["][a-zA-Z0-9" "]*["] 	{	
+							char* stringConst = removeStringQuotes(yytext);
+							yylval.node = TreeCreate(TYPE_STR, CONST_STR_NODE, NULL, 0, stringConst, NULL, NULL, NULL);
+							return STRING;
+						}
 
 "+"		{return PLUS;}		/* Operators */
 "-"		{return MINUS;}
@@ -99,6 +60,7 @@
 "/"		{return DIV;}
 "="		{return EQUAL;}
 "%"		{return MOD;}
+"&"		{return AMPERSAND;}
 
 "=="	{return EQ;}		/* Conditional Operators */
 "!="	{return NEQ;}

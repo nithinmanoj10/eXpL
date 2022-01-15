@@ -29,7 +29,7 @@
 
 %type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt
 
-%token BEGIN_ END READ WRITE ID NUM STRING PLUS MINUS MUL DIV MOD EQUAL BREAKPOINT
+%token BEGIN_ END READ WRITE ID NUM STRING PLUS MINUS MUL DIV MOD AMPERSAND EQUAL BREAKPOINT
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE
 %token DECL ENDDECL INT STR
 %token SEMICOLON COMMA
@@ -39,17 +39,18 @@
 %left LT LTE GT GTE
 %left PLUS MINUS
 %left MUL DIV MOD
+%left AMPERSAND
 
 %%
 
 start 	: GDeclBlock BEGIN_ Slist END SEMICOLON	{
+											printAST($3);
 											FILE* filePtr = fopen("../Target_Files/round1.xsm", "w");
 											writeXexeHeader(filePtr);
 											initVariables(filePtr);
 											codeGen($3, filePtr);							
 											INT_10(filePtr);
-											//printf("\n");
-											// printAST($3);
+											printf("\n");
 										}
 
 		| BEGIN_ END SEMICOLON		{	
@@ -99,7 +100,7 @@ continueStmt	: CONTINUE	{ $$ = TreeCreate(TYPE_VOID, CONTINUE_NODE, NULL, 0, NUL
 breakPointStmt	:	BREAKPOINT { $$ = TreeCreate(TYPE_VOID, BREAKPOINT_NODE, NULL, 0, NULL, NULL, NULL, NULL); }
 				;
 
-GDeclBlock	:	DECL GDeclList ENDDECL	{ /* GSTPrint(); */}
+GDeclBlock	:	DECL GDeclList ENDDECL	{ GSTPrint();}
 			|	DECL ENDDECL			{}
 			;
 
@@ -119,7 +120,20 @@ GIDList		:	GIDList COMMA GID		{}
 			;
 
 GID			:	ID						{ GSTInstall($1->nodeName, getDeclarationType(), 1); }
-			|	ID '[' NUM ']'			{ GSTInstall($1->nodeName, getDeclarationType(), $3->intConstVal); }
+			|	ID '[' NUM ']'			{ 
+											if ($3->intConstVal < 1) {
+												printf("\nArray Declaration expects valid size\n");
+												exit(1);
+											}
+											GSTInstall($1->nodeName, getDeclarationType(), $3->intConstVal); 
+										}
+			|	MUL ID					{
+											if (getDeclarationType() == TYPE_INT)
+												GSTInstall($2->nodeName, TYPE_INT_PTR, 1);
+
+											if (getDeclarationType() == TYPE_STR)
+												GSTInstall($2->nodeName, TYPE_STR_PTR, 1);
+										}
 			;
 
 
@@ -128,6 +142,14 @@ expr		: expr PLUS expr		{ $$ =  TreeCreate(TYPE_INT, PLUS_NODE, NULL, 0, NULL, $
 			| expr MUL expr 		{ $$ =  TreeCreate(TYPE_INT, MUL_NODE, NULL, 0, NULL, $1, NULL, $3); }
 			| expr DIV expr			{ $$ =  TreeCreate(TYPE_INT, DIV_NODE, NULL, 0, NULL, $1, NULL, $3); }
 			| expr MOD expr			{ $$ =  TreeCreate(TYPE_INT, MOD_NODE, NULL, 0, NULL, $1, NULL, $3); }
+			| AMPERSAND expr		{ $$ = 	TreeCreate(TYPE_INT, AMP_NODE, NULL, 0, NULL, $2, NULL, NULL); }
+			| MUL expr				{ 
+										if ($2->dataType == TYPE_INT_PTR)
+											$$ = TreeCreate(TYPE_INT, MUL_NODE, NULL, 0, NULL, NULL, $2, NULL);
+
+										if ($2->dataType == TYPE_STR_PTR)
+											$$ = TreeCreate(TYPE_STR, MUL_NODE, NULL, 0, NULL, NULL, $2, NULL);	
+			 						}
 			| expr EQ expr			{ $$ =  TreeCreate(TYPE_BOOL, EQ_NODE, NULL, 0, NULL, $1, NULL, $3); }
 			| expr NEQ expr			{ $$ =  TreeCreate(TYPE_BOOL, NE_NODE, NULL, 0, NULL, $1, NULL, $3); }
 			| expr LT expr			{ $$ =  TreeCreate(TYPE_BOOL, LT_NODE, NULL, 0, NULL, $1, NULL, $3); }

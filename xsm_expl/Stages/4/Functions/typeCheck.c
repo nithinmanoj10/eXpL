@@ -3,7 +3,7 @@
 #include "typeCheck.h"
 #include "../Frontend/ast.h"
 
-int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree)
+int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree, struct ASTNode *middleTree)
 {
 
     switch (nodeType)
@@ -25,10 +25,23 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree)
         break;
 
     case MUL_NODE:
-        if (leftTree->dataType != TYPE_INT || rightTree->dataType != TYPE_INT)
+
+        if (middleTree == NULL)
         {
-            printf("\nType Error: Multiplication Operator requires data type INT\n");
-            exit(1);
+
+            if ((leftTree->dataType != TYPE_INT || rightTree->dataType != TYPE_INT))
+            {
+                printf("\nType Error: Multiplication Operator requires data type INT\n");
+                exit(1);
+            }
+        }
+        else
+        {
+            if (middleTree->dataType != TYPE_INT_PTR && middleTree->dataType != TYPE_STR_PTR)
+            {
+                printf("\nDereference Operator expects a pointer variables\n");
+                exit(1);
+            }
         }
         break;
 
@@ -44,6 +57,14 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree)
         if (leftTree->dataType != TYPE_INT || rightTree->dataType != TYPE_INT)
         {
             printf("\nType Error: Modulus Operator requires data type INT\n");
+            exit(1);
+        }
+        break;
+
+    case AMP_NODE:
+        if (leftTree->nodeType != ID_NODE)
+        {
+            printf("\nType Error: Ampersand Operator expects an Identifier\n");
             exit(1);
         }
         break;
@@ -135,7 +156,7 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree)
         break;
 
     case WRITE_NODE:
-        if (leftTree->dataType != TYPE_INT && leftTree->dataType != TYPE_STR)
+        if (leftTree->dataType != TYPE_INT && leftTree->dataType != TYPE_STR && leftTree->dataType != TYPE_INT_PTR && leftTree->dataType != TYPE_STR_PTR)
         {
             printf("\nType Error: write() expects argument of type INT or STR\n");
             exit(1);

@@ -15,6 +15,7 @@
 #define MUL_NODE 5
 #define DIV_NODE 6
 #define MOD_NODE 7
+#define AMP_NODE 80
 
 #define GT_NODE 8 // Relational Operator Node
 #define LT_NODE 9
@@ -42,6 +43,8 @@
 #define TYPE_BOOL 51
 #define TYPE_VOID 52
 #define TYPE_STR 53
+#define TYPE_INT_PTR 54
+#define TYPE_STR_PTR 55
 
 #define DECL_START 70
 #define DECL_END 71

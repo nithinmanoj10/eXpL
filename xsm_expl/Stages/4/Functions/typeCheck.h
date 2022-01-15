@@ -4,6 +4,6 @@
 
 #include "../Frontend/ast.h"
 
-int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree);
+int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree, struct ASTNode* middleTree);
 
 #endif

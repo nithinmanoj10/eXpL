@@ -9,7 +9,7 @@
 struct ASTNode *TreeCreate(int dataType, int nodeType, char *nodeName, int intConstVal, char *strConstVal, struct ASTNode *left, struct ASTNode *middle, struct ASTNode *right)
 {
 
-    typeCheck(nodeType, left, right);
+    typeCheck(nodeType, left, right, middle);
 
     struct ASTNode *newASTNode = (struct ASTNode *)malloc(sizeof(struct ASTNode));
 
@@ -112,7 +112,7 @@ int getAddress(FILE *filePtr, struct ASTNode *root)
 int evalExprTree(FILE *filePtr, struct ASTNode *root)
 {
 
-    if (root->nodeType == CONST_INT_NODE || root->nodeType == CONST_STR_NODE || root->nodeType == ID_NODE)
+    if (root->nodeType == CONST_INT_NODE || root->nodeType == CONST_STR_NODE || root->nodeType == ID_NODE || root->nodeType == AMP_NODE || (root->nodeType == MUL_NODE && root->middle != NULL))
     {
 
         int reg1 = getReg();
@@ -127,6 +127,19 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
         if (root->nodeType == ID_NODE)
         {
             fprintf(filePtr, "MOV R%d, [R%d]\n", reg1, getVariableAddress(filePtr, root));
+            freeReg();
+        }
+
+        if (root->nodeType == AMP_NODE)
+        {
+            int variableAddress = root->left->GSTEntry->binding;
+            fprintf(filePtr, "MOV R%d, %d\n", reg1, variableAddress);
+        }
+
+        if (root->nodeType == MUL_NODE && root->middle != NULL)
+        {
+            int pointerAddressReg = evalExprTree(filePtr, root->middle);
+            fprintf(filePtr, "MOV R%d, [R%d]\n", reg1, pointerAddressReg);
             freeReg();
         }
 

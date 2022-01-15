@@ -1,5 +1,9 @@
+decl
+	int age[0];
+enddecl
+
 begin
 	
-	write(a<b);
+	read(age[-1]);
 
 end;
