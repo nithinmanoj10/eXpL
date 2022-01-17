@@ -640,7 +640,7 @@ yyreduce:
 case 1:
 #line 46 "ast.y"
 	{
-											printAST(yystack.l_mark[-2].node);
+											/* printAST($3);*/
 											FILE* filePtr = fopen("../Target_Files/round1.xsm", "w");
 											writeXexeHeader(filePtr);
 											initVariables(filePtr);
@@ -717,7 +717,7 @@ case 24:
 break;
 case 25:
 #line 103 "ast.y"
-	{ GSTPrint();}
+	{ /* GSTPrint(); */ }
 break;
 case 26:
 #line 104 "ast.y"

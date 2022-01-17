@@ -1,0 +1,3 @@
+break ../Backend/codegen.c:codeGen
+source ../Debugger/pretty_print.py
+run input < ../Input_Files/pointer

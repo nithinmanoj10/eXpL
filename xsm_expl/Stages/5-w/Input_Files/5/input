@@ -1,0 +1,10 @@
+decl
+    str name;
+    int factorial(int num, str name, int count), BST(int root, str treeName), count;
+    str getArrayName(str name, int array);
+enddecl
+
+begin
+    name = "Nithin";
+    write(name);
+end;

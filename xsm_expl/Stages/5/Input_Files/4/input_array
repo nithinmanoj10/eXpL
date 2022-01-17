@@ -1,0 +1,14 @@
+decl
+	int array[5];
+	int count;
+enddecl
+
+begin
+	
+	count = 3;
+		
+	read(array[3]);
+	
+	breakpoint;
+
+end;

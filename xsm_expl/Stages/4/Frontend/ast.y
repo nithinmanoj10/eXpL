@@ -44,7 +44,7 @@
 %%
 
 start 	: GDeclBlock BEGIN_ Slist END SEMICOLON	{
-											printAST($3);
+											// printAST($3);
 											FILE* filePtr = fopen("../Target_Files/round1.xsm", "w");
 											writeXexeHeader(filePtr);
 											initVariables(filePtr);
@@ -100,7 +100,7 @@ continueStmt	: CONTINUE	{ $$ = TreeCreate(TYPE_VOID, CONTINUE_NODE, NULL, 0, NUL
 breakPointStmt	:	BREAKPOINT { $$ = TreeCreate(TYPE_VOID, BREAKPOINT_NODE, NULL, 0, NULL, NULL, NULL, NULL); }
 				;
 
-GDeclBlock	:	DECL GDeclList ENDDECL	{ GSTPrint();}
+GDeclBlock	:	DECL GDeclList ENDDECL	{ /* GSTPrint(); */ }
 			|	DECL ENDDECL			{}
 			;
 
