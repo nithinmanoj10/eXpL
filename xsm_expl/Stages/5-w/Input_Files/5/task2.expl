@@ -1,0 +1,25 @@
+decl
+    int result, add(int a, int b);
+enddecl
+
+int add(int a, int b) {
+    decl
+        int sum, count;
+        str finalResult;
+    enddecl
+    
+    begin
+        write("Addition");  
+        return sum;
+    end;
+}
+
+int main() {
+    decl
+    enddecl
+
+    begin
+        write("hello");
+        return 1;
+    end;
+}

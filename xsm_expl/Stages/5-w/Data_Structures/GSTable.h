@@ -10,7 +10,7 @@ struct GSTNode
     int binding;                   // Static binding of global variables
     struct ParamStruct *paramList; // Pointer to Formal Parameter List, for a function
     int fLabel;                    // Lablel identifying a function uniquely
-    struct GSTNode *next;          // Pointer to the GST Entry
+    struct GSTNode *next;          // Pointer to next node
 } gstnode;
 
 extern struct GSTNode *GSTHead;
@@ -23,6 +23,8 @@ int setDeclarationStatus(int status);
 struct GSTNode *GSTInstall(char *name, int type, int size, struct ParamStruct *paramList);
 
 struct GSTNode *GSTLookup(char *name);
+
+// int GSTNode*
 
 int GSTPrint();
 

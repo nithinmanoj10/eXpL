@@ -9,6 +9,7 @@
 	#include "../Backend/codegen.h"
 	#include "../Data_Structures/loopStack.h"
 	#include "../Data_Structures/GSTable.h"
+	#include "../Data_Structures/LSTable.h"
 	#include "../Data_Structures/typeTable.h"
 	#include "../Data_Structures/paramStruct.h"
 	#include "../Functions/xsm_library.h"
@@ -26,13 +27,16 @@
 
 %union {
 	struct ASTNode* node;
+	struct LSTNode* lstnode;
 }
 
-%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt
+%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal
+%type <lstnode> 
 
-%token BEGIN_ END READ WRITE ID NUM STRING PLUS MINUS MUL DIV MOD AMPERSAND EQUAL BREAKPOINT
+
+%token BEGIN_ END MAIN READ WRITE ID NUM STRING PLUS MINUS MUL DIV MOD AMPERSAND EQUAL BREAKPOINT
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE
-%token DECL ENDDECL INT STR
+%token DECL ENDDECL INT STR RETURN
 %token SEMICOLON COMMA
 
 %left EQUAL
@@ -45,20 +49,12 @@
 %%
 
  /* Program Block ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
-start 	: GDeclBlock BEGIN_ Slist END SEMICOLON	{
-											// printAST($3);
-											FILE* filePtr = fopen("../Target_Files/round1.xsm", "w");
-											writeXexeHeader(filePtr);
-											initVariables(filePtr);
-											codeGen($3, filePtr);							
-											INT_10(filePtr);
-											printf("\n");
-										}
-
-		| BEGIN_ END SEMICOLON		{	
-										printf("\n⛔ No Code Provided\n");
-										exit(1);
-									};
+start 	: GDeclBlock FDefBlock MainBlock	{}
+		| GDeclBlock MainBlock 				{}
+		| GDeclBlock 						{	
+												printf("\n⛔ No Code Provided\n");
+												exit(1);
+											};
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
 
@@ -70,7 +66,7 @@ Slist	: Slist Stmt SEMICOLON 	{ $$ = TreeCreate(TYPE_VOID, SLIST_NODE, NULL, 0, 
 Stmt	: inputStmt | outputStmt | assignStmt 
 		| ifStmt | whileStmt | doWhileStmt
    		| breakStmt | continueStmt	
-		| breakPointStmt	{ ++statementCount; }
+		| breakPointStmt									{ ++statementCount; }
 		;
 
 inputStmt	: READ expr	 		{ $$ = TreeCreate(TYPE_VOID, READ_NODE, NULL, 0, NULL, $2, NULL, NULL); }
@@ -86,6 +82,14 @@ assignStmt 	: ID EQUAL expr					{ $$ = TreeCreate(TYPE_VOID, ASGN_NODE, NULL, 0,
 			 								}
 	   		;
 
+
+ /* Return Statement ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
+retVal		:	expr						{}
+			;
+
+retStmt		: RETURN retVal SEMICOLON		{ $$ = TreeCreate(TYPE_VOID, RETURN_NODE, NULL, 0, NULL, $2, NULL, NULL); }
+			;
+ /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
 
 ifStmt	: IF expr THEN Slist ELSE Slist ENDIF	{ $$ = TreeCreate(TYPE_VOID, IF_NODE, NULL, 0, NULL, $2, $4, $6); }
@@ -107,9 +111,7 @@ continueStmt	: CONTINUE	{ $$ = TreeCreate(TYPE_VOID, CONTINUE_NODE, NULL, 0, NUL
 breakPointStmt	:	BREAKPOINT { $$ = TreeCreate(TYPE_VOID, BREAKPOINT_NODE, NULL, 0, NULL, NULL, NULL, NULL); }
 				;
 
-
-
-
+ /* Global Declaration ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 GDeclBlock	:	DECL GDeclList ENDDECL	{ GSTPrint(); }
 			|	DECL ENDDECL			{}
 			;
@@ -140,6 +142,7 @@ GID			:	ID						{ GSTInstall($1->nodeName, getDeclarationType(), 1, NULL); }
 			|	ID '(' ParamList ')'	{ 
 											GSTInstall($1->nodeName, getDeclarationType(), -1, getParamListHead());
 											flushParamList();
+											setParamType(TYPE_VOID);
 										}
 			|	MUL ID					{
 											if (getDeclarationType() == TYPE_INT)
@@ -149,9 +152,10 @@ GID			:	ID						{ GSTInstall($1->nodeName, getDeclarationType(), 1, NULL); }
 												GSTInstall($2->nodeName, TYPE_STR_PTR, 1, NULL);
 										}
 			;
+ /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
 
- /* Function Declarations ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
+ /* Function Parameters ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 ParamList	:	ParamList COMMA Param	{}
 			|	Param					{}
 			;
@@ -161,6 +165,77 @@ ParamType	:	INT						{ setParamType(TYPE_INT); }
 			;
 
 Param		:	ParamType ID			{ paramListInstall(getParamType(), $2->nodeName); }
+			;
+ /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
+
+
+ /* Function Block ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
+FDefBlock	:	FDefBlock FDef							{}
+			|	FDef									{}
+			;
+
+FID			:	ID										{ $$ = $1; }
+			;
+
+FDef		:	FuncType FID '(' ParamList ')'
+				'{' LDeclBlock FBody '}'				{
+															LSTAddParams();
+															printf("\nFunction %s: \n", $2->nodeName);
+															LSTPrint();
+															printf("\n");
+															flushParamList();
+															
+														}
+			;
+
+FuncType	:	INT										{}
+			|	STR										{}
+			;
+
+FBody		:	BEGIN_ Slist retStmt END SEMICOLON		{}
+			;
+ /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
+
+
+ /* Local Declarations ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
+LDeclBlock	:	DECL LDeclList ENDDECL	{}
+			|	DECL ENDDECL			{}
+			;
+
+LDeclList	:	LDeclList LDecl			{}
+			|	LDecl					{}
+			;
+
+LDecl		:	Type LIDList SEMICOLON	{}
+			;
+
+LIDList		:	LIDList COMMA LID		{}
+			|	LID						{}
+			; 
+
+LID			:	ID						{ LSTInstall($1->nodeName, getDeclarationType()); }
+			;
+ /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
+
+
+ /* Main Block ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
+MainBlock	:	INT MAIN '('')'
+				'{' 
+					LDeclBlock 
+					MBody 
+				'}'						{}
+			;
+
+MBody		:	BEGIN_ Slist retStmt END SEMICOLON	{
+														struct ASTNode* statementList = TreeCreate(TYPE_VOID, SLIST_NODE, NULL, 0, NULL, $2, NULL, $3);
+														printAST(statementList);
+														FILE* filePtr = fopen("../Target_Files/round1.xsm", "w");
+														writeXexeHeader(filePtr);
+														initVariables(filePtr);
+														codeGen(statementList, filePtr);							
+														INT_10(filePtr);
+														printf("\n");
+													}
 			;
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
@@ -201,7 +276,7 @@ expr		: expr PLUS expr		{ $$ =  TreeCreate(TYPE_INT, PLUS_NODE, NULL, 0, NULL, $
 %%
 
 void yyerror(char const *s){
-	printf("\n❌ ast.y | Error: %s, at line %d\n", s, statementCount);
+	printf("\n❌ ast.y | Error: %s, at statement %d\n", s, statementCount);
 	exit(1);
 }
 

@@ -4,6 +4,17 @@ decl
     str getArrayName(str name, int array);
 enddecl
 
+int factorial(int sum) {
+    decl
+        int num;
+    enddecl
+
+    begin
+        write("Hello");
+        return;
+    end;
+}
+
 begin
     name = "Nithin";
     write(name);

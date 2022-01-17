@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include "../Data_Structures/GSTable.h"
+#include "../Data_Structures/LSTable.h"
 
 #define CONST_INT_NODE 0 // Constant Node
 #define CONST_STR_NODE 1
@@ -39,6 +40,8 @@
 
 #define BREAKPOINT_NODE 23 // Breakpoint Node
 
+#define RETURN_NODE 24  
+
 #define TYPE_INT 50
 #define TYPE_BOOL 51
 #define TYPE_VOID 52
@@ -60,6 +63,7 @@ struct ASTNode
     char *strConstVal;                     // Value of str const
     struct ASTNode *left, *middle, *right; // Left, middle and right subtrees
     struct GSTNode *GSTEntry;              // Pointer to Global Symbol Table entry for a variable
+    struct LSTNode *LSTEntry;              // Pointer to Local Symbol Table entry for a variable
 } astnode;
 
 struct ASTNode *TreeCreate(int dataType, int nodeType, char *nodeName, int intConstVal, char *strConstVal, struct ASTNode *left, struct ASTNode *middle, struct ASTNode *right);

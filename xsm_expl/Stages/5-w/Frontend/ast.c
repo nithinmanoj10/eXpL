@@ -5,6 +5,7 @@
 #include "../Functions/reg.h"
 #include "../Functions/typeCheck.h"
 #include "../Data_Structures/GSTable.h"
+#include "../Data_Structures/typeTable.h"
 
 struct ASTNode *TreeCreate(int dataType, int nodeType, char *nodeName, int intConstVal, char *strConstVal, struct ASTNode *left, struct ASTNode *middle, struct ASTNode *right)
 {
@@ -22,6 +23,7 @@ struct ASTNode *TreeCreate(int dataType, int nodeType, char *nodeName, int intCo
     newASTNode->right = right;
     newASTNode->middle = middle;
     newASTNode->GSTEntry = NULL;
+    newASTNode->LSTEntry = NULL;
 
     if (nodeName != NULL)
     {
@@ -35,21 +37,20 @@ struct ASTNode *TreeCreate(int dataType, int nodeType, char *nodeName, int intCo
         strcpy(newASTNode->strConstVal, strConstVal);
     }
 
-    // TODO: GST Entry node
-    if (nodeType == ID_NODE && getDeclarationStatus() == DECL_END)
-    {
+    // if (nodeType == ID_NODE && getDeclarationStatus() == DECL_END && getParamType() == TYPE_VOID)
+    // {
 
-        struct GSTNode *GSTEntry = GSTLookup(nodeName);
+    //     struct GSTNode *GSTEntry = GSTLookup(nodeName);
 
-        if (GSTEntry == NULL)
-        {
-            printf("\nVariable %s undeclared before use\n", nodeName);
-            exit(1);
-        }
+    //     if (GSTEntry == NULL)
+    //     {
+    //         printf("\nVariable %s undeclared before use\n", nodeName);
+    //         exit(1);
+    //     }
 
-        newASTNode->GSTEntry = GSTEntry;
-        newASTNode->dataType = GSTEntry->type;
-    }
+    //     newASTNode->GSTEntry = GSTEntry;
+    //     newASTNode->dataType = GSTEntry->type;
+    // }
 
     return newASTNode;
 }

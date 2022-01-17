@@ -12,6 +12,7 @@
 
 %%
 
+"main"				{ return MAIN; }
 "begin" 			{ return BEGIN_;}	/* Keywords */
 "end" 				{ return END;}
 "decl"				{ setDeclarationStatus(DECL_START); return DECL;}
@@ -19,6 +20,7 @@
 "int"				{ return INT;}
 "str"				{ return STR;} 
 "breakpoint"		{ return BREAKPOINT;}
+"return"			{ return RETURN; }
 
 "read" 	{ return READ;}		/* Functions */
 "write" { return WRITE;}
@@ -69,7 +71,7 @@
 "<="	{return LTE;}
 ">="	{return GTE;}
 
-[()\[\]]	{return *yytext;}	/* Others */
+[()\[\]\{\}]	{return *yytext;}	/* Others */
 [ \t]		{}
 [\r\n]		{++line;}
 ";"			{return SEMICOLON;}

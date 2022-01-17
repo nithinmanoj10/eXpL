@@ -5,18 +5,18 @@ cd ./Frontend
 
 byacc -d -v -t ast.y
 lex ast.l
-gcc y.tab.c lex.yy.c ast.c ../Backend/codegen.c ../Data_Structures/loopStack.c ../Data_Structures/typeTable.c ../Data_Structures/GSTable.c ../Data_Structures/paramStruct.c ../Functions/reg.c ../Functions/label.c ../Functions/xsm_syscalls.c ../Functions/xsm_library.c ../Functions/stackMemory.c ../Functions/stringMan.c ../Functions/typeCheck.c -g -o ast
+gcc y.tab.c lex.yy.c ast.c ../Backend/codegen.c ../Data_Structures/loopStack.c ../Data_Structures/typeTable.c ../Data_Structures/GSTable.c ../Data_Structures/paramStruct.c ../Data_Structures/LSTable.c ../Functions/reg.c ../Functions/label.c ../Functions/xsm_syscalls.c ../Functions/xsm_library.c ../Functions/stackMemory.c ../Functions/stringMan.c ../Functions/typeCheck.c -g -o ast
  # clear
 
-echo "⏳ Compiling $1"
+echo "⏳ Compiling $1.expl"
 printf '%.s─' $(seq 1 $(tput cols))
 printf "\n"
 
-cat -n ../Input_Files/5/$1
+cat -n ../Input_Files/5/$1.expl
 printf "\n"
 printf '%.s─' $(seq 1 $(tput cols))
 
-./ast $1 < ../Input_Files/5/$1
+./ast $1 < ../Input_Files/5/$1.expl
 
 # echo "Program returned: $?"
 

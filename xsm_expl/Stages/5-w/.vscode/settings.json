@@ -4,7 +4,8 @@
     "ast.h": "c",
     "globalsymboltable.h": "c",
     "reg.h": "c",
-    "gstable.h": "c"
+    "gstable.h": "c",
+    "paramstruct.h": "c"
   },
   "C_Cpp.dimInactiveRegions": false
 }
