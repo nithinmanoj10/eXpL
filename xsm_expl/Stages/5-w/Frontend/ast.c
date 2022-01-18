@@ -5,6 +5,7 @@
 #include "../Functions/reg.h"
 #include "../Functions/typeCheck.h"
 #include "../Data_Structures/GSTable.h"
+#include "../Data_Structures/LSTable.h"
 #include "../Data_Structures/typeTable.h"
 
 struct ASTNode *TreeCreate(int dataType, int nodeType, char *nodeName, int intConstVal, char *strConstVal, struct ASTNode *left, struct ASTNode *middle, struct ASTNode *right)
@@ -73,7 +74,8 @@ int printAST(struct ASTNode *root)
     printf("➡ left: %p\n", root->left);
     printf("➡ middle: %p\n", root->middle);
     printf("➡ right: %p\n", root->right);
-    printf("➡ GST: %p\n\n", root->GSTEntry);
+    printf("➡ GST: %p\n", root->GSTEntry);
+    printf("➡ LST: %p\n\n", root->LSTEntry);
 
     return 0;
 }
@@ -172,4 +174,29 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
         fprintf(filePtr, "MOD R%d, R%d\n", leftRegNo, rightRegNo);
 
     return leftRegNo;
+}
+
+struct ASTNode *lookupID(struct ASTNode *IDNode)
+{
+
+    IDNode->LSTEntry = LSTLookup(IDNode->nodeName);
+    if (IDNode->LSTEntry == NULL)
+    {
+        IDNode->GSTEntry = GSTLookup(IDNode->nodeName);
+        if (IDNode->GSTEntry == NULL)
+        {
+            printf("\nVariable %s undeclared before use in %s()\n", IDNode->nodeName, getCurrentFuncName());
+            exit(1);
+        }
+        else
+        {
+            IDNode->dataType = IDNode->GSTEntry->type;
+        }
+    }
+    else
+    {
+        IDNode->dataType = IDNode->LSTEntry->type;
+    }
+
+    return IDNode;
 }

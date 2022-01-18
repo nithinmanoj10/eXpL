@@ -30,7 +30,7 @@
 	struct LSTNode* lstnode;
 }
 
-%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal
+%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody
 %type <lstnode> 
 
 
@@ -75,10 +75,14 @@ inputStmt	: READ expr	 		{ $$ = TreeCreate(TYPE_VOID, READ_NODE, NULL, 0, NULL, 
 outputStmt 	: WRITE expr 		{ $$ = TreeCreate(TYPE_VOID, WRITE_NODE, NULL, 0, NULL, $2, NULL, NULL); }
 	   		;
 
-assignStmt 	: ID EQUAL expr					{ $$ = TreeCreate(TYPE_VOID, ASGN_NODE, NULL, 0, NULL, $1, NULL, $3); }
+assignStmt 	: ID EQUAL expr					{ 
+												$1 = lookupID($1);
+												$$ = TreeCreate(TYPE_VOID, ASGN_NODE, NULL, 0, NULL, $1, NULL, $3); 
+											}
 			| ID '[' expr ']' EQUAL expr	{	 
-													$1->left = $3;
-													$$ = TreeCreate(TYPE_VOID, ASGN_NODE, NULL, 0, NULL, $1, NULL, $6);
+												$1 = lookupID($1);	
+												$1->left = $3;
+												$$ = TreeCreate(TYPE_VOID, ASGN_NODE, NULL, 0, NULL, $1, NULL, $6);
 			 								}
 	   		;
 
@@ -174,31 +178,44 @@ FDefBlock	:	FDefBlock FDef							{}
 			|	FDef									{}
 			;
 
-FID			:	ID										{ $$ = $1; }
-			;
-
-FDef		:	FuncType FID '(' ParamList ')'
-				'{' LDeclBlock FBody '}'				{
-															LSTAddParams();
-															printf("\nFunction %s: \n", $2->nodeName);
-															LSTPrint();
-															printf("\n");
-															flushParamList();
-															
+FID			:	ID										{ 
+															if(GSTLookup($1->nodeName) == NULL){
+																printf("\nFunction %s is not declared\n", $1->nodeName);
+																exit(1);
+															}
+															$$ = $1; 
+															setCurrentFuncName($1->nodeName);
 														}
 			;
 
-FuncType	:	INT										{}
-			|	STR										{}
+FDef		:	FuncSign
+				'{' LDeclBlock FBody '}'				{
+															printf("\nFor function %s: \n", getCurrentFuncName());
+															printAST($4);
+															flushLST();
+														}
 			;
 
-FBody		:	BEGIN_ Slist retStmt END SEMICOLON		{}
+FuncSign	:	FuncType FID '(' ParamList ')'			{
+															verifyFunctionSignature($2->nodeName);
+															LSTAddParams();
+															flushParamList();
+														}
+
+FuncType	:	INT										{ setFuncType(TYPE_INT); }
+			|	STR										{ setFuncType(TYPE_STR); }
+			;
+
+FBody		:	BEGIN_ Slist retStmt END SEMICOLON		{
+															struct ASTNode* funcBodyStmt = TreeCreate(TYPE_VOID, SLIST_NODE, NULL, 0, NULL, $2, NULL, $3);
+															$$ = funcBodyStmt;
+														}	
 			;
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
 
  /* Local Declarations ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
-LDeclBlock	:	DECL LDeclList ENDDECL	{}
+LDeclBlock	:	DECL LDeclList ENDDECL	{ LSTPrint(); }
 			|	DECL ENDDECL			{}
 			;
 
@@ -219,22 +236,28 @@ LID			:	ID						{ LSTInstall($1->nodeName, getDeclarationType()); }
 
 
  /* Main Block ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
-MainBlock	:	INT MAIN '('')'
+MainBlock	:	MainFunc '('')'
 				'{' 
 					LDeclBlock 
 					MBody 
-				'}'						{}
+				'}'									{
+														printf("\nFor function %s: \n", getCurrentFuncName());
+														printAST($6);	
+														// FILE* filePtr = fopen("../Target_Files/round1.xsm", "w");
+														// writeXexeHeader(filePtr);
+														// initVariables(filePtr);
+														// codeGen($6, filePtr);							
+														// INT_10(filePtr);
+														// printf("\n");
+													}
+			;
+
+MainFunc	:	INT MAIN							{ setCurrentFuncName("int main"); }
 			;
 
 MBody		:	BEGIN_ Slist retStmt END SEMICOLON	{
 														struct ASTNode* statementList = TreeCreate(TYPE_VOID, SLIST_NODE, NULL, 0, NULL, $2, NULL, $3);
-														printAST(statementList);
-														FILE* filePtr = fopen("../Target_Files/round1.xsm", "w");
-														writeXexeHeader(filePtr);
-														initVariables(filePtr);
-														codeGen(statementList, filePtr);							
-														INT_10(filePtr);
-														printf("\n");
+														$$ = statementList;
 													}
 			;
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
@@ -268,7 +291,10 @@ expr		: expr PLUS expr		{ $$ =  TreeCreate(TYPE_INT, PLUS_NODE, NULL, 0, NULL, $
 										$1->left = $3;	
 										$$ = $1;
 									}
-			| ID					{$$ = $1;}
+			| ID					{
+										$1 = lookupID($1);
+										$$ = $1;
+									}
 			| NUM					{$$ = $1;}
 			| STRING				{$$ = $1;}
 			;

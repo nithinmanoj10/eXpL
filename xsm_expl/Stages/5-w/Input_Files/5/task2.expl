@@ -1,5 +1,6 @@
 decl
     int result, add(int a, int b);
+    int sub(int a, int b);
 enddecl
 
 int add(int a, int b) {
@@ -9,17 +10,32 @@ int add(int a, int b) {
     enddecl
     
     begin
-        write("Addition");  
+        write("Addition"); 
+        sum = a + b + result; 
         return sum;
+    end;
+}
+
+int sub(int a, int b){
+    decl
+        int diff;
+    enddecl
+    
+    begin
+        write("Subtraction");
+        diff = a - b;
+        return diff;
     end;
 }
 
 int main() {
     decl
+        int a, b;
     enddecl
 
     begin
         write("hello");
+        jum = a + b;
         return 1;
     end;
 }

@@ -40,7 +40,7 @@
 
 #define BREAKPOINT_NODE 23 // Breakpoint Node
 
-#define RETURN_NODE 24  
+#define RETURN_NODE 24
 
 #define TYPE_INT 50
 #define TYPE_BOOL 51
@@ -75,5 +75,13 @@ int getVariableAddress(FILE *filePtr, struct ASTNode *root);
 int getAddress(FILE *filePtr, struct ASTNode *root);
 
 int evalExprTree(FILE *filePtr, struct ASTNode *root);
+
+/**
+ * @brief   Check if an identifier is defined in the LST or GST 
+ * 
+ * @param   IDName Name of the variable
+ * @return  struct ASTNode* 
+ */
+struct ASTNode *lookupID(struct ASTNode *IDNode);
 
 #endif

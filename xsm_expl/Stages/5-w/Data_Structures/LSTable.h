@@ -47,6 +47,20 @@ struct LSTNode *LSTPrint();
  */
 int LSTAddParams();
 
+/**
+ * @brief   Verify if a functions signature matches the one declared in the
+ *          global variable section 
+ * 
+ * @param   funcName Name of the function
+ * @return  int 
+ */
+int verifyFunctionSignature(char *funcName);
 
+/**
+ * @brief   Set LSTHead and LSTTail to NULL 
+ * 
+ * @return  int 
+ */
+int flushLST();
 
 #endif

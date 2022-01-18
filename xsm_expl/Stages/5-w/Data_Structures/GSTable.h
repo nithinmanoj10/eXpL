@@ -24,8 +24,6 @@ struct GSTNode *GSTInstall(char *name, int type, int size, struct ParamStruct *p
 
 struct GSTNode *GSTLookup(char *name);
 
-// int GSTNode*
-
 int GSTPrint();
 
 #endif
