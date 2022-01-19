@@ -1,0 +1,28 @@
+decl
+    int result;
+    int add(int a, int b);
+enddecl
+
+int add(int a, int b){
+    decl
+        int sum, lagoon;
+    enddecl
+    
+    begin
+        lagoon = 2;
+        sum = a + b;
+        return sum;
+    end;
+}
+
+int main() {
+    decl
+        int mainSum;
+        int a, b;
+    enddecl
+
+    begin
+        result = add(a,b);                        
+        return 1;
+    end;
+}

@@ -10,6 +10,9 @@
 struct LSTNode *LSTHead = NULL;
 struct LSTNode *LSTTail = NULL;
 
+struct FunctionLSTTable *FLTHead = NULL;
+struct FunctionLSTTable *FLTTail = NULL;
+
 struct LSTNode *LSTInstall(char *name, int type)
 {
     if (LSTLookup(name) != NULL)
@@ -57,6 +60,8 @@ struct LSTNode *LSTPrint()
 {
 
     struct LSTNode *traversalPtr = LSTHead;
+
+    printf("%p\n", traversalPtr);
 
     while (traversalPtr != NULL)
     {
@@ -125,6 +130,65 @@ int flushLST()
 {
     LSTHead = NULL;
     LSTTail = NULL;
+
+    return 0;
+}
+
+struct FunctionLSTTable *addFunctionLST(char *funcName, struct LSTNode *funcLST)
+{
+    if (getFunctionLST(funcName) != NULL)
+        return NULL;
+
+    struct FunctionLSTTable *newFLTNode = (struct FunctionLSTTable *)malloc(sizeof(struct FunctionLSTTable));
+    newFLTNode->funcName = (char *)malloc(sizeof(funcName));
+
+    strcpy(newFLTNode->funcName, funcName);
+    newFLTNode->funcLST = funcLST;
+    newFLTNode->next = NULL;
+
+    if (FLTHead == NULL && FLTTail == NULL)
+    {
+        FLTHead = newFLTNode;
+        FLTTail = newFLTNode;
+        return newFLTNode;
+    }
+
+    FLTTail->next = newFLTNode;
+    FLTTail = newFLTNode;
+
+    return newFLTNode;
+}
+
+struct LSTNode *getFunctionLST(char *funcName)
+{
+    if (FLTHead == NULL)
+        return NULL;
+
+    struct FunctionLSTTable *traversalPtr = FLTHead;
+
+    while (traversalPtr != NULL)
+    {
+        if (strcmp(traversalPtr->funcName, funcName) == 0)
+            return traversalPtr->funcLST;
+        traversalPtr = traversalPtr->next;
+    }
+
+    return NULL;
+}
+
+int printFLT()
+{
+    struct FunctionLSTTable *traversalPtr = FLTHead;
+
+    printf("\nFunction-LST Table -----------------------------\n\n");
+
+    while (traversalPtr != NULL)
+    {
+        printf("%s: %p\n", traversalPtr->funcName, traversalPtr->funcLST);
+        traversalPtr = traversalPtr->next;
+    }
+
+    printf("\n------------------------------------------------\n");
 
     return 0;
 }

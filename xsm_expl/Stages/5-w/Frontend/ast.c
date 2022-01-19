@@ -178,8 +178,9 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
 struct ASTNode *lookupID(struct ASTNode *IDNode)
 {
 
-    IDNode->LSTEntry = LSTLookup(IDNode->nodeName);
-    if (IDNode->LSTEntry == NULL)
+    struct LSTNode *IdLSTEntry = LSTLookup(IDNode->nodeName);
+
+    if (IdLSTEntry == NULL)
     {
         IDNode->GSTEntry = GSTLookup(IDNode->nodeName);
         if (IDNode->GSTEntry == NULL)
@@ -194,7 +195,7 @@ struct ASTNode *lookupID(struct ASTNode *IDNode)
     }
     else
     {
-        IDNode->dataType = IDNode->LSTEntry->type;
+        IDNode->dataType = IdLSTEntry->type;
     }
 
     return IDNode;
@@ -217,21 +218,22 @@ struct ASTNode *insertToArgList(struct ASTNode *argListHead, struct ASTNode *arg
 int verifyFunctionArguments(char *funcName, struct ASTNode *argumentList)
 {
     struct GSTNode *funcGSTEntry = GSTLookup(funcName);
+    struct ParamStruct *funcParamList = funcGSTEntry->paramList;
     int argCount = 0;
 
-    while (funcGSTEntry != NULL)
+    while (funcParamList != NULL)
     {
         ++argCount;
-        if (funcGSTEntry->type != argumentList->dataType)
+        if (funcParamList->paramType != argumentList->dataType)
         {
-            printf("\n%s() expects data type %s for argument %d\n", funcName, (funcGSTEntry->type == TYPE_INT) ? ("int") : ("str"), argCount);
+            printf("\n%s() expects data type %s for argument %d\n", funcName, (funcParamList->paramType == TYPE_INT) ? ("int") : ("str"), argCount);
             exit(1);
         }
-        funcGSTEntry = funcGSTEntry->next;
+        funcParamList = funcParamList->next;
         argumentList = argumentList->argList;
     }
 
-    if (funcGSTEntry != NULL || argumentList != NULL)
+    if (funcParamList != NULL || argumentList != NULL)
     {
         printf("\nNumber of arguments passed to %s() not equal to number of parameters in declaration\n", funcName);
         exit(1);

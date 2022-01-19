@@ -37,7 +37,7 @@ int main() {
     begin
         read(a);
         read(b);
-        result = getName(c);
+        result = add(a,b);
         write(result);
         return 1;
     end;

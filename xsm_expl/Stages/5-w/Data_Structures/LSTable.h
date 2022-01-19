@@ -14,8 +14,19 @@ struct LSTNode
     struct LSTNode *next; // Pointer to next node
 } lstnode;
 
+// Node of a Function-LST Table
+struct FunctionLSTTable
+{
+    char *funcName;                // Name of the function
+    struct LSTNode *funcLST;       // Pointer to the functions LST
+    struct FunctionLSTTable *next; // Pointer to the next element
+} functionlsttable;
+
 extern struct LSTNode *LSTHead;
 extern struct LSTNode *LSTTail;
+
+extern struct FunctionLSTTable *FLTHead; // Head pointer of the Function-LST Table
+extern struct FunctionLSTTable *FLTTail; // Tail pointer of the Function-LST Table
 
 /**
  * @brief   Add new variable to the Local Symbol Table 
@@ -63,5 +74,30 @@ int verifyFunctionSignature(char *funcName);
  * @return  int 
  */
 int flushLST();
+
+/**
+ * @brief   Add a function and its corresponding Local Symbol Table 
+ *          to the Function-LST Table
+ * 
+ * @param   funcName Name of the function
+ * @param   funcLST Pointer to the function's LST
+ * @return  struct FunctionLSTTable*
+ */
+struct FunctionLSTTable *addFunctionLST(char *funcName, struct LSTNode *funcLST);
+
+/**
+ * @brief   Get a function's Local Symbol Table
+ * 
+ * @param   funcName Name of the function
+ * @return  struct LSTNode* 
+ */
+struct LSTNode *getFunctionLST(char *funcName);
+
+/**
+ * @brief   Print the Function-LST Table 
+ * 
+ * @return  int 
+ */
+int printFLT();
 
 #endif

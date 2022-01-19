@@ -201,8 +201,9 @@ FID			:	ID										{
 
 FDef		:	FuncSign
 				'{' LDeclBlock FBody '}'				{
-															printf("\nFor function %s: \n", getCurrentFuncName());
-															printAST($4);
+															addFunctionLST(getCurrentFuncName(), LSTHead);	
+															//printf("\nFor function %s: \n", getCurrentFuncName());
+															// printAST($4);
 															flushLST();
 														}
 			;
@@ -252,14 +253,16 @@ MainBlock	:	MainFunc '('')'
 					LDeclBlock 
 					MBody 
 				'}'									{
-														printf("\nFor function %s: \n", getCurrentFuncName());
-														printAST($6);	
+														addFunctionLST(getCurrentFuncName(), LSTHead);	
+														// printf("\nFor function %s: \n", getCurrentFuncName());
+														// printAST($6);	
 														// FILE* filePtr = fopen("../Target_Files/round1.xsm", "w");
 														// writeXexeHeader(filePtr);
 														// initVariables(filePtr);
 														// codeGen($6, filePtr);							
 														// INT_10(filePtr);
 														// printf("\n");
+														printFLT();
 													}
 			;
 
