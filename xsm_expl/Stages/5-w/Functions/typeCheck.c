@@ -176,6 +176,12 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
             exit(1);
         }
 
+        if (rightTree->dataType != leftTree->dataType)
+        {
+            printf("\nType Error: Assignment Operator expects same data type on both sides\n");
+            exit(1);
+        }
+
         break;
 
     default:

@@ -41,6 +41,7 @@
 #define BREAKPOINT_NODE 23 // Breakpoint Node
 
 #define RETURN_NODE 24
+#define FUNC_NODE 25
 
 #define TYPE_INT 50
 #define TYPE_BOOL 51
@@ -61,6 +62,7 @@ struct ASTNode
     char *nodeName;                        // Name of variable
     int intConstVal;                       // Value of int const
     char *strConstVal;                     // Value of str const
+    struct ASTNode *argList;               // Pointer to list of arguments of a function
     struct ASTNode *left, *middle, *right; // Left, middle and right subtrees
     struct GSTNode *GSTEntry;              // Pointer to Global Symbol Table entry for a variable
     struct LSTNode *LSTEntry;              // Pointer to Local Symbol Table entry for a variable
@@ -83,5 +85,24 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root);
  * @return  struct ASTNode* 
  */
 struct ASTNode *lookupID(struct ASTNode *IDNode);
+
+/**
+ * @brief   Insert node to the argument list of a function 
+ * 
+ * @param   argListHead Head of the argument list
+ * @param   argNode Argument node to be inserted
+ * @return  struct ASTNode* 
+ */
+struct ASTNode *insertToArgList(struct ASTNode *argListHead, struct ASTNode *argNode);
+
+/**
+ * @brief   Verify whether the arguments passed to a function is correct
+ *          according to the function signature. 
+ * 
+ * @param   funcName Name of the function
+ * @param   argumentList List of arguments passed
+ * @return  int 
+ */
+int verifyFunctionArguments(char *funcName, struct ASTNode *argumentList);
 
 #endif

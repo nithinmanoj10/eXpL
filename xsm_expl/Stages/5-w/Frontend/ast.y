@@ -30,8 +30,7 @@
 	struct LSTNode* lstnode;
 }
 
-%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody
-%type <lstnode> 
+%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList
 
 
 %token BEGIN_ END MAIN READ WRITE ID NUM STRING PLUS MINUS MUL DIV MOD AMPERSAND EQUAL BREAKPOINT
@@ -173,6 +172,18 @@ Param		:	ParamType ID			{ paramListInstall(getParamType(), $2->nodeName); }
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
 
+ /* Function Arguments ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
+ArgList		:	ArgList COMMA Arg		{ 
+											$$ = insertToArgList($1, $3);
+										}
+			|	Arg						{ $$ = $1; }
+			;
+
+Arg			:	expr					{ $$ = $1; }
+			;			
+ /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
+
+
  /* Function Block ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 FDefBlock	:	FDefBlock FDef							{}
 			|	FDef									{}
@@ -283,6 +294,13 @@ expr		: expr PLUS expr		{ $$ =  TreeCreate(TYPE_INT, PLUS_NODE, NULL, 0, NULL, $
 			| expr GT expr			{ $$ =  TreeCreate(TYPE_BOOL, GT_NODE, NULL, 0, NULL, $1, NULL, $3); }
 			| expr GTE expr			{ $$ =  TreeCreate(TYPE_BOOL, GE_NODE, NULL, 0, NULL, $1, NULL, $3); }
 			| '(' expr ')'			{ $$ = $2; }
+			| ID '(' ArgList ')'	{ 
+										$1 = lookupID($1);	
+										verifyFunctionArguments($1->nodeName, $3);	
+										$$ = TreeCreate(getFunctionType($1->nodeName), FUNC_NODE, $1->nodeName, 0, NULL, NULL, NULL, NULL); 
+										$$->argList = $3;
+										$$->GSTEntry = $1->GSTEntry;
+									}
 			| ID '[' expr ']' 		{	
 										if ($3->dataType != TYPE_INT){
 											printf("\nArray Indexing expects INT Data Type\n");

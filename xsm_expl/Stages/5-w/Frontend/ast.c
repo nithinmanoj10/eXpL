@@ -20,6 +20,7 @@ struct ASTNode *TreeCreate(int dataType, int nodeType, char *nodeName, int intCo
     newASTNode->nodeName = NULL;
     newASTNode->intConstVal = intConstVal;
     newASTNode->strConstVal = NULL;
+    newASTNode->argList = NULL;
     newASTNode->left = left;
     newASTNode->right = right;
     newASTNode->middle = middle;
@@ -38,21 +39,6 @@ struct ASTNode *TreeCreate(int dataType, int nodeType, char *nodeName, int intCo
         strcpy(newASTNode->strConstVal, strConstVal);
     }
 
-    // if (nodeType == ID_NODE && getDeclarationStatus() == DECL_END && getParamType() == TYPE_VOID)
-    // {
-
-    //     struct GSTNode *GSTEntry = GSTLookup(nodeName);
-
-    //     if (GSTEntry == NULL)
-    //     {
-    //         printf("\nVariable %s undeclared before use\n", nodeName);
-    //         exit(1);
-    //     }
-
-    //     newASTNode->GSTEntry = GSTEntry;
-    //     newASTNode->dataType = GSTEntry->type;
-    // }
-
     return newASTNode;
 }
 
@@ -66,6 +52,7 @@ int printAST(struct ASTNode *root)
     printAST(root->middle);
     printAST(root->right);
 
+    printf("\n-----------------------------------------------------\n");
     printf("🌳 nodeName: %s\n", root->nodeName);
     printf("➡ Data Type: %d\n", root->dataType);
     printf("➡ nodeType: %d\n", root->nodeType);
@@ -76,6 +63,18 @@ int printAST(struct ASTNode *root)
     printf("➡ right: %p\n", root->right);
     printf("➡ GST: %p\n", root->GSTEntry);
     printf("➡ LST: %p\n\n", root->LSTEntry);
+
+    // if (root->argList != NULL)
+    // {
+    //     printf("➡ Arg List Start:\n");
+    //     struct ASTNode *traversalPtr = root->argList;
+    //     while (traversalPtr != NULL)
+    //     {
+    //         printAST(traversalPtr);
+    //         traversalPtr = traversalPtr->argList;
+    //     }
+    //     printf("➡ Arg List End:\n");
+    // }
 
     return 0;
 }
@@ -199,4 +198,44 @@ struct ASTNode *lookupID(struct ASTNode *IDNode)
     }
 
     return IDNode;
+}
+
+struct ASTNode *insertToArgList(struct ASTNode *argListHead, struct ASTNode *argNode)
+{
+    struct ASTNode *traversalPtr = argListHead;
+
+    while (traversalPtr->argList != NULL)
+    {
+        traversalPtr = traversalPtr->argList;
+    }
+
+    traversalPtr->argList = argNode;
+
+    return argListHead;
+}
+
+int verifyFunctionArguments(char *funcName, struct ASTNode *argumentList)
+{
+    struct GSTNode *funcGSTEntry = GSTLookup(funcName);
+    int argCount = 0;
+
+    while (funcGSTEntry != NULL)
+    {
+        ++argCount;
+        if (funcGSTEntry->type != argumentList->dataType)
+        {
+            printf("\n%s() expects data type %s for argument %d\n", funcName, (funcGSTEntry->type == TYPE_INT) ? ("int") : ("str"), argCount);
+            exit(1);
+        }
+        funcGSTEntry = funcGSTEntry->next;
+        argumentList = argumentList->argList;
+    }
+
+    if (funcGSTEntry != NULL || argumentList != NULL)
+    {
+        printf("\nNumber of arguments passed to %s() not equal to number of parameters in declaration\n", funcName);
+        exit(1);
+    }
+
+    return 1;
 }

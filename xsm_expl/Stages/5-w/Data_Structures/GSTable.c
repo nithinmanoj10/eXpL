@@ -112,3 +112,15 @@ int GSTPrint()
 
     return 0;
 }
+
+int getFunctionType(char *name)
+{
+    struct GSTNode *traverslPtr = GSTHead;
+
+    while (traverslPtr != NULL)
+    {
+        if (strcmp(traverslPtr->name, name) == 0)
+            return traverslPtr->type;
+        traverslPtr = traverslPtr->next;
+    }
+}

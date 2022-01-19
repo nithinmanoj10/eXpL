@@ -26,4 +26,13 @@ struct GSTNode *GSTLookup(char *name);
 
 int GSTPrint();
 
+/**
+ * @brief   Get the Function Type 
+ * 
+ * @param   name Name of the function 
+ * @return  int 
+ */
+int getFunctionType(char *name);
+
+
 #endif

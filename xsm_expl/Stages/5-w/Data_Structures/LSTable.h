@@ -2,6 +2,7 @@
 
 #define LSTABLE_H
 
+#include "../Frontend/ast.h"
 #include "paramStruct.h"
 
 // Node of a Local Symbol Table

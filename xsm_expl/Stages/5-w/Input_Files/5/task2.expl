@@ -1,17 +1,17 @@
 decl
     int result, add(int a, int b);
     int sub(int a, int b);
+    int getName(int a);
 enddecl
 
 int add(int a, int b) {
     decl
-        int sum, count;
-        str finalResult;
+        int sum;
     enddecl
     
     begin
         write("Addition"); 
-        sum = a + b + result; 
+        sum = a + b; 
         return sum;
     end;
 }
@@ -31,11 +31,14 @@ int sub(int a, int b){
 int main() {
     decl
         int a, b;
+        str c;
     enddecl
 
     begin
-        write("hello");
-        jum = a + b;
+        read(a);
+        read(b);
+        result = getName(c);
+        write(result);
         return 1;
     end;
 }

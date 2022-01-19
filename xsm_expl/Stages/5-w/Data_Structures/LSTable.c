@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../Frontend/ast.h"
 #include "LSTable.h"
 #include "GSTable.h"
-#include "../Frontend/ast.h"
 #include "paramStruct.h"
 #include "../Data_Structures/typeTable.h"
 
