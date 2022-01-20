@@ -50,6 +50,9 @@
 #define TYPE_INT_PTR 54
 #define TYPE_STR_PTR 55
 
+#define LABEL_CONTROL 60
+#define LABEL_FUNCTION 61
+
 #define DECL_START 70
 #define DECL_END 71
 #define DECL_NULL 72

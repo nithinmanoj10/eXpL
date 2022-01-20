@@ -31,6 +31,6 @@ then
 
 	echo "\n🚀 Running target.xsm\n"
 
-	# cd ../../..
-	# ./xsm -l library.lib -e Stages/5-w/Target_Files/target.xsm $2
+	cd ../../..
+	./xsm -l library.lib -e Stages/5-w/Target_Files/target.xsm $2
 fi

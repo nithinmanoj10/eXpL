@@ -6,7 +6,7 @@
 extern int labelNum;
 
 // Keeps count of number of Function Labels used
-// Label F0 is reserved for int main()
+// F0 reserved for int main()
 extern int funcLabelNum;
 
 /**
@@ -25,6 +25,8 @@ int getLabel();
  */
 int getFuncLabel();
 
+int getFuncLabelNumValue();
+
 /**
  * Function to calculate the address from line number
  *
@@ -39,8 +41,9 @@ int calcLabelAddress(int lineNumber);
  */
 struct labelAddressNode
 {
-	int labelNum;
-	int address;
+	int labelNum;	// Label Number
+	int address;	// Label Address
+	int labelType;	// Label Type - Control or Function
 	struct labelAddressNode *next;
 } lanode;
 
@@ -53,12 +56,12 @@ struct labelAddressNode
  *
  * @return	newLabelNode:	Pointer to the newly created labelAddress Node
  */
-struct labelAddressNode *createLabelAddressNode(int labelNum, int address);
+struct labelAddressNode *createLabelAddressNode(int labelNum, int address, int labelType);
 
 /**
  * Function to insert a node to labelAddressLL
  *
- * @params	head:		Head of the Linked List
+ * @param	head:		Head of the Linked List
  *		
  *  		newNode:	New node to be inserted
  *
@@ -69,13 +72,13 @@ struct labelAddressNode *insertLabelAddressNode(struct labelAddressNode *newNode
 /**
  * Function to get the address of a given label
  *
- * @params	labelNum:	The label number
+ * @param	labelNum:	The label number
  *
  * @return	address:	Address of the label number
  *
  *		-1:		If address doesnt exists
  */
-int getLabelAddress(int labelNum);
+int getLabelAddress(int labelNum, int labelType);
 
 /**
  * Global variable pointing to the head of the Label Address Table (linked list)

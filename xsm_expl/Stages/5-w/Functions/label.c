@@ -4,7 +4,7 @@
 #include "label.h"
 
 int labelNum = -1;
-int funcLabelNum = -1;
+int funcLabelNum = 0;
 
 int getLabel()
 {
@@ -18,6 +18,11 @@ int getFuncLabel()
 	return funcLabelNum;
 }
 
+int getFuncLabelNumValue()
+{
+	return funcLabelNum;
+}
+
 int calcLabelAddress(int lineNumber)
 {
 	return 2056 + 2 * (lineNumber - 9);
@@ -27,7 +32,7 @@ int calcLabelAddress(int lineNumber)
 struct labelAddressNode *headLAT = NULL;
 struct labelAddressNode *tailLAT = NULL;
 
-struct labelAddressNode *createLabelAddressNode(int labelNum, int address)
+struct labelAddressNode *createLabelAddressNode(int labelNum, int address, int labelType)
 {
 
 	// allocating memory for the new node
@@ -36,6 +41,7 @@ struct labelAddressNode *createLabelAddressNode(int labelNum, int address)
 
 	newNode->labelNum = labelNum;
 	newNode->address = address;
+	newNode->labelType = labelType;
 	newNode->next = NULL;
 
 	return newNode;
@@ -59,7 +65,7 @@ struct labelAddressNode *insertLabelAddressNode(struct labelAddressNode *newNode
 	return headLAT;
 }
 
-int getLabelAddress(int labelNum)
+int getLabelAddress(int labelNum, int labelType)
 {
 
 	if (headLAT == NULL)
@@ -73,7 +79,7 @@ int getLabelAddress(int labelNum)
 
 	while (temp)
 	{
-		if (temp->labelNum == labelNum)
+		if (temp->labelNum == labelNum && temp->labelType == labelType)
 			return temp->address;
 		temp = temp->next;
 	}

@@ -124,7 +124,7 @@ GDeclBlock	:	DECL GDeclList ENDDECL	{
 											fprintf(filePtr, "MOV SP, %d\n", freeStackMem - 1);
 											fprintf(filePtr, "MOV BP, %d\n", freeStackMem);
 											fprintf(filePtr, "PUSH R0\n");
-											fprintf(filePtr, "CALL FIM\n");
+											fprintf(filePtr, "CALL F0\n");
 											fprintf(filePtr, "INT 10\n");
 										}
 			|	DECL ENDDECL			{}
@@ -282,7 +282,7 @@ MainBlock	:	MainFunc '('')'
 														char* currentFuncName = getCurrentFuncName();
 														addFunctionLST(currentFuncName, LSTHead);	
 
-														fprintf(filePtr, "FIM:\n");
+														fprintf(filePtr, "F0:\n");
 														initFuncCalle(filePtr, paramCount);
 
 														printAST($6);
