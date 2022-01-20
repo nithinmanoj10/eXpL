@@ -16,11 +16,13 @@
 	#include "../Functions/xsm_syscalls.h"
 	#include "../Functions/stackMemory.h"
 	#include "../Functions/stringMan.h"
+	#include "../Functions/label.h"
 
 	int yylex(void);
 	void yyerror(char const *s);
 	int statementCount = 0;
 	char* fileName;
+	FILE* filePtr;
 %}
 
 %start start
@@ -115,7 +117,16 @@ breakPointStmt	:	BREAKPOINT { $$ = TreeCreate(TYPE_VOID, BREAKPOINT_NODE, NULL, 
 				;
 
  /* Global Declaration ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
-GDeclBlock	:	DECL GDeclList ENDDECL	{ GSTPrint(); }
+GDeclBlock	:	DECL GDeclList ENDDECL	{ 
+											GSTPrint();
+
+											int freeStackMem = getFreeStackMemoryValue();
+											fprintf(filePtr, "MOV SP, %d\n", freeStackMem - 1);
+											fprintf(filePtr, "MOV BP, %d\n", freeStackMem);
+											fprintf(filePtr, "PUSH R0\n");
+											fprintf(filePtr, "CALL FIM\n");
+											fprintf(filePtr, "INT 10\n");
+										}
 			|	DECL ENDDECL			{}
 			;
 
@@ -145,6 +156,7 @@ GID			:	ID						{ GSTInstall($1->nodeName, getDeclarationType(), 1, NULL); }
 			|	ID '(' ParamList ')'	{ 
 											GSTInstall($1->nodeName, getDeclarationType(), -1, getParamListHead());
 											flushParamList();
+											paramCount = 0;
 											setParamType(TYPE_VOID);
 										}
 			|	MUL ID					{
@@ -167,7 +179,10 @@ ParamType	:	INT						{ setParamType(TYPE_INT); }
 			|	STR						{ setParamType(TYPE_STR); }
 			;
 
-Param		:	ParamType ID			{ paramListInstall(getParamType(), $2->nodeName); }
+Param		:	ParamType ID			{ 
+											paramListInstall(getParamType(), $2->nodeName); 
+											++paramCount;
+										}
 			;
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
@@ -201,10 +216,20 @@ FID			:	ID										{
 
 FDef		:	FuncSign
 				'{' LDeclBlock FBody '}'				{
-															addFunctionLST(getCurrentFuncName(), LSTHead);	
-															//printf("\nFor function %s: \n", getCurrentFuncName());
-															// printAST($4);
+															char* currentFuncName = getCurrentFuncName();
+															addFunctionLST(currentFuncName, LSTHead);	
+															
+															fprintf(filePtr, "F%d:\n", GSTLookup(currentFuncName)->fLabel);
+															initFuncCalle(filePtr, paramCount);
+
+															// TODO: Generate Code for the function		
+															printAST($4);
+															codeGen($4, filePtr);
+
+
+															LSTPrint();
 															flushLST();
+															paramCount = 0;
 														}
 			;
 
@@ -227,7 +252,7 @@ FBody		:	BEGIN_ Slist retStmt END SEMICOLON		{
 
 
  /* Local Declarations ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
-LDeclBlock	:	DECL LDeclList ENDDECL	{ LSTPrint(); }
+LDeclBlock	:	DECL LDeclList ENDDECL	{}
 			|	DECL ENDDECL			{}
 			;
 
@@ -331,6 +356,8 @@ int main(int argc, char* argv[]){
 
 	if (argc > 1){
 		yydebug = 0;
+		filePtr = fopen("../Target_Files/round1.xsm", "w");
+		writeXexeHeader(filePtr);
 		yyparse();
 	}
 	else{

@@ -18,3 +18,8 @@ int getFreeStackMemory(int num)
 
 	return freeMem;
 }
+
+int getFreeStackMemoryValue()
+{
+	return freeStackMemory;
+}

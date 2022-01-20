@@ -34,5 +34,12 @@ int GSTPrint();
  */
 int getFunctionType(char *name);
 
+/**
+ * @brief   Get the Function Label 
+ * 
+ * @param   name Name of the function 
+ * @return  int 
+ */
+int getFunctionLabel(char *name);
 
 #endif

@@ -6,6 +6,8 @@
 struct ParamStruct *paramListHead = NULL;
 struct ParamStruct *paramListTail = NULL;
 
+int paramCount = 0;
+
 struct ParamStruct *getParamListHead()
 {
     return paramListHead;

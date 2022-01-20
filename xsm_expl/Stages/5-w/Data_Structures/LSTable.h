@@ -53,6 +53,13 @@ struct LSTNode *LSTLookup(char *name);
 struct LSTNode *LSTPrint();
 
 /**
+ * @brief   Get the number of nodes in the Local Symbol Tree 
+ * 
+ * @return  int 
+ */
+int getLSTSize();
+
+/**
  * @brief   Adds the formal parameters of a function to the Local Symbol Table
  * 
  * @return  int 

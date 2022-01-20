@@ -82,23 +82,51 @@ int printAST(struct ASTNode *root)
 int getVariableAddress(FILE *filePtr, struct ASTNode *root)
 {
     int variableAddrReg = getReg();
-    int variableAddr = root->GSTEntry->binding;
+    struct LSTNode *varLSTEntry = LSTLookup(root->nodeName);
 
-    fprintf(filePtr, "MOV R%d, %d\n", variableAddrReg, variableAddr);
-
-    // for array variable
-    if (root->left != NULL)
+    if (varLSTEntry == NULL)
     {
-
-        int offsetReg = getReg();
-        fprintf(filePtr, "MOV R%d, R%d\n", offsetReg, evalExprTree(filePtr, root->left));
-        fprintf(filePtr, "ADD R%d, R%d\n", variableAddrReg, offsetReg);
-        freeReg();
+        if (root->GSTEntry == NULL)
+        {
+            printf("\nVariable %s undeclared before use\n", root->nodeName);
+            exit(1);
+        }
+        
+        int variableAddr = root->GSTEntry->binding;
+        fprintf(filePtr, "MOV R%d, %d\n", variableAddrReg, variableAddr);
+    }
+    else
+    {
+        int variableBindingReg = getReg();
+        fprintf(filePtr, "MOV R%d, %d\n", variableBindingReg, varLSTEntry->binding);
+        fprintf(filePtr, "MOV R%d, BP\n", variableAddrReg);
+        fprintf(filePtr, "ADD R%d, R%d\n", variableAddrReg, variableBindingReg);
         freeReg();
     }
 
     return variableAddrReg;
 }
+
+// int getVariableAddress(FILE *filePtr, struct ASTNode *root)
+// {
+//     int variableAddrReg = getReg();
+//     int variableAddr = root->GSTEntry->binding;
+
+//     fprintf(filePtr, "MOV R%d, %d\n", variableAddrReg, variableAddr);
+
+//     // for array variable
+//     if (root->left != NULL)
+//     {
+
+//         int offsetReg = getReg();
+//         fprintf(filePtr, "MOV R%d, R%d\n", offsetReg, evalExprTree(filePtr, root->left));
+//         fprintf(filePtr, "ADD R%d, R%d\n", variableAddrReg, offsetReg);
+//         freeReg();
+//         freeReg();
+//     }
+
+//     return variableAddrReg;
+// }
 
 int getAddress(FILE *filePtr, struct ASTNode *root)
 {

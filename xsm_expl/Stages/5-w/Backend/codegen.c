@@ -4,6 +4,8 @@
 #include "codegen.h"
 #include "../Frontend/ast.h"
 #include "../Data_Structures/loopStack.h"
+#include "../Data_Structures/LSTable.h"
+#include "../Data_Structures/paramStruct.h"
 #include "../Functions/reg.h"
 #include "../Functions/xsm_syscalls.h"
 #include "../Functions/label.h"
@@ -119,6 +121,31 @@ int codeGen(struct ASTNode *root, FILE *filePtr)
 		return 1;
 	}
 
+	// for a RETURN Node
+	if (root->nodeType == RETURN_NODE)
+	{
+		int resultRegNo = evalExprTree(filePtr, root->left);
+		int returnValueReg = getReg();
+
+		// Save the return value at [BP-2]
+		fprintf(filePtr, "MOV R%d, BP\n", returnValueReg);
+		fprintf(filePtr, "SUB R%d, 2\n", returnValueReg);
+		fprintf(filePtr, "MOV [R%d], R%d\n", returnValueReg, resultRegNo);
+
+		// POP all the local variables
+		for (int i = 0; i < getLSTSize() - paramCount; ++i)
+			fprintf(filePtr, "POP R0\n");
+
+		// Set BP to old value saved in SP
+		fprintf(filePtr, "MOV BP, [SP]\n");
+		fprintf(filePtr, "POP R0\n");
+
+		fprintf(filePtr, "RET\n");
+
+		freeReg();
+		freeReg();
+	}
+
 	codeGen(root->left, filePtr);
 	codeGen(root->right, filePtr);
 
@@ -206,6 +233,33 @@ int codeGenWhile(FILE *filePtr, struct ASTNode *root, int label, int option)
 
 	freeReg();
 	freeReg();
+
+	return 1;
+}
+
+int initFuncCalle(FILE *filePtr, int paramCount)
+{
+	struct LSTNode *traversalPtr = LSTHead;
+
+	// setting the function parameters binding in the LST
+	for (int i = 0; i < paramCount; ++i)
+	{
+		traversalPtr->binding = -(i + 1 + 2);
+		traversalPtr = traversalPtr->next;
+	}
+
+	// pushing and setting new BP = SP
+	fprintf(filePtr, "PUSH BP\n");
+	fprintf(filePtr, "MOV BP, SP\n");
+
+	int relativeBinding = 1;
+
+	while (traversalPtr != NULL)
+	{
+		fprintf(filePtr, "PUSH R0\n");
+		traversalPtr->binding = relativeBinding++;
+		traversalPtr = traversalPtr->next;
+	}
 
 	return 1;
 }

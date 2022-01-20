@@ -6,6 +6,7 @@
 extern int labelNum;
 
 // Keeps count of number of Function Labels used
+// Label F0 is reserved for int main()
 extern int funcLabelNum;
 
 /**

@@ -124,3 +124,9 @@ int getFunctionType(char *name)
         traverslPtr = traverslPtr->next;
     }
 }
+
+int getFunctionLabel(char *name)
+{
+    struct GSTNode *funcNode = GSTLookup(name);
+    return funcNode->fLabel;
+}

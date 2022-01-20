@@ -3,6 +3,7 @@
 #define CODEGEN_H
 
 #include "../Frontend/ast.h"
+#include "../Data_Structures/LSTable.h"
 
 /**
  * A Function that generates assembly code corresponding to the program
@@ -47,5 +48,16 @@ int initVariables(FILE *filePtr);
  * @return	1: 		Success
  */
 int codeGenWhile(FILE *filePtr, struct ASTNode *root, int label, int option);
+
+/**
+ * @brief   Pushes old BP to stack and sets new BP to SP. Also pushes all local
+ *          variables in given order to stack and sets it's binding accordingly
+ * 
+ * @param   filePtr     Pointer to file where the code has to be written
+ * @param   paramCount  Number of parameters of the function. Needed to skip all the parameters
+ *                      in the LST
+ * @return  int 
+ */
+int initFuncCalle(FILE *filePtr, int paramCount);
 
 #endif

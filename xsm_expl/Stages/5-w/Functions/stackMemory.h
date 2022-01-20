@@ -16,4 +16,6 @@ extern int freeStackMemory;
  */
 int getFreeStackMemory(int num);
 
+int getFreeStackMemoryValue();
+
 #endif

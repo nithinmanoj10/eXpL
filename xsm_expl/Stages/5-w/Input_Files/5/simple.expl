@@ -1,17 +1,17 @@
 decl
-    int result;
+    int result, dum, lum;
     int add(int a, int b);
 enddecl
 
 int add(int a, int b){
     decl
-        int sum, lagoon;
+        int sum, lagoon, doge;
     enddecl
     
     begin
         lagoon = 2;
-        sum = a + b;
-        return sum;
+        result = a + b;
+        return result;
     end;
 }
 
@@ -22,6 +22,8 @@ int main() {
     enddecl
 
     begin
+        read(a);
+        read(b);
         result = add(a,b);                        
         return 1;
     end;

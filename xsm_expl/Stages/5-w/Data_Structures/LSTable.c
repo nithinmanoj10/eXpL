@@ -26,7 +26,7 @@ struct LSTNode *LSTInstall(char *name, int type)
 
     strcpy(newLSTNode->name, name);
     newLSTNode->type = type;
-    newLSTNode->binding = 1;
+    newLSTNode->binding = 0;
     newLSTNode->next = NULL;
 
     if (LSTHead == NULL && LSTTail == NULL)
@@ -65,11 +65,28 @@ struct LSTNode *LSTPrint()
 
     while (traversalPtr != NULL)
     {
-        printf("%s %s\n", (traversalPtr->type == TYPE_INT) ? ("int") : ("str"), traversalPtr->name);
+        printf("%s %s %d\n", (traversalPtr->type == TYPE_INT) ? ("int") : ("str"), traversalPtr->name, traversalPtr->binding);
         traversalPtr = traversalPtr->next;
     }
 
     printf("\n\n");
+}
+
+int getLSTSize()
+{
+    if (LSTHead == NULL && LSTTail == NULL)
+        return 0;
+
+    struct LSTNode *traversalPtr = LSTHead;
+    int size = 0;
+
+    while (traversalPtr != NULL)
+    {
+        ++size;
+        traversalPtr = traversalPtr->next;
+    }
+
+    return size;
 }
 
 int LSTAddParams()
