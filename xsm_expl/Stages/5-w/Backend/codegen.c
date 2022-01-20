@@ -242,9 +242,9 @@ int initFuncCalle(FILE *filePtr, int paramCount)
 	struct LSTNode *traversalPtr = LSTHead;
 
 	// setting the function parameters binding in the LST
-	for (int i = 0; i < paramCount; ++i)
+	for (int i = paramCount; i > 0; --i)
 	{
-		traversalPtr->binding = -(i + 1 + 2);
+		traversalPtr->binding = -(i + 2);
 		traversalPtr = traversalPtr->next;
 	}
 
@@ -262,4 +262,14 @@ int initFuncCalle(FILE *filePtr, int paramCount)
 	}
 
 	return 1;
+}
+
+int codeGenFuncCaller(FILE *filePtr, struct ASTNode *funcNode)
+{
+
+	// Push all registers in use to stack
+	for (int i = 0; i <= getRegNumValue(); ++i)
+	{
+		fprintf(filePtr, "PUSH R%d\n", i);
+	}
 }

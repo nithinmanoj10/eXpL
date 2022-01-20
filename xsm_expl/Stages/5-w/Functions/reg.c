@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include "reg.h"
 
-#define KNRM  "\x1B[0m"
-#define KRED  "\x1B[31m"
+#define KNRM "\x1B[0m"
+#define KRED "\x1B[31m"
 
 /*
  * Initialised to -1 since no register is in use when the 
@@ -11,12 +11,14 @@
  */
 int regNum = -1;
 
-int getReg(){
+int getReg()
+{
 
 	++regNum;
 
-	// Number of registers available is 20 (R0-R19)	
-	if(regNum > 19){
+	// Number of registers available is 20 (R0-R19)
+	if (regNum > 19)
+	{
 		printf("%s\n🚫 Out of Registers: Exiting Program%s\n", KRED, KNRM);
 		exit(1);
 	}
@@ -24,12 +26,18 @@ int getReg(){
 	return regNum;
 }
 
-int freeReg(){
+int freeReg()
+{
 
-	// If all registers are already freed	
-	if(regNum == -1)
+	// If all registers are already freed
+	if (regNum == -1)
 		return -1;
 
 	--regNum;
+	return regNum;
+}
+
+int getRegNumValue()
+{
 	return regNum;
 }

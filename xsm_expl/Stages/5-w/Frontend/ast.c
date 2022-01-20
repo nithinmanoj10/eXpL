@@ -91,7 +91,7 @@ int getVariableAddress(FILE *filePtr, struct ASTNode *root)
             printf("\nVariable %s undeclared before use\n", root->nodeName);
             exit(1);
         }
-        
+
         int variableAddr = root->GSTEntry->binding;
         fprintf(filePtr, "MOV R%d, %d\n", variableAddrReg, variableAddr);
     }
@@ -174,6 +174,51 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
         }
 
         return reg1;
+    }
+
+    // for a FUNCTION Node
+    if (root->nodeType == FUNC_NODE)
+    {
+        int regCount = getRegNumValue();
+        // Push all register in use to the stack
+        for (int i = 0; i <= regCount; ++i)
+            fprintf(filePtr, "PUSH R%d\n", i);
+
+        // Evaluate each argList node and push it in the stack (in the same order)
+        struct ASTNode *argListHead = root->argList;
+        int argValueReg;  // Register where each argument value is stored
+        int argCount = 0; // Number of arguments pushed into the stack
+
+        while (argListHead != NULL)
+        {
+            argValueReg = evalExprTree(filePtr, argListHead);
+            fprintf(filePtr, "PUSH R%d\n", argValueReg);
+            ++argCount;
+            freeReg();
+
+            argListHead = argListHead->argList;
+        }
+
+        // Pushing an empty space for the return value
+        fprintf(filePtr, "PUSH R0\n");
+
+        // Generate CALL Statement
+        struct GSTNode *funcGSTEntry = GSTLookup(root->nodeName);
+        fprintf(filePtr, "CALL F%d\n", funcGSTEntry->fLabel);
+
+        // Store the return value in a register
+        int returnValueReg = getReg();
+        fprintf(filePtr, "POP R%d\n", returnValueReg);
+
+        // POP out all the arguments
+        for (int i = 0; i < argCount; ++i)
+            fprintf(filePtr, "POP R10\n");
+
+        // restore all registers saved in the stack
+        for (int i = regCount; i >= 0; ++i)
+            fprintf(filePtr, "POP R%d\n", i);
+
+        return returnValueReg;
     }
 
     int leftRegNo, rightRegNo;

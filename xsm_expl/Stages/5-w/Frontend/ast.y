@@ -194,7 +194,10 @@ ArgList		:	ArgList COMMA Arg		{
 			|	Arg						{ $$ = $1; }
 			;
 
-Arg			:	expr					{ $$ = $1; }
+Arg			:	expr					{ 
+											$$ = $1; 
+											// ++argCount;
+										}
 			;			
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
@@ -222,10 +225,8 @@ FDef		:	FuncSign
 															fprintf(filePtr, "F%d:\n", GSTLookup(currentFuncName)->fLabel);
 															initFuncCalle(filePtr, paramCount);
 
-															// TODO: Generate Code for the function		
 															printAST($4);
 															codeGen($4, filePtr);
-
 
 															LSTPrint();
 															flushLST();
@@ -278,7 +279,18 @@ MainBlock	:	MainFunc '('')'
 					LDeclBlock 
 					MBody 
 				'}'									{
-														addFunctionLST(getCurrentFuncName(), LSTHead);	
+														char* currentFuncName = getCurrentFuncName();
+														addFunctionLST(currentFuncName, LSTHead);	
+
+														fprintf(filePtr, "FIM:\n");
+														initFuncCalle(filePtr, paramCount);
+
+														printAST($6);
+														codeGen($6, filePtr);
+														LSTPrint();
+														flushLST();
+														paramCount = 0;
+														// addFunctionLST(getCurrentFuncName(), LSTHead);	
 														// printf("\nFor function %s: \n", getCurrentFuncName());
 														// printAST($6);	
 														// FILE* filePtr = fopen("../Target_Files/round1.xsm", "w");

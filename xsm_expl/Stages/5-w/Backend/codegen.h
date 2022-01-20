@@ -60,4 +60,14 @@ int codeGenWhile(FILE *filePtr, struct ASTNode *root, int label, int option);
  */
 int initFuncCalle(FILE *filePtr, int paramCount);
 
+/**
+ * @brief   Generates XSM code for the caller function before and after calling
+ *          the callee function 
+ * 
+ * @param   filePtr Pointer to target code file
+ * @param   funcNode Function Node
+ * @return  int 
+ */
+int codeGenFuncCaller(FILE *filePtr, struct ASTNode *funcNode);
+
 #endif

@@ -26,4 +26,11 @@ int getReg();
  */
 int freeReg();
 
+/**
+ * @brief 	Get the regNum value 
+ * 
+ * @return 	int 
+ */
+int getRegNumValue();
+
 #endif

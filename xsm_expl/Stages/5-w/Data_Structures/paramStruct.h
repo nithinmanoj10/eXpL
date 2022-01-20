@@ -14,6 +14,7 @@ extern struct ParamStruct *paramListHead; // Pointer to head of parameter list
 extern struct ParamStruct *paramListTail; // Pointer to tail of parameter list
 
 extern int paramCount; // Keeps count of number of parameters in a function
+// extern int argCount;   // Keeps count of number of arguments in a function
 
 /**
  * @brief Get the Param List Head object

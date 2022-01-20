@@ -24,7 +24,8 @@ int main() {
     begin
         read(a);
         read(b);
-        result = add(a,b);                        
+        result = add(a,b);  
+        write(result);                      
         return 1;
     end;
 }
