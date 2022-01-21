@@ -1,34 +1,35 @@
-// Create GST for global variables and functions
 decl
-    int result,factorial(int n);
-    int a, n;
+  int fact(int n);
 enddecl
 
-int factorial(int n)
+int fact(int n)
 {
-    decl
-        int f;
-    enddecl
+  decl
+    int f;
+  enddecl
 
-    begin
-        if( n==1 ) then
-            f = 1;
-        else
-            f = n * factorial(n-1); 
-        endif;
-        return f;
-    end;
+  begin
+    if(n<=1) then
+      f=1;
+    else
+      f=n*fact(n-1);
+    endif;
+
+    return f;
+  end;
 }
 
-int main(){
-    decl
-        int a;
-    enddecl
+int main()
+{
+  decl
+    int a,res;
+  enddecl
 
-    begin
-        read(a);
-        result = factorial(a);
-        write(result);
-        return 1;
-    end;
-}
+  begin
+    read(a);
+    res = fact(a);
+    write(res);
+
+    return 0;
+  end;  
+}  

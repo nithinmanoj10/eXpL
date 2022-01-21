@@ -20,7 +20,8 @@ struct ASTNode *TreeCreate(int dataType, int nodeType, char *nodeName, int intCo
     newASTNode->nodeName = NULL;
     newASTNode->intConstVal = intConstVal;
     newASTNode->strConstVal = NULL;
-    newASTNode->argList = NULL;
+    newASTNode->argListHead = NULL;
+    newASTNode->argListNext = NULL;
     newASTNode->left = left;
     newASTNode->right = right;
     newASTNode->middle = middle;
@@ -94,6 +95,16 @@ int getVariableAddress(FILE *filePtr, struct ASTNode *root)
 
         int variableAddr = root->GSTEntry->binding;
         fprintf(filePtr, "MOV R%d, %d\n", variableAddrReg, variableAddr);
+
+        // for array variable
+        if (root->left != NULL)
+        {
+            int offsetReg = getReg();
+            fprintf(filePtr, "MOV R%d, R%d\n", offsetReg, evalExprTree(filePtr, root->left));
+            fprintf(filePtr, "ADD R%d, R%d\n", variableAddrReg, offsetReg);
+            freeReg();
+            freeReg();
+        }
     }
     else
     {
@@ -185,7 +196,7 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
             fprintf(filePtr, "PUSH R%d\n", i);
 
         // Evaluate each argList node and push it in the stack (in the same order)
-        struct ASTNode *argListHead = root->argList;
+        struct ASTNode *argListHead = root->argListHead;
         int argValueReg;  // Register where each argument value is stored
         int argCount = 0; // Number of arguments pushed into the stack
 
@@ -196,7 +207,7 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
             ++argCount;
             freeReg();
 
-            argListHead = argListHead->argList;
+            argListHead = argListHead->argListNext;
         }
 
         // Pushing an empty space for the return value
@@ -215,7 +226,7 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
             fprintf(filePtr, "POP R10\n");
 
         // restore all registers saved in the stack
-        for (int i = regCount; i >= 0; ++i)
+        for (int i = regCount; i >= 0; --i)
             fprintf(filePtr, "POP R%d\n", i);
 
         return returnValueReg;
@@ -278,12 +289,12 @@ struct ASTNode *insertToArgList(struct ASTNode *argListHead, struct ASTNode *arg
 {
     struct ASTNode *traversalPtr = argListHead;
 
-    while (traversalPtr->argList != NULL)
+    while (traversalPtr->argListNext != NULL)
     {
-        traversalPtr = traversalPtr->argList;
+        traversalPtr = traversalPtr->argListNext;
     }
 
-    traversalPtr->argList = argNode;
+    traversalPtr->argListNext = argNode;
 
     return argListHead;
 }
@@ -303,7 +314,7 @@ int verifyFunctionArguments(char *funcName, struct ASTNode *argumentList)
             exit(1);
         }
         funcParamList = funcParamList->next;
-        argumentList = argumentList->argList;
+        argumentList = argumentList->argListNext;
     }
 
     if (funcParamList != NULL || argumentList != NULL)

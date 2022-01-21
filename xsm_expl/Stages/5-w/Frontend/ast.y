@@ -173,6 +173,7 @@ GID			:	ID						{ GSTInstall($1->nodeName, getDeclarationType(), 1, NULL); }
  /* Function Parameters ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 ParamList	:	ParamList COMMA Param	{}
 			|	Param					{}
+			|	/* empty */				{}
 			;
 
 ParamType	:	INT						{ setParamType(TYPE_INT); }
@@ -192,6 +193,7 @@ ArgList		:	ArgList COMMA Arg		{
 											$$ = insertToArgList($1, $3);
 										}
 			|	Arg						{ $$ = $1; }
+			|	/* empty */				{}
 			;
 
 Arg			:	expr					{ 
@@ -290,15 +292,7 @@ MainBlock	:	MainFunc '('')'
 														LSTPrint();
 														flushLST();
 														paramCount = 0;
-														// addFunctionLST(getCurrentFuncName(), LSTHead);	
-														// printf("\nFor function %s: \n", getCurrentFuncName());
-														// printAST($6);	
-														// FILE* filePtr = fopen("../Target_Files/round1.xsm", "w");
-														// writeXexeHeader(filePtr);
-														// initVariables(filePtr);
-														// codeGen($6, filePtr);							
-														// INT_10(filePtr);
-														// printf("\n");
+												
 														printFLT();
 													}
 			;
@@ -338,10 +332,11 @@ expr		: expr PLUS expr		{ $$ =  TreeCreate(TYPE_INT, PLUS_NODE, NULL, 0, NULL, $
 										$1 = lookupID($1);	
 										verifyFunctionArguments($1->nodeName, $3);	
 										$$ = TreeCreate(getFunctionType($1->nodeName), FUNC_NODE, $1->nodeName, 0, NULL, NULL, NULL, NULL); 
-										$$->argList = $3;
+										$$->argListHead = $3;
 										$$->GSTEntry = $1->GSTEntry;
 									}
 			| ID '[' expr ']' 		{	
+										$1 = lookupID($1);
 										if ($3->dataType != TYPE_INT){
 											printf("\nArray Indexing expects INT Data Type\n");
 											exit(1);

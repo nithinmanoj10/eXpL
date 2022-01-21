@@ -37,7 +37,7 @@ int main() {
     begin
         read(a);
         read(b);
-        result = add(a,b);
+        result = add(add(a,b), sub(a,b));
         write(result);
         return 1;
     end;

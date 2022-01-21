@@ -65,7 +65,8 @@ struct ASTNode
     char *nodeName;                        // Name of variable
     int intConstVal;                       // Value of int const
     char *strConstVal;                     // Value of str const
-    struct ASTNode *argList;               // Pointer to list of arguments of a function
+    struct ASTNode *argListHead;           // Pointer to head of list of arguments of a function
+    struct ASTNode *argListNext;           // Pointer to next element of arg list
     struct ASTNode *left, *middle, *right; // Left, middle and right subtrees
     struct GSTNode *GSTEntry;              // Pointer to Global Symbol Table entry for a variable
     struct LSTNode *LSTEntry;              // Pointer to Local Symbol Table entry for a variable

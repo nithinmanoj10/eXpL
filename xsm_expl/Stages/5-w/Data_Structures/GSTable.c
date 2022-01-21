@@ -49,7 +49,7 @@ struct GSTNode *GSTInstall(char *name, int type, int size, struct ParamStruct *p
 
     // if function, assign a valid function label number
     // else for variable set it to -1
-    if (paramList != NULL)
+    if (size == -1)
         newGSTNode->fLabel = getFuncLabel();
     else
         newGSTNode->fLabel = -1;
