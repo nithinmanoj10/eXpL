@@ -185,13 +185,13 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
         break;
 
     case ASGN_NODE:
-        if (leftTree->nodeType != ID_NODE)
+        if (leftTree->nodeType != ID_NODE && leftTree->nodeType != MUL_NODE)
         {
             printf("\nType Error: Assignment Operator expects an Identifier in LHS\n");
             exit(1);
         }
 
-        if (rightTree->dataType != TYPE_INT && rightTree->dataType != TYPE_STR)
+        if (rightTree->dataType != TYPE_INT && rightTree->dataType != TYPE_STR && rightTree->dataType != TYPE_INT_PTR && rightTree->dataType != TYPE_STR_PTR)
         {
             printf("\nType Error: Assignment Operator expects data type INT or STR in RHS\n");
             exit(1);

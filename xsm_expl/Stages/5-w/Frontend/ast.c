@@ -174,8 +174,8 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
 
         if (root->nodeType == AMP_NODE)
         {
-            int variableAddress = root->left->GSTEntry->binding;
-            fprintf(filePtr, "MOV R%d, %d\n", reg1, variableAddress);
+            int variableAddressReg = getVariableAddress(filePtr, root->left);
+            fprintf(filePtr, "MOV R%d, R%d\n", reg1, variableAddressReg);
         }
 
         if (root->nodeType == MUL_NODE && root->middle != NULL)

@@ -32,7 +32,7 @@
 	struct LSTNode* lstnode;
 }
 
-%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList
+%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID
 
 
 %token BEGIN_ END MAIN READ WRITE ID NUM STRING PLUS MINUS MUL DIV MOD AMPERSAND EQUAL BREAKPOINT
@@ -88,6 +88,16 @@ assignStmt 	: ID EQUAL expr					{
 												$1->left = $3;
 												$$ = TreeCreate(TYPE_VOID, ASGN_NODE, NULL, 0, NULL, $1, NULL, $6);
 			 								}
+			| MUL ID EQUAL expr				{
+												$2 = lookupID($2);	
+												struct ASTNode* mulNode;
+												if ($2->dataType == TYPE_INT_PTR)
+													mulNode = TreeCreate(TYPE_INT, MUL_NODE, NULL, 0, NULL, NULL, $2, NULL);
+
+												if ($2->dataType == TYPE_STR_PTR)
+													mulNode = TreeCreate(TYPE_STR, MUL_NODE, NULL, 0, NULL, NULL, $2, NULL);
+												$$ = TreeCreate(TYPE_VOID, ASGN_NODE, NULL, 0, NULL, mulNode, NULL, $4);
+											}
 	   		;
 
 
@@ -162,13 +172,26 @@ GID			:	ID						{ GSTInstall($1->nodeName, getDeclarationType(), 1, NULL); }
 											paramCount = 0;
 											setParamType(TYPE_VOID);
 										}
-			|	MUL ID					{
+			|	GPtrID					{
 											if (getDeclarationType() == TYPE_INT)
-												GSTInstall($2->nodeName, TYPE_INT_PTR, 1, NULL);
+												GSTInstall($1->nodeName, TYPE_INT_PTR, 1, NULL);
 
 											if (getDeclarationType() == TYPE_STR)
-												GSTInstall($2->nodeName, TYPE_STR_PTR, 1, NULL);
+												GSTInstall($1->nodeName, TYPE_STR_PTR, 1, NULL);
 										}
+			|	GPtrID '(' ParamList ')'	{
+												if (getDeclarationType() == TYPE_INT)
+												GSTInstall($1->nodeName, TYPE_INT_PTR, -1, getParamListHead());
+
+												if (getDeclarationType() == TYPE_STR)
+													GSTInstall($1->nodeName, TYPE_STR_PTR, -1, getParamListHead());
+
+												flushParamList();
+												paramCount = 0;
+												setParamType(TYPE_VOID);
+											}
+			;
+GPtrID		:	MUL ID						{ $$ = $2; }
 			;
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
@@ -181,6 +204,8 @@ ParamList	:	ParamList COMMA Param	{}
 
 ParamType	:	INT						{ setParamType(TYPE_INT); }
 			|	STR						{ setParamType(TYPE_STR); }
+			|	INT MUL					{ setParamType(TYPE_INT_PTR); }
+			|	STR MUL					{ setParamType(TYPE_STR_PTR); }
 			;
 
 Param		:	ParamType ID			{ 
@@ -230,10 +255,10 @@ FDef		:	FuncSign
 															fprintf(filePtr, "F%d:\n", GSTLookup(currentFuncName)->fLabel);
 															initFuncCalle(filePtr, paramCount);
 
-															printAST($4);
+															// printAST($4);
 															codeGen($4, filePtr);
 
-															LSTPrint();
+															// LSTPrint();
 															flushLST();
 															paramCount = 0;
 														}
@@ -247,6 +272,8 @@ FuncSign	:	FuncType FID '(' ParamList ')'			{
 
 FuncType	:	INT										{ setFuncType(TYPE_INT); }
 			|	STR										{ setFuncType(TYPE_STR); }
+			|	INT MUL									{ setFuncType(TYPE_INT_PTR); }
+			|	STR MUL									{ setFuncType(TYPE_STR_PTR); }
 			;
 
 FBody		:	BEGIN_ Slist retStmt END SEMICOLON		{
@@ -266,7 +293,11 @@ LDeclList	:	LDeclList LDecl			{}
 			|	LDecl					{}
 			;
 
-LDecl		:	Type LIDList SEMICOLON	{}
+LDecl		:	LType LIDList SEMICOLON	{}
+			;
+
+LType		: 	INT						{ setDeclarationType(TYPE_INT); }
+			|	STR						{ setDeclarationType(TYPE_STR); }
 			;
 
 LIDList		:	LIDList COMMA LID		{}
@@ -274,6 +305,13 @@ LIDList		:	LIDList COMMA LID		{}
 			; 
 
 LID			:	ID						{ LSTInstall($1->nodeName, getDeclarationType()); }
+			|	MUL ID					{
+											if(getDeclarationType() == TYPE_INT)
+												LSTInstall($2->nodeName, TYPE_INT_PTR);	
+
+											if(getDeclarationType() == TYPE_STR)
+												LSTInstall($2->nodeName, TYPE_STR_PTR);	
+										}
 			;
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
@@ -290,13 +328,13 @@ MainBlock	:	MainFunc '('')'
 														fprintf(filePtr, "F0:\n");
 														initFuncCalle(filePtr, paramCount);
 
-														printAST($6);
+														// printAST($6);
 														codeGen($6, filePtr);
-														LSTPrint();
+														// LSTPrint();
 														flushLST();
 														paramCount = 0;
 												
-														printFLT();
+														// printFLT();
 													}
 			;
 
@@ -316,14 +354,6 @@ expr		: expr PLUS expr		{ $$ =  TreeCreate(TYPE_INT, PLUS_NODE, NULL, 0, NULL, $
 			| expr MUL expr 		{ $$ =  TreeCreate(TYPE_INT, MUL_NODE, NULL, 0, NULL, $1, NULL, $3); }
 			| expr DIV expr			{ $$ =  TreeCreate(TYPE_INT, DIV_NODE, NULL, 0, NULL, $1, NULL, $3); }
 			| expr MOD expr			{ $$ =  TreeCreate(TYPE_INT, MOD_NODE, NULL, 0, NULL, $1, NULL, $3); }
-			| AMPERSAND expr		{ $$ = 	TreeCreate(TYPE_INT, AMP_NODE, NULL, 0, NULL, $2, NULL, NULL); }
-			| MUL expr				{ 
-										if ($2->dataType == TYPE_INT_PTR)
-											$$ = TreeCreate(TYPE_INT, MUL_NODE, NULL, 0, NULL, NULL, $2, NULL);
-
-										if ($2->dataType == TYPE_STR_PTR)
-											$$ = TreeCreate(TYPE_STR, MUL_NODE, NULL, 0, NULL, NULL, $2, NULL);	
-			 						}
 			| expr EQ expr			{ $$ =  TreeCreate(TYPE_BOOL, EQ_NODE, NULL, 0, NULL, $1, NULL, $3); }
 			| expr NEQ expr			{ $$ =  TreeCreate(TYPE_BOOL, NE_NODE, NULL, 0, NULL, $1, NULL, $3); }
 			| expr LT expr			{ $$ =  TreeCreate(TYPE_BOOL, LT_NODE, NULL, 0, NULL, $1, NULL, $3); }
@@ -350,6 +380,22 @@ expr		: expr PLUS expr		{ $$ =  TreeCreate(TYPE_INT, PLUS_NODE, NULL, 0, NULL, $
 										$1->left = $3;	
 										$$ = $1;
 									}
+			| AMPERSAND ID			{
+										$2 = lookupID($2);
+										if ($2->dataType == TYPE_INT || $2->dataType == TYPE_INT_PTR)
+											$$ = TreeCreate(TYPE_INT_PTR, AMP_NODE, NULL, 0, NULL, $2, NULL, NULL);
+
+										if ($2->dataType == TYPE_STR || $2->dataType == TYPE_STR_PTR)
+											$$ = TreeCreate(TYPE_STR_PTR, AMP_NODE, NULL, 0, NULL, $2, NULL, NULL);	
+									}
+			| MUL ID				{
+										$2 = lookupID($2);
+										if ($2->dataType == TYPE_INT_PTR)
+											$$ = TreeCreate(TYPE_INT, MUL_NODE, NULL, 0, NULL, NULL, $2, NULL);
+
+										if ($2->dataType == TYPE_STR_PTR)
+											$$ = TreeCreate(TYPE_STR, MUL_NODE, NULL, 0, NULL, NULL, $2, NULL);	
+									}
 			| ID					{
 										$1 = lookupID($1);
 										$$ = $1;
@@ -368,7 +414,7 @@ void yyerror(char const *s){
 int main(int argc, char* argv[]){
 
 	if (argc > 1){
-		yydebug = 0;
+		yydebug = 1;
 		filePtr = fopen("../Target_Files/round1.xsm", "w");
 		writeXexeHeader(filePtr);
 		yyparse();
