@@ -21,6 +21,9 @@
 "str"				{ return STR;} 
 "breakpoint"		{ return BREAKPOINT;}
 "return"			{ return RETURN; }
+"AND"				{ return AND; }
+"OR"				{ return OR; }
+"NOT"				{ return NOT;}
 
 "read" 	{ return READ;}		/* Functions */
 "write" { return WRITE;}

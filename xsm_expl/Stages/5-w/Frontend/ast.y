@@ -36,16 +36,19 @@
 
 
 %token BEGIN_ END MAIN READ WRITE ID NUM STRING PLUS MINUS MUL DIV MOD AMPERSAND EQUAL BREAKPOINT
-%token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE
+%token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE AND OR NOT
 %token DECL ENDDECL INT STR RETURN
 %token SEMICOLON COMMA
 
 %left EQUAL
+%left OR
+%left AND
 %left EQ NEQ
 %left LT LTE GT GTE
 %left PLUS MINUS
 %left MUL DIV MOD
 %left AMPERSAND
+%left NOT
 
 %%
 
@@ -327,6 +330,9 @@ expr		: expr PLUS expr		{ $$ =  TreeCreate(TYPE_INT, PLUS_NODE, NULL, 0, NULL, $
 			| expr LTE expr			{ $$ =  TreeCreate(TYPE_BOOL, LE_NODE, NULL, 0, NULL, $1, NULL, $3); }
 			| expr GT expr			{ $$ =  TreeCreate(TYPE_BOOL, GT_NODE, NULL, 0, NULL, $1, NULL, $3); }
 			| expr GTE expr			{ $$ =  TreeCreate(TYPE_BOOL, GE_NODE, NULL, 0, NULL, $1, NULL, $3); }
+			| expr AND expr			{ $$ =  TreeCreate(TYPE_BOOL, AND_NODE, NULL, 0, NULL, $1, NULL, $3); }
+			| expr OR expr			{ $$ =  TreeCreate(TYPE_BOOL, OR_NODE, NULL, 0, NULL, $1, NULL, $3); }
+			| NOT expr				{ $$ =  TreeCreate(TYPE_BOOL, NOT_NODE, NULL, 0, NULL, $2, NULL, NULL); }
 			| '(' expr ')'			{ $$ = $2; }
 			| ID '(' ArgList ')'	{ 
 										$1 = lookupID($1);	

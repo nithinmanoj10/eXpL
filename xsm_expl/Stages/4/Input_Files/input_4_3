@@ -33,8 +33,6 @@ begin
 
 	if (option == "D") then
 		write(num1 / num2);
-	else
-		write("Invalid Option");
 	endif;
 
 end;

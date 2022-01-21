@@ -23,19 +23,22 @@
 #define ENDWHILE 279
 #define BREAK 280
 #define CONTINUE 281
-#define DECL 282
-#define ENDDECL 283
-#define INT 284
-#define STR 285
-#define RETURN 286
-#define SEMICOLON 287
-#define COMMA 288
-#define EQ 289
-#define NEQ 290
-#define LT 291
-#define LTE 292
-#define GT 293
-#define GTE 294
+#define AND 282
+#define OR 283
+#define NOT 284
+#define DECL 285
+#define ENDDECL 286
+#define INT 287
+#define STR 288
+#define RETURN 289
+#define SEMICOLON 290
+#define COMMA 291
+#define EQ 292
+#define NEQ 293
+#define LT 294
+#define LTE 295
+#define GT 296
+#define GTE 297
 #ifdef YYSTYPE
 #undef  YYSTYPE_IS_DECLARED
 #define YYSTYPE_IS_DECLARED 1

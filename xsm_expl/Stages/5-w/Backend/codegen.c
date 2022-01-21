@@ -197,41 +197,42 @@ int initVariables(FILE *filePtr)
 int codeGenWhile(FILE *filePtr, struct ASTNode *root, int label, int option)
 {
 
-	struct ASTNode *LHS;
-	struct ASTNode *RHS;
-	int reg1, reg2;
+	// struct ASTNode *LHS;
+	// struct ASTNode *RHS;
+	// int reg1, reg2;
 
-	LHS = root->left;
-	RHS = root->right;
+	// LHS = root->left;
+	// RHS = root->right;
 
-	reg1 = evalExprTree(filePtr, LHS);
-	reg2 = evalExprTree(filePtr, RHS);
+	// reg1 = evalExprTree(filePtr, LHS);
+	// reg2 = evalExprTree(filePtr, RHS);
 
-	if (root->nodeType == EQ_NODE)
-		fprintf(filePtr, "EQ R%d, R%d\n", reg1, reg2);
+	// if (root->nodeType == EQ_NODE)
+	// 	fprintf(filePtr, "EQ R%d, R%d\n", reg1, reg2);
 
-	if (root->nodeType == NE_NODE)
-		fprintf(filePtr, "NE R%d, R%d\n", reg1, reg2);
+	// if (root->nodeType == NE_NODE)
+	// 	fprintf(filePtr, "NE R%d, R%d\n", reg1, reg2);
 
-	if (root->nodeType == LT_NODE)
-		fprintf(filePtr, "LT R%d, R%d\n", reg1, reg2);
+	// if (root->nodeType == LT_NODE)
+	// 	fprintf(filePtr, "LT R%d, R%d\n", reg1, reg2);
 
-	if (root->nodeType == LE_NODE)
-		fprintf(filePtr, "LE R%d, R%d\n", reg1, reg2);
+	// if (root->nodeType == LE_NODE)
+	// 	fprintf(filePtr, "LE R%d, R%d\n", reg1, reg2);
 
-	if (root->nodeType == GT_NODE)
-		fprintf(filePtr, "GT R%d, R%d\n", reg1, reg2);
+	// if (root->nodeType == GT_NODE)
+	// 	fprintf(filePtr, "GT R%d, R%d\n", reg1, reg2);
 
-	if (root->nodeType == GE_NODE)
-		fprintf(filePtr, "GE R%d, R%d\n", reg1, reg2);
+	// if (root->nodeType == GE_NODE)
+	// 	fprintf(filePtr, "GE R%d, R%d\n", reg1, reg2);
+
+	int condValueReg = evalExprTree(filePtr, root);
 
 	if (option == 1)
-		fprintf(filePtr, "JZ R%d, L%d\n", reg1, label);
+		fprintf(filePtr, "JZ R%d, L%d\n", condValueReg, label);
 
 	if (option == 2)
-		fprintf(filePtr, "JNZ R%d, L%d\n", reg1, label);
+		fprintf(filePtr, "JNZ R%d, L%d\n", condValueReg, label);
 
-	freeReg();
 	freeReg();
 
 	return 1;

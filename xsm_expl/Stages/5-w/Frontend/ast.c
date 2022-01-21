@@ -4,6 +4,7 @@
 #include "ast.h"
 #include "../Functions/reg.h"
 #include "../Functions/typeCheck.h"
+#include "../Functions/label.h"
 #include "../Data_Structures/GSTable.h"
 #include "../Data_Structures/LSTable.h"
 #include "../Data_Structures/typeTable.h"
@@ -234,12 +235,27 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
 
     int leftRegNo, rightRegNo;
 
+    int operator= root->nodeType;
     leftRegNo = evalExprTree(filePtr, root->left);
+
+    if (operator== NOT_NODE)
+    {
+        int label1 = getLabel();
+        int label2 = getLabel();
+
+        fprintf(filePtr, "JZ R%d, L%d\n", leftRegNo, label1);
+        fprintf(filePtr, "MOV R%d, 0\n", leftRegNo);
+        fprintf(filePtr, "JMP L%d\n", label2);
+        fprintf(filePtr, "L%d:\n", label1);
+        fprintf(filePtr, "MOV R%d, 1\n", leftRegNo);
+        fprintf(filePtr, "L%d:\n", label2);
+
+        return leftRegNo;
+    }
+
     rightRegNo = evalExprTree(filePtr, root->right);
 
     freeReg();
-
-    int operator= root->nodeType;
 
     if (operator== PLUS_NODE)
         fprintf(filePtr, "ADD R%d, R%d\n", leftRegNo, rightRegNo);
@@ -255,6 +271,30 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
 
     if (operator== MOD_NODE)
         fprintf(filePtr, "MOD R%d, R%d\n", leftRegNo, rightRegNo);
+
+    if (operator== EQ_NODE)
+        fprintf(filePtr, "EQ R%d, R%d\n", leftRegNo, rightRegNo);
+
+    if (operator== NE_NODE)
+        fprintf(filePtr, "NE R%d, R%d\n", leftRegNo, rightRegNo);
+
+    if (operator== LT_NODE)
+        fprintf(filePtr, "LT R%d, R%d\n", leftRegNo, rightRegNo);
+
+    if (operator== LE_NODE)
+        fprintf(filePtr, "LE R%d, R%d\n", leftRegNo, rightRegNo);
+
+    if (operator== GT_NODE)
+        fprintf(filePtr, "GT R%d, R%d\n", leftRegNo, rightRegNo);
+
+    if (operator== GE_NODE)
+        fprintf(filePtr, "GE R%d, R%d\n", leftRegNo, rightRegNo);
+
+    if (operator== AND_NODE)
+        fprintf(filePtr, "MUL R%d, R%d\n", leftRegNo, rightRegNo);
+
+    if (operator== OR_NODE)
+        fprintf(filePtr, "ADD R%d, R%d\n", leftRegNo, rightRegNo);
 
     return leftRegNo;
 }

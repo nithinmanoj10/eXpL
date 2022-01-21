@@ -28,7 +28,7 @@ int readArray(int size){
 
     begin
 
-        if (size > 10) then
+        if (NOT (size > 10)) then
             write("Size too big");
         else
             counter = 0;

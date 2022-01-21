@@ -117,6 +117,27 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
         }
         break;
 
+    case AND_NODE:
+        if (leftTree->dataType != TYPE_BOOL || leftTree->dataType != TYPE_BOOL)
+        {
+            printf("\nType Error: AND Operator requires type BOOL on both sides\n");
+            exit(1);
+        }
+
+    case OR_NODE:
+        if (leftTree->dataType != TYPE_BOOL || leftTree->dataType != TYPE_BOOL)
+        {
+            printf("\nType Error: OR Operator requires type BOOL on both sides\n");
+            exit(1);
+        }
+
+    case NOT_NODE:
+        if (leftTree->dataType != TYPE_BOOL)
+        {
+            printf("\nType Error: NOT Operator requires type BOOL\n");
+            exit(1);
+        }
+
     case IF_NODE:
         if (leftTree->dataType != TYPE_BOOL)
         {
