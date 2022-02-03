@@ -17,6 +17,17 @@ int swap(int *a, int *b){
     end;
 }
 
+int *test(int *a){
+    decl
+        int *temp;
+    enddecl
+
+    begin
+        temp = a;
+        return temp;
+    end;
+}
+
 int main() {
     decl
         int a, b;
@@ -28,6 +39,7 @@ int main() {
         result = swap(&a, &b);
         write(a);
         write(b);
+        write(test(&a));
         return 1;
     end;
 }

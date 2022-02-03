@@ -10,6 +10,7 @@
 #define CONST_STR_NODE 1
 
 #define ID_NODE 2 // Identifier Node
+#define TUPLE_FIELD_NODE 82
 
 #define PLUS_NODE 3 // Operator Node
 #define MINUS_NODE 4
@@ -17,6 +18,7 @@
 #define DIV_NODE 6
 #define MOD_NODE 7
 #define AMP_NODE 80
+#define DOT_NODE 81
 
 #define GT_NODE 8 // Relational Operator Node
 #define LT_NODE 9
@@ -53,6 +55,7 @@
 #define TYPE_STR 53
 #define TYPE_INT_PTR 54
 #define TYPE_STR_PTR 55
+#define TYPE_TUPLE 56
 
 #define LABEL_CONTROL 60
 #define LABEL_FUNCTION 61
@@ -73,7 +76,7 @@ struct ASTNode
     struct ASTNode *argListNext;           // Pointer to next element of arg list
     struct ASTNode *left, *middle, *right; // Left, middle and right subtrees
     struct GSTNode *GSTEntry;              // Pointer to Global Symbol Table entry for a variable
-    struct LSTNode *LSTEntry;              // Pointer to Local Symbol Table entry for a variable
+    struct LSTNode *LSTEntry;              // Pointer to Local Symbol Table entry for a function
 } astnode;
 
 struct ASTNode *TreeCreate(int dataType, int nodeType, char *nodeName, int intConstVal, char *strConstVal, struct ASTNode *left, struct ASTNode *middle, struct ASTNode *right);

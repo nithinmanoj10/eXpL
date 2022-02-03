@@ -267,10 +267,15 @@ int initFuncCalle(FILE *filePtr, int paramCount)
 
 	while (traversalPtr != NULL)
 	{
-		fprintf(filePtr, "PUSH R0\n");
-		traversalPtr->binding = relativeBinding++;
+		for (int i = 0; i < traversalPtr->size; ++i)
+			fprintf(filePtr, "PUSH R0\n");
+
+		traversalPtr->binding = relativeBinding;
+		relativeBinding += traversalPtr->size;
 		traversalPtr = traversalPtr->next;
 	}
+
+	// LSTPrint();
 
 	return 1;
 }

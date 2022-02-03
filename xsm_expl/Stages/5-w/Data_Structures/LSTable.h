@@ -11,6 +11,7 @@ struct LSTNode
     char *name;           // Name of the variable
     int type;             // Data type of the variable: int or str
     int binding;          // Dynamic Binding
+    int size;             // Size of the local variable
     struct LSTNode *next; // Pointer to next node
 } lstnode;
 
@@ -33,9 +34,10 @@ extern struct FunctionLSTTable *FLTTail; // Tail pointer of the Function-LST Tab
  * 
  * @param   name Name of the new variable 
  * @param   type Data type of the new variable 
+ * @param   size Size of the local variable
  * @return  struct LSTNode* 
  */
-struct LSTNode *LSTInstall(char *name, int type);
+struct LSTNode *LSTInstall(char *name, int type, int size);
 
 /**
  * @brief   Search for a given variable in the Local Symbol Table 
@@ -53,7 +55,7 @@ struct LSTNode *LSTLookup(char *name);
 struct LSTNode *LSTPrint();
 
 /**
- * @brief   Get the number of nodes in the Local Symbol Tree 
+ * @brief   Get the size of the Local Symbol Tree 
  * 
  * @return  int 
  */

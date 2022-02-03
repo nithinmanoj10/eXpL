@@ -113,6 +113,11 @@ int getVariableAddress(FILE *filePtr, struct ASTNode *root)
         fprintf(filePtr, "MOV R%d, %d\n", variableBindingReg, varLSTEntry->binding);
         fprintf(filePtr, "MOV R%d, BP\n", variableAddrReg);
         fprintf(filePtr, "ADD R%d, R%d\n", variableAddrReg, variableBindingReg);
+
+        if (root->nodeType == TUPLE_FIELD_NODE) {
+            
+        }
+
         freeReg();
     }
 

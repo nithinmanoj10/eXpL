@@ -30,15 +30,17 @@
 #define ENDDECL 286
 #define INT 287
 #define STR 288
-#define RETURN 289
-#define SEMICOLON 290
-#define COMMA 291
-#define EQ 292
-#define NEQ 293
-#define LT 294
-#define LTE 295
-#define GT 296
-#define GTE 297
+#define TUPLE 289
+#define RETURN 290
+#define SEMICOLON 291
+#define COMMA 292
+#define DOT 293
+#define EQ 294
+#define NEQ 295
+#define LT 296
+#define LTE 297
+#define GT 298
+#define GTE 299
 #ifdef YYSTYPE
 #undef  YYSTYPE_IS_DECLARED
 #define YYSTYPE_IS_DECLARED 1

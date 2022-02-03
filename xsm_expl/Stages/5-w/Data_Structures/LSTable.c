@@ -13,7 +13,7 @@ struct LSTNode *LSTTail = NULL;
 struct FunctionLSTTable *FLTHead = NULL;
 struct FunctionLSTTable *FLTTail = NULL;
 
-struct LSTNode *LSTInstall(char *name, int type)
+struct LSTNode *LSTInstall(char *name, int type, int size)
 {
     if (LSTLookup(name) != NULL)
     {
@@ -27,6 +27,7 @@ struct LSTNode *LSTInstall(char *name, int type)
     strcpy(newLSTNode->name, name);
     newLSTNode->type = type;
     newLSTNode->binding = 0;
+    newLSTNode->size = size;
     newLSTNode->next = NULL;
 
     if (LSTHead == NULL && LSTTail == NULL)
@@ -61,14 +62,17 @@ struct LSTNode *LSTPrint()
 
     struct LSTNode *traversalPtr = LSTHead;
 
+    printf("\nLST Table -------------------------------------------------------\n");
+
     printf("%p\n", traversalPtr);
 
     while (traversalPtr != NULL)
     {
-        printf("%s %s %d\n", (traversalPtr->type == TYPE_INT) ? ("int") : ("str"), traversalPtr->name, traversalPtr->binding);
+        printf("%d %s %d %d\n", traversalPtr->type, traversalPtr->name, traversalPtr->binding, traversalPtr->size);
         traversalPtr = traversalPtr->next;
     }
 
+    printf("\n-----------------------------------------------------------------\n");
     printf("\n\n");
 }
 
@@ -82,7 +86,7 @@ int getLSTSize()
 
     while (traversalPtr != NULL)
     {
-        ++size;
+        size += traversalPtr->size;
         traversalPtr = traversalPtr->next;
     }
 
@@ -95,7 +99,7 @@ int LSTAddParams()
 
     while (listHead != NULL)
     {
-        LSTInstall(listHead->paramName, listHead->paramType);
+        LSTInstall(listHead->paramName, listHead->paramType, 1);
         listHead = listHead->next;
     }
 

@@ -18,7 +18,8 @@
 "decl"				{ setDeclarationStatus(DECL_START); return DECL;}
 "enddecl"			{ setDeclarationStatus(DECL_END); return ENDDECL;}
 "int"				{ return INT;}
-"str"				{ return STR;} 
+"str"				{ return STR;}
+"tuple"				{ return TUPLE; } 
 "breakpoint"		{ return BREAKPOINT;}
 "return"			{ return RETURN; }
 "AND"				{ return AND; }
@@ -37,6 +38,7 @@
 "endwhile"	{ return ENDWHILE;}
 "break"		{ return BREAK;}
 "continue"	{ return CONTINUE;}
+
 
 [a-zA-Z][a-zA-Z0-9]*	{	
 							yylval.node = TreeCreate(TYPE_VOID, ID_NODE, yytext, 0, NULL, NULL, NULL, NULL);
@@ -76,9 +78,12 @@
 
 [()\[\]\{\}]	{return *yytext;}	/* Others */
 [ \t]		{}
-[\r\n]		{++line;}
+[\r\n]		{}
+
+"."			{ return *yytext;}
 ";"			{return SEMICOLON;}
 ","			{return COMMA;}
+
 .	{
 		
 		printf("\n%s", yytext);

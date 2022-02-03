@@ -12,6 +12,7 @@
 	#include "../Data_Structures/LSTable.h"
 	#include "../Data_Structures/typeTable.h"
 	#include "../Data_Structures/paramStruct.h"
+	#include "../Data_Structures/TupleListTable.h"
 	#include "../Functions/xsm_library.h"
 	#include "../Functions/xsm_syscalls.h"
 	#include "../Functions/stackMemory.h"
@@ -32,13 +33,13 @@
 	struct LSTNode* lstnode;
 }
 
-%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID
+%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID TupleID TupleFieldID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID
 
 
 %token BEGIN_ END MAIN READ WRITE ID NUM STRING PLUS MINUS MUL DIV MOD AMPERSAND EQUAL BREAKPOINT
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE AND OR NOT
-%token DECL ENDDECL INT STR RETURN
-%token SEMICOLON COMMA
+%token DECL ENDDECL INT STR TUPLE RETURN
+%token SEMICOLON COMMA DOT
 
 %left EQUAL
 %left OR
@@ -49,6 +50,7 @@
 %left MUL DIV MOD
 %left AMPERSAND
 %left NOT
+%left DOT
 
 %%
 
@@ -131,7 +133,7 @@ breakPointStmt	:	BREAKPOINT { $$ = TreeCreate(TYPE_VOID, BREAKPOINT_NODE, NULL, 
 
  /* Global Declaration ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 GDeclBlock	:	DECL GDeclList ENDDECL	{ 
-											GSTPrint();
+											// GSTPrint();
 
 											int freeStackMem = getFreeStackMemoryValue();
 											fprintf(filePtr, "MOV SP, %d\n", freeStackMem - 1);
@@ -285,7 +287,10 @@ FBody		:	BEGIN_ Slist retStmt END SEMICOLON		{
 
 
  /* Local Declarations ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
-LDeclBlock	:	DECL LDeclList ENDDECL	{}
+LDeclBlock	:	DECL LDeclList ENDDECL	{ 
+											// LSTPrint(); 
+											// printTupleList();
+										}
 			|	DECL ENDDECL			{}
 			;
 
@@ -294,23 +299,64 @@ LDeclList	:	LDeclList LDecl			{}
 			;
 
 LDecl		:	LType LIDList SEMICOLON	{}
+			|	LType '(' TupleFieldList ')' LIDList SEMICOLON	{ 
+																	struct TupleList* currentTupleList = getTuple(getCurrentTupleID());
+																	currentTupleList->tupleFieldListHead = tupleFieldListHead;
+																	// printTupleFieldList();
+																	flushTupleFieldList();
+																	// printTupleTypeTable();
+																	flushTupleFieldCount();		
+																}
 			;
+
+TupleFieldList	:	TupleFieldList COMMA TupleField		{}
+				|	TupleField							{}
+				;	
+
+TupleField	:	TupleFieldType TupleFieldID		{ 
+													incTupleFieldCount(); 
+													insertTupleField($2->nodeName, getTupleFieldType());
+												}
+			;
+
+TupleFieldType	:	INT		{ setTupleFieldType(TYPE_INT); }
+				|	STR		{ setTupleFieldType(TYPE_STR); }
+				;
+
+TupleFieldID	:	ID		{ $$ = $1; }
+				;
 
 LType		: 	INT						{ setDeclarationType(TYPE_INT); }
 			|	STR						{ setDeclarationType(TYPE_STR); }
+			|	TUPLE TupleID			{ 
+											setCurrentTupleID($2->nodeName);	
+											insertTuple($2->nodeName);			
+											struct TupleTypeTable* newTTTNode = insertTupleType($2->nodeName);
+											setDeclarationType(newTTTNode->tupleTypeNum);
+							 			}
 			;
 
 LIDList		:	LIDList COMMA LID		{}
 			|	LID						{}
 			; 
 
-LID			:	ID						{ LSTInstall($1->nodeName, getDeclarationType()); }
+TupleID		:	ID						{ 
+											$$ = $1;
+										}
+			;
+
+LID			:	ID						{ 
+											if (getTupleFieldCount() == 0)		// For non-tuples
+												LSTInstall($1->nodeName, getDeclarationType(), 1); 
+											else 								// For Tuples
+												LSTInstall($1->nodeName, getDeclarationType(), getTupleFieldCount()); 
+										}
 			|	MUL ID					{
 											if(getDeclarationType() == TYPE_INT)
-												LSTInstall($2->nodeName, TYPE_INT_PTR);	
+												LSTInstall($2->nodeName, TYPE_INT_PTR, 1);	
 
 											if(getDeclarationType() == TYPE_STR)
-												LSTInstall($2->nodeName, TYPE_STR_PTR);	
+												LSTInstall($2->nodeName, TYPE_STR_PTR, 1);	
 										}
 			;
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
@@ -364,6 +410,15 @@ expr		: expr PLUS expr		{ $$ =  TreeCreate(TYPE_INT, PLUS_NODE, NULL, 0, NULL, $
 			| expr OR expr			{ $$ =  TreeCreate(TYPE_BOOL, OR_NODE, NULL, 0, NULL, $1, NULL, $3); }
 			| NOT expr				{ $$ =  TreeCreate(TYPE_BOOL, NOT_NODE, NULL, 0, NULL, $2, NULL, NULL); }
 			| '(' expr ')'			{ $$ = $2; }
+			| ID '.' ID				{ 
+										$1 = lookupID($1);
+										struct TupleList* TLNode = getTuple(getTupleTypeName($1->dataType));
+										struct TupleFieldList* TFLNode = searchTupleField(TLNode->tupleFieldListHead, $3->nodeName);
+										$3->dataType = TFLNode->tupleFieldType;
+										$1->left = $3;
+										$1->dataType = TFLNode->tupleFieldType;
+										$1->nodeType = TUPLE_FIELD_NODE;
+			 						}
 			| ID '(' ArgList ')'	{ 
 										$1 = lookupID($1);	
 										verifyFunctionArguments($1->nodeName, $3);	
@@ -414,7 +469,7 @@ void yyerror(char const *s){
 int main(int argc, char* argv[]){
 
 	if (argc > 1){
-		yydebug = 1;
+		yydebug = 0;
 		filePtr = fopen("../Target_Files/round1.xsm", "w");
 		writeXexeHeader(filePtr);
 		yyparse();
