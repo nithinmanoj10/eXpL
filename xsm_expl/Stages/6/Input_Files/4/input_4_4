@@ -1,0 +1,25 @@
+decl
+	int studentMarks[17];
+	int num, size;
+	str name;
+enddecl
+
+begin
+
+	num = 0;
+	size = 1;
+
+	read(studentMarks[num]);
+	read(studentMarks[size]);
+
+	studentMarks[6] = studentMarks[num] * studentMarks[size];
+
+	if (studentMarks[6] % 2 == 0) then
+		write("Even");
+	else
+		write("Odd");
+	endif;
+
+	write(studentMarks[6]);
+	breakpoint;
+end;

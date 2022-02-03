@@ -1,0 +1,3 @@
+break ../Data_Structures/typeTable.c:FLCreateNode
+source ../Debugger/pretty_print.py
+run input < ../Input_Files/6/sample.expl

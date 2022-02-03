@@ -1,0 +1,33 @@
+type
+    bst{
+        int a;
+        bst left;
+        bst right;
+    }
+
+    linkedList{
+        int num;
+        linkedList next;
+    }
+
+    markList{
+        str name;  
+        linkedList marks;
+    }
+
+endtype
+
+decl
+    int a;
+enddecl
+
+int main() {
+    decl
+        int temp;
+    enddecl
+
+    begin
+        write("typppe");
+        return 1;
+    end;
+}
