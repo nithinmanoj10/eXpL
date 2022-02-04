@@ -949,13 +949,14 @@ case 27:
 YY_RULE_SETUP
 #line 45 "ast.l"
 {	
+							// ECHO;
 							yylval.node = TreeCreate(TYPE_VOID, ID_NODE, yytext, 0, NULL, NULL, NULL, NULL);
 							return ID;
 						}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 52 "ast.l"
+#line 53 "ast.l"
 {
 			yylval.node = TreeCreate(TYPE_INT, CONST_INT_NODE, NULL, atoi(yytext), NULL, NULL, NULL, NULL);
 			return NUM;
@@ -963,7 +964,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 60 "ast.l"
+#line 61 "ast.l"
 {	
 							char* stringConst = removeStringQuotes(yytext);
 							yylval.node = TreeCreate(TYPE_STR, CONST_STR_NODE, NULL, 0, stringConst, NULL, NULL, NULL);
@@ -972,103 +973,103 @@ YY_RULE_SETUP
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 66 "ast.l"
+#line 67 "ast.l"
 {return PLUS;}		/* Operators */
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 67 "ast.l"
+#line 68 "ast.l"
 {return MINUS;}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 68 "ast.l"
+#line 69 "ast.l"
 {return MUL;}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 69 "ast.l"
+#line 70 "ast.l"
 {return DIV;}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 70 "ast.l"
+#line 71 "ast.l"
 {return EQUAL;}
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 71 "ast.l"
+#line 72 "ast.l"
 {return MOD;}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 72 "ast.l"
+#line 73 "ast.l"
 {return AMPERSAND;}
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 74 "ast.l"
+#line 75 "ast.l"
 {return EQ;}		/* Conditional Operators */
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 75 "ast.l"
+#line 76 "ast.l"
 {return NEQ;}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 76 "ast.l"
+#line 77 "ast.l"
 {return LT;}
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 77 "ast.l"
+#line 78 "ast.l"
 {return GT;}
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 78 "ast.l"
+#line 79 "ast.l"
 {return LTE;}
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 79 "ast.l"
+#line 80 "ast.l"
 {return GTE;}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 81 "ast.l"
+#line 82 "ast.l"
 {return *yytext;}	/* Others */
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 82 "ast.l"
+#line 83 "ast.l"
 {}
 	YY_BREAK
 case 45:
 /* rule 45 can match eol */
 YY_RULE_SETUP
-#line 83 "ast.l"
+#line 84 "ast.l"
 {}
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 85 "ast.l"
+#line 86 "ast.l"
 { return *yytext;}
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 86 "ast.l"
-{return SEMICOLON;}
+#line 87 "ast.l"
+{ return *yytext;}
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 87 "ast.l"
-{return COMMA;}
+#line 88 "ast.l"
+{ return *yytext;}
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 89 "ast.l"
+#line 90 "ast.l"
 {
 		
 		printf("\n%s", yytext);
@@ -1078,15 +1079,15 @@ YY_RULE_SETUP
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 96 "ast.l"
+#line 97 "ast.l"
 {}			/* Comments */
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 98 "ast.l"
+#line 99 "ast.l"
 ECHO;
 	YY_BREAK
-#line 1090 "lex.yy.c"
+#line 1091 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2091,7 +2092,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 98 "ast.l"
+#line 99 "ast.l"
 
 
 int yywrap(){

@@ -36,13 +36,13 @@
 }
 
 %type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID TupleID TupleFieldID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID
-%type <TTNode> TypeName TypeID
+%type <TTNode> TypeName TypeID GType
 %type <FLNode> FieldDecl FieldDeclList
 
 %token BEGIN_ END MAIN READ WRITE ID NUM STRING PLUS MINUS MUL DIV MOD AMPERSAND EQUAL BREAKPOINT TYPE ENDTYPE
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE AND OR NOT
 %token DECL ENDDECL INT STR TUPLE RETURN
-%token SEMICOLON COMMA DOT
+%token ';' ',' DOT
 
 %left EQUAL
 %left OR
@@ -103,7 +103,7 @@ FieldDeclList	:	FieldDeclList FieldDecl		{
 				 								}
 				;
 
-FieldDecl		:	TypeName ID SEMICOLON		{ $$ = FLCreateNode($2->nodeName, $1); }
+FieldDecl		:	TypeName ID ';'		{ $$ = FLCreateNode($2->nodeName, $1); }
 				;
 
 TypeName		:	INT							{ $$ = TTLookUp("int"); }
@@ -113,8 +113,8 @@ TypeName		:	INT							{ $$ = TTLookUp("int"); }
 
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
-Slist	: Slist Stmt SEMICOLON 	{ $$ = TreeCreate(TYPE_VOID, SLIST_NODE, NULL, 0, NULL, $1, NULL, $2); }
-		| Stmt SEMICOLON		{}				
+Slist	: Slist Stmt ';' 	{ $$ = TreeCreate(TYPE_VOID, SLIST_NODE, NULL, 0, NULL, $1, NULL, $2); }
+		| Stmt ';'		{}				
 		;
 
 Stmt	: inputStmt | outputStmt | assignStmt 
@@ -155,7 +155,7 @@ assignStmt 	: ID EQUAL expr					{
 retVal		:	expr						{}
 			;
 
-retStmt		: RETURN retVal SEMICOLON		{ $$ = TreeCreate(TYPE_VOID, RETURN_NODE, NULL, 0, NULL, $2, NULL, NULL); }
+retStmt		: RETURN retVal ';'		{ $$ = TreeCreate(TYPE_VOID, RETURN_NODE, NULL, 0, NULL, $2, NULL, NULL); }
 			;
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
@@ -180,94 +180,164 @@ breakPointStmt	:	BREAKPOINT { $$ = TreeCreate(TYPE_VOID, BREAKPOINT_NODE, NULL, 
 				;
 
  /* Global Declaration ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
-GDeclBlock	:	DECL GDeclList ENDDECL	{ 
-											// GSTPrint();
+	/* GDeclBlock	:	DECL GDeclList ENDDECL	{ 
+												// GSTPrint();
 
-											int freeStackMem = getFreeStackMemoryValue();
-											fprintf(filePtr, "MOV SP, %d\n", freeStackMem - 1);
-											fprintf(filePtr, "MOV BP, %d\n", freeStackMem);
-											fprintf(filePtr, "PUSH R0\n");
-											fprintf(filePtr, "CALL F0\n");
-											fprintf(filePtr, "INT 10\n");
-										}
-			|	DECL ENDDECL			{}
-			;
-
-GDeclList	:	GDeclList GDecl			{}
-			|	GDecl					{}
-			;
-
-GDecl		:	Type GIDList SEMICOLON	{}
-			;
-
-Type		: 	INT						{ setDeclarationType(TYPE_INT); }
-			|	STR						{ setDeclarationType(TYPE_STR); }
-			;
-
-GIDList		:	GIDList COMMA GID		{}
-			|	GID						{}
-			;
-
-GID			:	ID						{ GSTInstall($1->nodeName, getDeclarationType(), 1, NULL); }
-			|	ID '[' NUM ']'			{ 
-											if ($3->intConstVal < 1) {
-												printf("\nArray Declaration expects valid size\n");
-												exit(1);
+												int freeStackMem = getFreeStackMemoryValue();
+												fprintf(filePtr, "MOV SP, %d\n", freeStackMem - 1);
+												fprintf(filePtr, "MOV BP, %d\n", freeStackMem);
+												fprintf(filePtr, "PUSH R0\n");
+												fprintf(filePtr, "CALL F0\n");
+												fprintf(filePtr, "INT 10\n");
 											}
-											GSTInstall($1->nodeName, getDeclarationType(), $3->intConstVal, NULL); 
-										}
-			|	ID '(' ParamList ')'	{ 
-											GSTInstall($1->nodeName, getDeclarationType(), -1, getParamListHead());
-											flushParamList();
-											paramCount = 0;
-											setParamType(TYPE_VOID);
-										}
-			|	GPtrID					{
-											if (getDeclarationType() == TYPE_INT)
-												GSTInstall($1->nodeName, TYPE_INT_PTR, 1, NULL);
+				|	DECL ENDDECL			{}
+				;
 
-											if (getDeclarationType() == TYPE_STR)
-												GSTInstall($1->nodeName, TYPE_STR_PTR, 1, NULL);
-										}
-			|	GPtrID '(' ParamList ')'	{
-												if (getDeclarationType() == TYPE_INT)
-												GSTInstall($1->nodeName, TYPE_INT_PTR, -1, getParamListHead());
+	GDeclList	:	GDeclList GDecl			{}
+				|	GDecl					{}
+				;
 
-												if (getDeclarationType() == TYPE_STR)
-													GSTInstall($1->nodeName, TYPE_STR_PTR, -1, getParamListHead());
+	GDecl		:	Type GIDList ';'	{}
+				;
 
+	Type		: 	INT						{ setDeclarationType(TYPE_INT); }
+				|	STR						{ setDeclarationType(TYPE_STR); }
+				;
+
+	GIDList		:	GIDList ',' GID		{}
+				|	GID						{}
+				;
+
+	GID			:	ID						{ GSTInstall($1->nodeName, getDeclarationType(), 1, NULL); }
+				|	ID '[' NUM ']'			{ 
+												if ($3->intConstVal < 1) {
+													printf("\nArray Declaration expects valid size\n");
+													exit(1);
+												}
+												GSTInstall($1->nodeName, getDeclarationType(), $3->intConstVal, NULL); 
+											}
+				|	ID '(' ParamList ')'	{ 
+												GSTInstall($1->nodeName, getDeclarationType(), -1, getParamListHead());
 												flushParamList();
 												paramCount = 0;
 												setParamType(TYPE_VOID);
 											}
+				|	GPtrID					{
+												if (getDeclarationType() == TYPE_INT)
+													GSTInstall($1->nodeName, TYPE_INT_PTR, 1, NULL);
+
+												if (getDeclarationType() == TYPE_STR)
+													GSTInstall($1->nodeName, TYPE_STR_PTR, 1, NULL);
+											}
+				|	GPtrID '(' ParamList ')'	{
+													if (getDeclarationType() == TYPE_INT)
+													GSTInstall($1->nodeName, TYPE_INT_PTR, -1, getParamListHead());
+
+													if (getDeclarationType() == TYPE_STR)
+														GSTInstall($1->nodeName, TYPE_STR_PTR, -1, getParamListHead());
+
+													flushParamList();
+													paramCount = 0;
+													setParamType(TYPE_VOID);
+												}
+				;
+
+	GPtrID		:	MUL ID						{ $$ = $2; } */
+			/* ; */
+
+GDeclBlock	:	DECL GDeclList ENDDECL		{
+												GSTPrint(); 					
+												initStackBP(filePtr);
+												printGlobalParamList();
+											}
+			|	DECL ENDDECL				{}
 			;
+
+GDeclList	:	GDeclList GDecl				{}
+			|	GDecl						{}
+			;
+
+GDecl		:	GType GIDList ';'			{}
+			;
+
+GType		:	INT							{ currentGDeclType = TTLookUp("int"); }
+			|	STR							{ currentGDeclType = TTLookUp("str"); }
+			|	ID							{ 
+												currentGDeclType = TTLookUp($1->nodeName);
+												if(currentGDeclType == NULL) {
+													printf("\nType %s undeclared before use\n", $1->nodeName);
+													exit(1);
+												}
+			 								}
+			;
+
+GIDList		:	GIDList ',' GID				{}
+			|	GID							{}
+			;
+
+GID			:	ID							{ GSTInstall($1->nodeName, currentGDeclType, currentGDeclType->size, NULL); }
+			|	ID '[' NUM ']'				{
+												if ($3->intConstVal < 1) {
+													printf("\nArray Declaration expects valid size\n");
+													exit(1);
+												}
+												GSTInstall($1->nodeName, currentGDeclType, $3->intConstVal, NULL); 
+											}
+			|	ID '(' ParamList ')'		{
+												GSTInstall($1->nodeName, currentGDeclType, -1, getParamListHead());
+												flushParamList();
+												paramCount = 0;
+												currentParamType = TTLookUp("void");
+											}
+			|	GPtrID						{
+												if (strcmp(currentGDeclType->typeName, "int") == 0)
+													GSTInstall($1->nodeName, TTLookUp("int*"), 1, NULL);	
+
+												if (strcmp(currentGDeclType->typeName, "str") == 0)
+													GSTInstall($1->nodeName, TTLookUp("str*"), 1, NULL);	
+											}
+			|	GPtrID '(' ParamList ')'	{
+												if (strcmp(currentGDeclType->typeName, "int") == 0)
+													GSTInstall($1->nodeName, TTLookUp("int*"), -1, getParamListHead());	
+
+												if (strcmp(currentGDeclType->typeName, "str") == 0)
+													GSTInstall($1->nodeName, TTLookUp("str*"), -1, getParamListHead());
+
+												flushParamList();
+												paramCount = 0;
+												currentParamType = TTLookUp("void");
+											}
+			;
+
 GPtrID		:	MUL ID						{ $$ = $2; }
-			;
- /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
+			;		
 
+	/* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
- /* Function Parameters ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
-ParamList	:	ParamList COMMA Param	{}
+ParamList	:	ParamList ',' Param		{}
 			|	Param					{}
 			|	/* empty */				{}
 			;
 
-ParamType	:	INT						{ setParamType(TYPE_INT); }
-			|	STR						{ setParamType(TYPE_STR); }
-			|	INT MUL					{ setParamType(TYPE_INT_PTR); }
-			|	STR MUL					{ setParamType(TYPE_STR_PTR); }
-			;
-
 Param		:	ParamType ID			{ 
-											paramListInstall(getParamType(), $2->nodeName); 
-											++paramCount;
+											paramListInstall(currentParamType, $2->nodeName);
+											++paramCount;	
 										}
 			;
+
+ParamType	:	INT						{ currentParamType = TTLookUp("int"); }
+			|	STR						{ currentParamType = TTLookUp("str"); }
+			|	INT MUL					{  }
+			|	STR MUL					{  }
+			|	ID						{ currentParamType = TTLookUp($1->nodeName); }
+			;
+
+				
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
 
  /* Function Arguments ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
-ArgList		:	ArgList COMMA Arg		{ 
+ArgList		:	ArgList ',' Arg		{ 
 											$$ = insertToArgList($1, $3);
 										}
 			|	Arg						{ $$ = $1; }
@@ -326,7 +396,7 @@ FuncType	:	INT										{ setFuncType(TYPE_INT); }
 			|	STR MUL									{ setFuncType(TYPE_STR_PTR); }
 			;
 
-FBody		:	BEGIN_ Slist retStmt END SEMICOLON		{
+FBody		:	BEGIN_ Slist retStmt END ';'		{
 															struct ASTNode* funcBodyStmt = TreeCreate(TYPE_VOID, SLIST_NODE, NULL, 0, NULL, $2, NULL, $3);
 															$$ = funcBodyStmt;
 														}	
@@ -346,8 +416,8 @@ LDeclList	:	LDeclList LDecl			{}
 			|	LDecl					{}
 			;
 
-LDecl		:	LType LIDList SEMICOLON	{}
-			|	LType '(' TupleFieldList ')' LIDList SEMICOLON	{ 
+LDecl		:	LType LIDList ';'	{}
+			|	LType '(' TupleFieldList ')' LIDList ';'	{ 
 																	struct TupleList* currentTupleList = getTuple(getCurrentTupleID());
 																	currentTupleList->tupleFieldListHead = tupleFieldListHead;
 																	// printTupleFieldList();
@@ -357,7 +427,7 @@ LDecl		:	LType LIDList SEMICOLON	{}
 																}
 			;
 
-TupleFieldList	:	TupleFieldList COMMA TupleField		{}
+TupleFieldList	:	TupleFieldList ',' TupleField		{}
 				|	TupleField							{}
 				;	
 
@@ -384,7 +454,7 @@ LType		: 	INT						{ setDeclarationType(TYPE_INT); }
 							 			}
 			;
 
-LIDList		:	LIDList COMMA LID		{}
+LIDList		:	LIDList ',' LID		{}
 			|	LID						{}
 			; 
 
@@ -435,7 +505,7 @@ MainBlock	:	MainFunc '('')'
 MainFunc	:	INT MAIN							{ setCurrentFuncName("int main"); }
 			;
 
-MBody		:	BEGIN_ Slist retStmt END SEMICOLON	{
+MBody		:	BEGIN_ Slist retStmt END ';'	{
 														struct ASTNode* statementList = TreeCreate(TYPE_VOID, SLIST_NODE, NULL, 0, NULL, $2, NULL, $3);
 														$$ = statementList;
 													}

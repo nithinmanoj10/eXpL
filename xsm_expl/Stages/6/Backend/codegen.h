@@ -10,7 +10,7 @@
  * represented by the Abstract Syntax Tree.
  *
  * @params	root:           Root of the the Abstract Syntax Tree.
- * 		
+ *
  * 		targetFile:     Pointer to the target XSM file where the
  *				target code has to be written and executed.
  *
@@ -37,7 +37,7 @@ int initVariables(FILE *filePtr);
  *				has to be written
  *
  *		root:		Pointer to the WHILE Node
- * 
+ *
  *		label:		Label number to where the execution should continue
  *				from after evaluating the conditon
  *
@@ -52,22 +52,32 @@ int codeGenWhile(FILE *filePtr, struct ASTNode *root, int label, int option);
 /**
  * @brief   Pushes old BP to stack and sets new BP to SP. Also pushes all local
  *          variables in given order to stack and sets it's binding accordingly
- * 
+ *
  * @param   filePtr     Pointer to file where the code has to be written
  * @param   paramCount  Number of parameters of the function. Needed to skip all the parameters
  *                      in the LST
- * @return  int 
+ * @return  int
  */
 int initFuncCalle(FILE *filePtr, int paramCount);
 
 /**
  * @brief   Generates XSM code for the caller function before and after calling
- *          the callee function 
- * 
+ *          the callee function
+ *
  * @param   filePtr Pointer to target code file
  * @param   funcNode Function Node
- * @return  int 
+ * @return  int
  */
 int codeGenFuncCaller(FILE *filePtr, struct ASTNode *funcNode);
+
+/**
+ *  @brief  Initialises the Stack and sets the BP register to SP + 1, then
+ *          calls the int main() function.
+ *
+ *  @param  filePtr     Pointer to file where the XSM Code has to be written
+ *
+ *  @return void
+ */
+void initStackBP(FILE *filePtr);
 
 #endif

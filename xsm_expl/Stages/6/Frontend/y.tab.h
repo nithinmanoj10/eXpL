@@ -34,15 +34,13 @@
 #define STR 290
 #define TUPLE 291
 #define RETURN 292
-#define SEMICOLON 293
-#define COMMA 294
-#define DOT 295
-#define EQ 296
-#define NEQ 297
-#define LT 298
-#define LTE 299
-#define GT 300
-#define GTE 301
+#define DOT 293
+#define EQ 294
+#define NEQ 295
+#define LT 296
+#define LTE 297
+#define GT 298
+#define GTE 299
 #ifdef YYSTYPE
 #undef  YYSTYPE_IS_DECLARED
 #define YYSTYPE_IS_DECLARED 1

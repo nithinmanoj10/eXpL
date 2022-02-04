@@ -43,6 +43,7 @@
 
 
 [a-zA-Z][a-zA-Z0-9]*	{	
+							// ECHO;
 							yylval.node = TreeCreate(TYPE_VOID, ID_NODE, yytext, 0, NULL, NULL, NULL, NULL);
 							return ID;
 						}
@@ -83,8 +84,8 @@
 [\r\n]		{}
 
 "."			{ return *yytext;}
-";"			{return SEMICOLON;}
-","			{return COMMA;}
+";"			{ return *yytext;}
+","			{ return *yytext;}
 
 .	{
 		

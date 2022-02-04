@@ -1,3 +1,3 @@
-break ../Data_Structures/typeTable.c:FLCreateNode
+break ../Data_Structures/GSTable.c:GSTInstall
 source ../Debugger/pretty_print.py
 run input < ../Input_Files/6/sample.expl

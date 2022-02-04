@@ -67,8 +67,14 @@ void TypeTableCreate()
     struct TypeTable *typeTableINT = (struct TypeTable *)malloc(sizeof(struct TypeTable));
     typeTableINT->typeName = (char *)malloc(10 * sizeof(char *));
 
+    struct TypeTable *typeTableINTPtr = (struct TypeTable *)malloc(sizeof(struct TypeTable));
+    typeTableINTPtr->typeName = (char *)malloc(10 * sizeof(char *));
+
     struct TypeTable *typeTableSTR = (struct TypeTable *)malloc(sizeof(struct TypeTable));
     typeTableSTR->typeName = (char *)malloc(10 * sizeof(char *));
+
+    struct TypeTable *typeTableSTRPtr = (struct TypeTable *)malloc(sizeof(struct TypeTable));
+    typeTableSTRPtr->typeName = (char *)malloc(10 * sizeof(char *));
 
     struct TypeTable *typeTableBOOL = (struct TypeTable *)malloc(sizeof(struct TypeTable));
     typeTableBOOL->typeName = (char *)malloc(10 * sizeof(char *));
@@ -78,26 +84,34 @@ void TypeTableCreate()
 
     // Setting the typeName for each entry
     strcpy(typeTableINT->typeName, "int");
+    strcpy(typeTableINTPtr->typeName, "int*");
     strcpy(typeTableSTR->typeName, "str");
+    strcpy(typeTableSTRPtr->typeName, "str*");
     strcpy(typeTableBOOL->typeName, "boolean");
     strcpy(typeTableVOID->typeName, "void");
 
     // Setting the size for each entry
     typeTableINT->size = 1;
+    typeTableINTPtr->size = 1;
     typeTableSTR->size = 1;
+    typeTableSTRPtr->size = 1;
     typeTableBOOL->size = 1;
     typeTableVOID->size = 1;
 
     // Setting the fields entry to NULL for each entry
     typeTableINT->fields = NULL;
+    typeTableINTPtr->fields = NULL;
     typeTableSTR->fields = NULL;
+    typeTableSTRPtr->fields = NULL;
     typeTableBOOL->fields = NULL;
     typeTableVOID->fields = NULL;
 
     // Setting the next pointer for each entry
     // int -> str -> bool -> void
-    typeTableINT->next = typeTableSTR;
-    typeTableSTR->next = typeTableBOOL;
+    typeTableINT->next = typeTableINTPtr;
+    typeTableINTPtr->next = typeTableSTR;
+    typeTableSTR->next = typeTableSTRPtr;
+    typeTableSTRPtr->next = typeTableBOOL;
     typeTableBOOL->next = typeTableVOID;
     typeTableVOID->next = NULL;
 

@@ -18,7 +18,12 @@ type
 endtype
 
 decl
-    int a;
+    int a, num, *ptr;
+    str name, *namePtr;
+    int add(int a, int b);
+    int *swap(int numOne, int numTwo);
+    linkedList insertLL(int val, linkedList head);
+    int students[5];
 enddecl
 
 int main() {

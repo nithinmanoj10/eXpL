@@ -9,6 +9,7 @@
 #include "../Functions/reg.h"
 #include "../Functions/xsm_syscalls.h"
 #include "../Functions/label.h"
+#include "../Functions/stackMemory.h"
 
 int codeGen(struct ASTNode *root, FILE *filePtr)
 {
@@ -288,4 +289,14 @@ int codeGenFuncCaller(FILE *filePtr, struct ASTNode *funcNode)
 	{
 		fprintf(filePtr, "PUSH R%d\n", i);
 	}
+}
+
+void initStackBP(FILE *filePtr)
+{
+	int freeStackMem = getFreeStackMemoryValue();
+	fprintf(filePtr, "MOV SP, %d\n", freeStackMem - 1);
+	fprintf(filePtr, "MOV BP, %d\n", freeStackMem);
+	fprintf(filePtr, "PUSH R0\n");
+	fprintf(filePtr, "CALL F0\n");
+	fprintf(filePtr, "INT 10\n");
 }

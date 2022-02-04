@@ -6,10 +6,13 @@
 #include "../Frontend/ast.h"
 #include "../Functions/label.h"
 #include "../Data_Structures/paramStruct.h"
+#include "typeTable.h"
 
 struct GSTNode *GSTHead = NULL;
 struct GSTNode *GSTTail = NULL;
 int declarationStatus = DECL_NULL;
+
+struct TypeTable *currentGDeclType = NULL;
 
 int getDeclarationStatus()
 {
@@ -29,7 +32,7 @@ int setDeclarationStatus(int status)
     return 0;
 }
 
-struct GSTNode *GSTInstall(char *name, int type, int size, struct ParamStruct *paramList)
+struct GSTNode *GSTInstall(char *name, struct TypeTable *typeTablePtr, int size, struct ParamStruct *paramList)
 {
     if (GSTLookup(name) != NULL)
     {
@@ -55,7 +58,7 @@ struct GSTNode *GSTInstall(char *name, int type, int size, struct ParamStruct *p
         newGSTNode->fLabel = -1;
 
     strcpy(newGSTNode->name, name);
-    newGSTNode->type = type;
+    newGSTNode->typeTablePtr = typeTablePtr;
     newGSTNode->size = size;
     newGSTNode->binding = binding;
     newGSTNode->paramList = paramList;
@@ -90,25 +93,44 @@ struct GSTNode *GSTLookup(char *name)
     return traversalPtr;
 }
 
+// int GSTPrint()
+// {
+//     struct GSTNode *traversalPtr = GSTHead;
+
+//     while (traversalPtr != NULL)
+//     {
+//         printf("\n📦 %s:\n", traversalPtr->name);
+//         printf("➡ Address: %p\n", traversalPtr);
+//         printf("➡ Type: %d\n", traversalPtr->type);
+//         printf("➡ Size: %d\n", traversalPtr->size);
+//         printf("➡ Binding: %d\n", traversalPtr->binding);
+
+//         printf("➡ Param List: ");
+//         printParamList(traversalPtr->paramList);
+
+//         printf("➡ FLabel: %d\n", traversalPtr->fLabel);
+//         printf("➡ Next: %p\n", traversalPtr->next);
+//         traversalPtr = traversalPtr->next;
+//     }
+
+//     return 0;
+// }
+
 int GSTPrint()
 {
     struct GSTNode *traversalPtr = GSTHead;
 
+    printf("\n🌍 Global Symbol Table ---------------------------------------------------------------------\n\n");
+
+    printf("      Location             Type             Name  Size  Binding        paramList  fLabel\n\n");
+
     while (traversalPtr != NULL)
     {
-        printf("\n📦 %s:\n", traversalPtr->name);
-        printf("➡ Address: %p\n", traversalPtr);
-        printf("➡ Type: %d\n", traversalPtr->type);
-        printf("➡ Size: %d\n", traversalPtr->size);
-        printf("➡ Binding: %d\n", traversalPtr->binding);
-
-        printf("➡ Param List: ");
-        printParamList(traversalPtr->paramList);
-
-        printf("➡ FLabel: %d\n", traversalPtr->fLabel);
-        printf("➡ Next: %p\n", traversalPtr->next);
+        printf("%p%17s%17s%6d%9d%17p%8d\n", traversalPtr, traversalPtr->typeTablePtr->typeName, traversalPtr->name, traversalPtr->size, traversalPtr->binding, traversalPtr->paramList, traversalPtr->fLabel);
         traversalPtr = traversalPtr->next;
     }
+
+    printf("\n -------------------------------------------------------------------------------------------\n");
 
     return 0;
 }
