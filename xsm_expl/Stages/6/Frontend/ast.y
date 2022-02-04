@@ -5,6 +5,7 @@
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <string.h>
+	#include <limits.h>
 	#include "ast.h"
 	#include "../Backend/codegen.h"
 	#include "../Data_Structures/loopStack.h"
@@ -35,14 +36,13 @@
 	struct FieldList* FLNode;
 }
 
-%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID TupleID TupleFieldID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID
+%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID
 %type <TTNode> TypeName TypeID GType
 %type <FLNode> FieldDecl FieldDeclList
 
 %token BEGIN_ END MAIN READ WRITE ID NUM STRING PLUS MINUS MUL DIV MOD AMPERSAND EQUAL BREAKPOINT TYPE ENDTYPE
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE AND OR NOT
-%token DECL ENDDECL INT STR TUPLE RETURN
-%token ';' ',' DOT
+%token DECL ENDDECL INT STR RETURN
 
 %left EQUAL
 %left OR
@@ -53,7 +53,6 @@
 %left MUL DIV MOD
 %left AMPERSAND
 %left NOT
-%left DOT
 
 %%
 
@@ -113,7 +112,7 @@ TypeName		:	INT							{ $$ = TTLookUp("int"); }
 
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
-Slist	: Slist Stmt ';' 	{ $$ = TreeCreate(TYPE_VOID, SLIST_NODE, NULL, 0, NULL, $1, NULL, $2); }
+Slist	: Slist Stmt ';' 	{ $$ = TreeCreate(typeTableVOID, SLIST_NODE, NULL, INT_MAX, NULL, $1, NULL, $2); }
 		| Stmt ';'		{}				
 		;
 
@@ -123,30 +122,30 @@ Stmt	: inputStmt | outputStmt | assignStmt
 		| breakPointStmt									{ ++statementCount; }
 		;
 
-inputStmt	: READ expr	 		{ $$ = TreeCreate(TYPE_VOID, READ_NODE, NULL, 0, NULL, $2, NULL, NULL); }
+inputStmt	: READ expr	 		{ $$ = TreeCreate(typeTableVOID, READ_NODE, NULL, INT_MAX, NULL, $2, NULL, NULL); }
 	  		;
 
-outputStmt 	: WRITE expr 		{ $$ = TreeCreate(TYPE_VOID, WRITE_NODE, NULL, 0, NULL, $2, NULL, NULL); }
+outputStmt 	: WRITE expr 		{ $$ = TreeCreate(typeTableVOID, WRITE_NODE, NULL, INT_MAX, NULL, $2, NULL, NULL); }
 	   		;
 
 assignStmt 	: ID EQUAL expr					{ 
 												$1 = lookupID($1);
-												$$ = TreeCreate(TYPE_VOID, ASGN_NODE, NULL, 0, NULL, $1, NULL, $3); 
+												$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $3); 
 											}
 			| ID '[' expr ']' EQUAL expr	{	 
 												$1 = lookupID($1);	
 												$1->left = $3;
-												$$ = TreeCreate(TYPE_VOID, ASGN_NODE, NULL, 0, NULL, $1, NULL, $6);
+												$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $6);
 			 								}
 			| MUL ID EQUAL expr				{
 												$2 = lookupID($2);	
 												struct ASTNode* mulNode;
-												if ($2->dataType == TYPE_INT_PTR)
-													mulNode = TreeCreate(TYPE_INT, MUL_NODE, NULL, 0, NULL, NULL, $2, NULL);
+												if ($2->typeTablePtr == typeTableINTPtr)
+													mulNode = TreeCreate(typeTableINT, MUL_NODE, NULL, INT_MAX, NULL, NULL, $2, NULL);
 
-												if ($2->dataType == TYPE_STR_PTR)
-													mulNode = TreeCreate(TYPE_STR, MUL_NODE, NULL, 0, NULL, NULL, $2, NULL);
-												$$ = TreeCreate(TYPE_VOID, ASGN_NODE, NULL, 0, NULL, mulNode, NULL, $4);
+												if ($2->typeTablePtr == typeTableSTRPtr)
+													mulNode = TreeCreate(typeTableSTR, MUL_NODE, NULL, INT_MAX, NULL, NULL, $2, NULL);
+												$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, mulNode, NULL, $4);
 											}
 	   		;
 
@@ -155,95 +154,31 @@ assignStmt 	: ID EQUAL expr					{
 retVal		:	expr						{}
 			;
 
-retStmt		: RETURN retVal ';'		{ $$ = TreeCreate(TYPE_VOID, RETURN_NODE, NULL, 0, NULL, $2, NULL, NULL); }
+retStmt		: RETURN retVal ';'		{ $$ = TreeCreate(typeTableVOID, RETURN_NODE, NULL, INT_MAX, NULL, $2, NULL, NULL); }
 			;
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
 
-ifStmt	: IF expr THEN Slist ELSE Slist ENDIF	{ $$ = TreeCreate(TYPE_VOID, IF_NODE, NULL, 0, NULL, $2, $4, $6); }
-		| IF expr THEN Slist ENDIF 				{ $$ = TreeCreate(TYPE_VOID, IF_NODE, NULL, 0, NULL, $2, $4, NULL); }
+ifStmt	: IF expr THEN Slist ELSE Slist ENDIF	{ $$ = TreeCreate(typeTableVOID, IF_NODE, NULL, INT_MAX, NULL, $2, $4, $6); }
+		| IF expr THEN Slist ENDIF 				{ $$ = TreeCreate(typeTableVOID, IF_NODE, NULL, INT_MAX, NULL, $2, $4, NULL); }
 		;
 
-whileStmt 	: WHILE expr DO Slist ENDWHILE { $$ = TreeCreate(TYPE_VOID, WHILE_NODE, NULL, 0, NULL, $2, NULL, $4); }
+whileStmt 	: WHILE expr DO Slist ENDWHILE { $$ = TreeCreate(typeTableVOID, WHILE_NODE, NULL, INT_MAX, NULL, $2, NULL, $4); }
 	  		;
 
-doWhileStmt : DO Slist WHILE expr ENDWHILE  { $$ = TreeCreate(TYPE_VOID, DO_WHILE_NODE, NULL, 0, NULL, $2, NULL, $4); }
+doWhileStmt : DO Slist WHILE expr ENDWHILE  { $$ = TreeCreate(typeTableVOID, DO_WHILE_NODE, NULL, INT_MAX, NULL, $2, NULL, $4); }
  	    	;			
 
-breakStmt 	: BREAK	{ $$ = TreeCreate(TYPE_VOID, BREAK_NODE, NULL, 0, NULL, NULL, NULL, NULL); }
+breakStmt 	: BREAK	{ $$ = TreeCreate(typeTableVOID, BREAK_NODE, NULL, INT_MAX, NULL, NULL, NULL, NULL); }
 	  		;
 
-continueStmt	: CONTINUE	{ $$ = TreeCreate(TYPE_VOID, CONTINUE_NODE, NULL, 0, NULL, NULL, NULL, NULL); }	 
+continueStmt	: CONTINUE	{ $$ = TreeCreate(typeTableVOID, CONTINUE_NODE, NULL, INT_MAX, NULL, NULL, NULL, NULL); }	 
 	     		;
 
-breakPointStmt	:	BREAKPOINT { $$ = TreeCreate(TYPE_VOID, BREAKPOINT_NODE, NULL, 0, NULL, NULL, NULL, NULL); }
+breakPointStmt	:	BREAKPOINT { $$ = TreeCreate(typeTableVOID, BREAKPOINT_NODE, NULL, INT_MAX, NULL, NULL, NULL, NULL); }
 				;
 
  /* Global Declaration ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
-	/* GDeclBlock	:	DECL GDeclList ENDDECL	{ 
-												// GSTPrint();
-
-												int freeStackMem = getFreeStackMemoryValue();
-												fprintf(filePtr, "MOV SP, %d\n", freeStackMem - 1);
-												fprintf(filePtr, "MOV BP, %d\n", freeStackMem);
-												fprintf(filePtr, "PUSH R0\n");
-												fprintf(filePtr, "CALL F0\n");
-												fprintf(filePtr, "INT 10\n");
-											}
-				|	DECL ENDDECL			{}
-				;
-
-	GDeclList	:	GDeclList GDecl			{}
-				|	GDecl					{}
-				;
-
-	GDecl		:	Type GIDList ';'	{}
-				;
-
-	Type		: 	INT						{ setDeclarationType(TYPE_INT); }
-				|	STR						{ setDeclarationType(TYPE_STR); }
-				;
-
-	GIDList		:	GIDList ',' GID		{}
-				|	GID						{}
-				;
-
-	GID			:	ID						{ GSTInstall($1->nodeName, getDeclarationType(), 1, NULL); }
-				|	ID '[' NUM ']'			{ 
-												if ($3->intConstVal < 1) {
-													printf("\nArray Declaration expects valid size\n");
-													exit(1);
-												}
-												GSTInstall($1->nodeName, getDeclarationType(), $3->intConstVal, NULL); 
-											}
-				|	ID '(' ParamList ')'	{ 
-												GSTInstall($1->nodeName, getDeclarationType(), -1, getParamListHead());
-												flushParamList();
-												paramCount = 0;
-												setParamType(TYPE_VOID);
-											}
-				|	GPtrID					{
-												if (getDeclarationType() == TYPE_INT)
-													GSTInstall($1->nodeName, TYPE_INT_PTR, 1, NULL);
-
-												if (getDeclarationType() == TYPE_STR)
-													GSTInstall($1->nodeName, TYPE_STR_PTR, 1, NULL);
-											}
-				|	GPtrID '(' ParamList ')'	{
-													if (getDeclarationType() == TYPE_INT)
-													GSTInstall($1->nodeName, TYPE_INT_PTR, -1, getParamListHead());
-
-													if (getDeclarationType() == TYPE_STR)
-														GSTInstall($1->nodeName, TYPE_STR_PTR, -1, getParamListHead());
-
-													flushParamList();
-													paramCount = 0;
-													setParamType(TYPE_VOID);
-												}
-				;
-
-	GPtrID		:	MUL ID						{ $$ = $2; } */
-			/* ; */
 
 GDeclBlock	:	DECL GDeclList ENDDECL		{
 												GSTPrint(); 					
@@ -370,15 +305,17 @@ FID			:	ID										{
 FDef		:	FuncSign
 				'{' LDeclBlock FBody '}'				{
 															char* currentFuncName = getCurrentFuncName();
-															addFunctionLST(currentFuncName, LSTHead);	
+
+															// TODO: Pls check!!!
+															// addFunctionLST(currentFuncName, LSTHead);	
 															
 															fprintf(filePtr, "F%d:\n", GSTLookup(currentFuncName)->fLabel);
 															initFuncCalle(filePtr, paramCount);
 
-															// printAST($4);
+															printASTTable($4, 0);
 															codeGen($4, filePtr);
 
-															// LSTPrint();
+															LSTPrint();
 															flushLST();
 															paramCount = 0;
 														}
@@ -390,14 +327,14 @@ FuncSign	:	FuncType FID '(' ParamList ')'			{
 															flushParamList();
 														}
 
-FuncType	:	INT										{ setFuncType(TYPE_INT); }
-			|	STR										{ setFuncType(TYPE_STR); }
-			|	INT MUL									{ setFuncType(TYPE_INT_PTR); }
-			|	STR MUL									{ setFuncType(TYPE_STR_PTR); }
+FuncType	:	INT										{ currentFDefType = TTLookUp("int"); }
+			|	STR										{ currentFDefType = TTLookUp("str"); }
+			|	INT MUL									{ currentFDefType = TTLookUp("int*"); }
+			|	STR MUL									{ currentFDefType = TTLookUp("str*"); }
 			;
 
 FBody		:	BEGIN_ Slist retStmt END ';'		{
-															struct ASTNode* funcBodyStmt = TreeCreate(TYPE_VOID, SLIST_NODE, NULL, 0, NULL, $2, NULL, $3);
+															struct ASTNode* funcBodyStmt = TreeCreate(typeTableVOID, SLIST_NODE, NULL, INT_MAX, NULL, $2, NULL, $3);
 															$$ = funcBodyStmt;
 														}	
 			;
@@ -405,8 +342,7 @@ FBody		:	BEGIN_ Slist retStmt END ';'		{
 
 
  /* Local Declarations ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
-LDeclBlock	:	DECL LDeclList ENDDECL	{ 
-											// LSTPrint(); 
+LDeclBlock	:	DECL LDeclList ENDDECL	{  
 											// printTupleList();
 										}
 			|	DECL ENDDECL			{}
@@ -417,64 +353,30 @@ LDeclList	:	LDeclList LDecl			{}
 			;
 
 LDecl		:	LType LIDList ';'	{}
-			|	LType '(' TupleFieldList ')' LIDList ';'	{ 
-																	struct TupleList* currentTupleList = getTuple(getCurrentTupleID());
-																	currentTupleList->tupleFieldListHead = tupleFieldListHead;
-																	// printTupleFieldList();
-																	flushTupleFieldList();
-																	// printTupleTypeTable();
-																	flushTupleFieldCount();		
-																}
 			;
 
-TupleFieldList	:	TupleFieldList ',' TupleField		{}
-				|	TupleField							{}
-				;	
-
-TupleField	:	TupleFieldType TupleFieldID		{ 
-													incTupleFieldCount(); 
-													insertTupleField($2->nodeName, getTupleFieldType());
-												}
-			;
-
-TupleFieldType	:	INT		{ setTupleFieldType(TYPE_INT); }
-				|	STR		{ setTupleFieldType(TYPE_STR); }
-				;
-
-TupleFieldID	:	ID		{ $$ = $1; }
-				;
-
-LType		: 	INT						{ setDeclarationType(TYPE_INT); }
-			|	STR						{ setDeclarationType(TYPE_STR); }
-			|	TUPLE TupleID			{ 
-											setCurrentTupleID($2->nodeName);	
-											insertTuple($2->nodeName);			
-											struct TupleTypeTable* newTTTNode = insertTupleType($2->nodeName);
-											setDeclarationType(newTTTNode->tupleTypeNum);
-							 			}
+LType		: 	INT						{ currentLDeclType = TTLookUp("int"); }
+			|	STR						{ currentLDeclType = TTLookUp("str"); }
+			|	ID						{ 
+											currentLDeclType = TTLookUp($1->nodeName);
+											if(currentLDeclType == NULL) {
+												printf("\nType %s undeclared before use\n", $1->nodeName);
+												exit(1);
+											}
+										}
 			;
 
 LIDList		:	LIDList ',' LID		{}
 			|	LID						{}
 			; 
 
-TupleID		:	ID						{ 
-											$$ = $1;
-										}
-			;
-
-LID			:	ID						{ 
-											if (getTupleFieldCount() == 0)		// For non-tuples
-												LSTInstall($1->nodeName, getDeclarationType(), 1); 
-											else 								// For Tuples
-												LSTInstall($1->nodeName, getDeclarationType(), getTupleFieldCount()); 
-										}
+LID			:	ID						{ LSTInstall($1->nodeName, currentLDeclType, currentLDeclType->size); }
 			|	MUL ID					{
-											if(getDeclarationType() == TYPE_INT)
-												LSTInstall($2->nodeName, TYPE_INT_PTR, 1);	
+											if(strcmp(currentLDeclType->typeName, "int") == 0)
+												LSTInstall($2->nodeName, TTLookUp("int*"), 1);	
 
-											if(getDeclarationType() == TYPE_STR)
-												LSTInstall($2->nodeName, TYPE_STR_PTR, 1);	
+											if(strcmp(currentLDeclType->typeName, "str") == 0)
+												LSTInstall($2->nodeName, TTLookUp("int*"), 1);	
 										}
 			;
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
@@ -487,14 +389,16 @@ MainBlock	:	MainFunc '('')'
 					MBody 
 				'}'									{
 														char* currentFuncName = getCurrentFuncName();
-														addFunctionLST(currentFuncName, LSTHead);	
+
+														// TODO: Check!!!
+														// addFunctionLST(currentFuncName, LSTHead);	
 
 														fprintf(filePtr, "F0:\n");
 														initFuncCalle(filePtr, paramCount);
 
-														// printAST($6);
+														printASTTable($6, 0);
 														codeGen($6, filePtr);
-														// LSTPrint();
+														LSTPrint();
 														flushLST();
 														paramCount = 0;
 												
@@ -506,47 +410,38 @@ MainFunc	:	INT MAIN							{ setCurrentFuncName("int main"); }
 			;
 
 MBody		:	BEGIN_ Slist retStmt END ';'	{
-														struct ASTNode* statementList = TreeCreate(TYPE_VOID, SLIST_NODE, NULL, 0, NULL, $2, NULL, $3);
+														struct ASTNode* statementList = TreeCreate(typeTableVOID, SLIST_NODE, NULL, INT_MAX, NULL, $2, NULL, $3);
 														$$ = statementList;
 													}
 			;
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
 
-expr		: expr PLUS expr		{ $$ =  TreeCreate(TYPE_INT, PLUS_NODE, NULL, 0, NULL, $1, NULL, $3); }
-			| expr MINUS expr 		{ $$ =  TreeCreate(TYPE_INT, MINUS_NODE, NULL, 0, NULL, $1, NULL, $3); }
-			| expr MUL expr 		{ $$ =  TreeCreate(TYPE_INT, MUL_NODE, NULL, 0, NULL, $1, NULL, $3); }
-			| expr DIV expr			{ $$ =  TreeCreate(TYPE_INT, DIV_NODE, NULL, 0, NULL, $1, NULL, $3); }
-			| expr MOD expr			{ $$ =  TreeCreate(TYPE_INT, MOD_NODE, NULL, 0, NULL, $1, NULL, $3); }
-			| expr EQ expr			{ $$ =  TreeCreate(TYPE_BOOL, EQ_NODE, NULL, 0, NULL, $1, NULL, $3); }
-			| expr NEQ expr			{ $$ =  TreeCreate(TYPE_BOOL, NE_NODE, NULL, 0, NULL, $1, NULL, $3); }
-			| expr LT expr			{ $$ =  TreeCreate(TYPE_BOOL, LT_NODE, NULL, 0, NULL, $1, NULL, $3); }
-			| expr LTE expr			{ $$ =  TreeCreate(TYPE_BOOL, LE_NODE, NULL, 0, NULL, $1, NULL, $3); }
-			| expr GT expr			{ $$ =  TreeCreate(TYPE_BOOL, GT_NODE, NULL, 0, NULL, $1, NULL, $3); }
-			| expr GTE expr			{ $$ =  TreeCreate(TYPE_BOOL, GE_NODE, NULL, 0, NULL, $1, NULL, $3); }
-			| expr AND expr			{ $$ =  TreeCreate(TYPE_BOOL, AND_NODE, NULL, 0, NULL, $1, NULL, $3); }
-			| expr OR expr			{ $$ =  TreeCreate(TYPE_BOOL, OR_NODE, NULL, 0, NULL, $1, NULL, $3); }
-			| NOT expr				{ $$ =  TreeCreate(TYPE_BOOL, NOT_NODE, NULL, 0, NULL, $2, NULL, NULL); }
+expr		: expr PLUS expr		{ $$ =  TreeCreate(typeTableINT, PLUS_NODE, NULL, INT_MAX, NULL, $1, NULL, $3); }
+			| expr MINUS expr 		{ $$ =  TreeCreate(typeTableINT, MINUS_NODE, NULL, INT_MAX, NULL, $1, NULL, $3); }
+			| expr MUL expr 		{ $$ =  TreeCreate(typeTableINT, MUL_NODE, NULL, INT_MAX, NULL, $1, NULL, $3); }
+			| expr DIV expr			{ $$ =  TreeCreate(typeTableINT, DIV_NODE, NULL, INT_MAX, NULL, $1, NULL, $3); }
+			| expr MOD expr			{ $$ =  TreeCreate(typeTableINT, MOD_NODE, NULL, INT_MAX, NULL, $1, NULL, $3); }
+			| expr EQ expr			{ $$ =  TreeCreate(typeTableBOOL, EQ_NODE, NULL, INT_MAX, NULL, $1, NULL, $3); }
+			| expr NEQ expr			{ $$ =  TreeCreate(typeTableBOOL, NE_NODE, NULL, INT_MAX, NULL, $1, NULL, $3); }
+			| expr LT expr			{ $$ =  TreeCreate(typeTableBOOL, LT_NODE, NULL, INT_MAX, NULL, $1, NULL, $3); }
+			| expr LTE expr			{ $$ =  TreeCreate(typeTableBOOL, LE_NODE, NULL, INT_MAX, NULL, $1, NULL, $3); }
+			| expr GT expr			{ $$ =  TreeCreate(typeTableBOOL, GT_NODE, NULL, INT_MAX, NULL, $1, NULL, $3); }
+			| expr GTE expr			{ $$ =  TreeCreate(typeTableBOOL, GE_NODE, NULL, INT_MAX, NULL, $1, NULL, $3); }
+			| expr AND expr			{ $$ =  TreeCreate(typeTableBOOL, AND_NODE, NULL, INT_MAX, NULL, $1, NULL, $3); }
+			| expr OR expr			{ $$ =  TreeCreate(typeTableBOOL, OR_NODE, NULL, INT_MAX, NULL, $1, NULL, $3); }
+			| NOT expr				{ $$ =  TreeCreate(typeTableBOOL, NOT_NODE, NULL, INT_MAX, NULL, $2, NULL, NULL); }
 			| '(' expr ')'			{ $$ = $2; }
-			| ID '.' ID				{ 
-										$1 = lookupID($1);
-										struct TupleList* TLNode = getTuple(getTupleTypeName($1->dataType));
-										struct TupleFieldList* TFLNode = searchTupleField(TLNode->tupleFieldListHead, $3->nodeName);
-										$3->dataType = TFLNode->tupleFieldType;
-										$1->left = $3;
-										$1->dataType = TFLNode->tupleFieldType;
-										$1->nodeType = TUPLE_FIELD_NODE;
-			 						}
 			| ID '(' ArgList ')'	{ 
 										$1 = lookupID($1);	
 										verifyFunctionArguments($1->nodeName, $3);	
-										$$ = TreeCreate(getFunctionType($1->nodeName), FUNC_NODE, $1->nodeName, 0, NULL, NULL, NULL, NULL); 
+										$$ = TreeCreate(getFunctionType($1->nodeName), FUNC_NODE, $1->nodeName, INT_MAX, NULL, NULL, NULL, NULL); 
 										$$->argListHead = $3;
 										$$->GSTEntry = $1->GSTEntry;
 									}
 			| ID '[' expr ']' 		{	
 										$1 = lookupID($1);
-										if ($3->dataType != TYPE_INT){
+										if ($3->typeTablePtr != typeTableINT){
 											printf("\nArray Indexing expects INT Data Type\n");
 											exit(1);
 										}
@@ -555,19 +450,19 @@ expr		: expr PLUS expr		{ $$ =  TreeCreate(TYPE_INT, PLUS_NODE, NULL, 0, NULL, $
 									}
 			| AMPERSAND ID			{
 										$2 = lookupID($2);
-										if ($2->dataType == TYPE_INT || $2->dataType == TYPE_INT_PTR)
-											$$ = TreeCreate(TYPE_INT_PTR, AMP_NODE, NULL, 0, NULL, $2, NULL, NULL);
+										if ($2->typeTablePtr == typeTableINT || $2->typeTablePtr == typeTableINTPtr)
+											$$ = TreeCreate(typeTableINTPtr, AMP_NODE, NULL, INT_MAX, NULL, $2, NULL, NULL);
 
-										if ($2->dataType == TYPE_STR || $2->dataType == TYPE_STR_PTR)
-											$$ = TreeCreate(TYPE_STR_PTR, AMP_NODE, NULL, 0, NULL, $2, NULL, NULL);	
+										if ($2->typeTablePtr == typeTableSTR || $2->typeTablePtr == typeTableSTRPtr)
+											$$ = TreeCreate(typeTableSTRPtr, AMP_NODE, NULL, INT_MAX, NULL, $2, NULL, NULL);	
 									}
 			| MUL ID				{
 										$2 = lookupID($2);
-										if ($2->dataType == TYPE_INT_PTR)
-											$$ = TreeCreate(TYPE_INT, MUL_NODE, NULL, 0, NULL, NULL, $2, NULL);
+										if ($2->typeTablePtr == typeTableINTPtr)
+											$$ = TreeCreate(typeTableINT, MUL_NODE, NULL, INT_MAX, NULL, NULL, $2, NULL);
 
-										if ($2->dataType == TYPE_STR_PTR)
-											$$ = TreeCreate(TYPE_STR, MUL_NODE, NULL, 0, NULL, NULL, $2, NULL);	
+										if ($2->typeTablePtr == typeTableSTRPtr)
+											$$ = TreeCreate(typeTableSTR, MUL_NODE, NULL, INT_MAX, NULL, NULL, $2, NULL);	
 									}
 			| ID					{
 										$1 = lookupID($1);

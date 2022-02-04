@@ -7,7 +7,8 @@
     "gstable.h": "c",
     "paramstruct.h": "c",
     "lstable.h": "c",
-    "tuplelisttable.h": "c"
+    "tuplelisttable.h": "c",
+    "limits.h": "c"
   },
   "C_Cpp.dimInactiveRegions": false
 }

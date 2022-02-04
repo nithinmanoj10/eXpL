@@ -135,16 +135,18 @@ int GSTPrint()
     return 0;
 }
 
-int getFunctionType(char *name)
+struct TypeTable *getFunctionType(char *name)
 {
     struct GSTNode *traverslPtr = GSTHead;
 
     while (traverslPtr != NULL)
     {
         if (strcmp(traverslPtr->name, name) == 0)
-            return traverslPtr->type;
+            return traverslPtr->typeTablePtr;
         traverslPtr = traverslPtr->next;
     }
+
+    return NULL;
 }
 
 int getFunctionLabel(char *name)

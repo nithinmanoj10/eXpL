@@ -4,7 +4,7 @@ clear
 cd ./Frontend
 
 byacc -d -v -t ast.y
-lex -v ast.l
+lex ast.l
 gcc y.tab.c lex.yy.c ast.c ../Backend/codegen.c ../Data_Structures/loopStack.c ../Data_Structures/typeTable.c ../Data_Structures/GSTable.c ../Data_Structures/paramStruct.c ../Data_Structures/LSTable.c ../Data_Structures/TupleListTable.c ../Functions/reg.c ../Functions/label.c ../Functions/xsm_syscalls.c ../Functions/xsm_library.c ../Functions/stackMemory.c ../Functions/stringMan.c ../Functions/typeCheck.c -g -o ast
  # clear
 

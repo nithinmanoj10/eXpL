@@ -60,26 +60,33 @@ int setCurrentFuncName(char *newFuncName)
 struct TypeTable *typeTableHead = NULL;
 struct TypeTable *typeTableTail = NULL;
 
+struct TypeTable *typeTableINT;
+struct TypeTable *typeTableINTPtr;
+struct TypeTable *typeTableSTR;
+struct TypeTable *typeTableSTRPtr;
+struct TypeTable *typeTableBOOL;
+struct TypeTable *typeTableVOID;
+
 void TypeTableCreate()
 {
     // Allocation necessary space for the 4 entries in the
     // Type Table - int, str, bool and void
-    struct TypeTable *typeTableINT = (struct TypeTable *)malloc(sizeof(struct TypeTable));
+    typeTableINT = (struct TypeTable *)malloc(sizeof(struct TypeTable));
     typeTableINT->typeName = (char *)malloc(10 * sizeof(char *));
 
-    struct TypeTable *typeTableINTPtr = (struct TypeTable *)malloc(sizeof(struct TypeTable));
+    typeTableINTPtr = (struct TypeTable *)malloc(sizeof(struct TypeTable));
     typeTableINTPtr->typeName = (char *)malloc(10 * sizeof(char *));
 
-    struct TypeTable *typeTableSTR = (struct TypeTable *)malloc(sizeof(struct TypeTable));
+    typeTableSTR = (struct TypeTable *)malloc(sizeof(struct TypeTable));
     typeTableSTR->typeName = (char *)malloc(10 * sizeof(char *));
 
-    struct TypeTable *typeTableSTRPtr = (struct TypeTable *)malloc(sizeof(struct TypeTable));
+    typeTableSTRPtr = (struct TypeTable *)malloc(sizeof(struct TypeTable));
     typeTableSTRPtr->typeName = (char *)malloc(10 * sizeof(char *));
 
-    struct TypeTable *typeTableBOOL = (struct TypeTable *)malloc(sizeof(struct TypeTable));
+    typeTableBOOL = (struct TypeTable *)malloc(sizeof(struct TypeTable));
     typeTableBOOL->typeName = (char *)malloc(10 * sizeof(char *));
 
-    struct TypeTable *typeTableVOID = (struct TypeTable *)malloc(sizeof(struct TypeTable));
+    typeTableVOID = (struct TypeTable *)malloc(sizeof(struct TypeTable));
     typeTableVOID->typeName = (char *)malloc(10 * sizeof(char *));
 
     // Setting the typeName for each entry

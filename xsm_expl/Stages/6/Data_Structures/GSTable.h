@@ -35,9 +35,9 @@ int GSTPrint();
  * @brief   Get the Function Type
  *
  * @param   name Name of the function
- * @return  int
+ * @return  Pointer to Type Table entry
  */
-int getFunctionType(char *name);
+struct TypeTable *getFunctionType(char *name);
 
 /**
  * @brief   Get the Function Label

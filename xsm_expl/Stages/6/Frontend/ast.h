@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "../Data_Structures/GSTable.h"
 #include "../Data_Structures/LSTable.h"
+#include "../Data_Structures/typeTable.h"
 
 #define CONST_INT_NODE 0 // Constant Node
 #define CONST_STR_NODE 1
@@ -67,8 +68,10 @@
 // TODO: Add typetable field
 struct ASTNode
 {
+    int sno;
     int dataType;                          // Data type of the node
     int nodeType;                          // Type of the node
+    struct TypeTable *typeTablePtr;        // Pointer to type table entry
     char *nodeName;                        // Name of variable
     int intConstVal;                       // Value of int const
     char *strConstVal;                     // Value of str const
@@ -79,9 +82,12 @@ struct ASTNode
     struct LSTNode *LSTEntry;              // Pointer to Local Symbol Table entry for a function
 } astnode;
 
-struct ASTNode *TreeCreate(int dataType, int nodeType, char *nodeName, int intConstVal, char *strConstVal, struct ASTNode *left, struct ASTNode *middle, struct ASTNode *right);
+struct ASTNode *TreeCreate(struct TypeTable *typeTablePtr, int nodeType, char *nodeName, int intConstVal, char *strConstVal, struct ASTNode *left, struct ASTNode *middle, struct ASTNode *right);
 
-int printAST(struct ASTNode *root);
+int printAST(struct ASTNode *root, int sno);
+void printASTTable(struct ASTNode *root, int sno);
+extern int ASTTableSno;
+char *getNodeName(int nodeType);
 
 int getVariableAddress(FILE *filePtr, struct ASTNode *root);
 
@@ -90,29 +96,29 @@ int getAddress(FILE *filePtr, struct ASTNode *root);
 int evalExprTree(FILE *filePtr, struct ASTNode *root);
 
 /**
- * @brief   Check if an identifier is defined in the LST or GST 
- * 
+ * @brief   Check if an identifier is defined in the LST or GST
+ *
  * @param   IDName Name of the variable
- * @return  struct ASTNode* 
+ * @return  struct ASTNode*
  */
 struct ASTNode *lookupID(struct ASTNode *IDNode);
 
 /**
- * @brief   Insert node to the argument list of a function 
- * 
+ * @brief   Insert node to the argument list of a function
+ *
  * @param   argListHead Head of the argument list
  * @param   argNode Argument node to be inserted
- * @return  struct ASTNode* 
+ * @return  struct ASTNode*
  */
 struct ASTNode *insertToArgList(struct ASTNode *argListHead, struct ASTNode *argNode);
 
 /**
  * @brief   Verify whether the arguments passed to a function is correct
- *          according to the function signature. 
- * 
+ *          according to the function signature.
+ *
  * @param   funcName Name of the function
  * @param   argumentList List of arguments passed
- * @return  int 
+ * @return  int
  */
 int verifyFunctionArguments(char *funcName, struct ASTNode *argumentList);
 

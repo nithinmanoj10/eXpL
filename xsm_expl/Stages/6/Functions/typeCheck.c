@@ -9,7 +9,7 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
     switch (nodeType)
     {
     case PLUS_NODE:
-        if (leftTree->dataType != TYPE_INT || rightTree->dataType != TYPE_INT)
+        if (leftTree->typeTablePtr != typeTableINT || rightTree->typeTablePtr != typeTableINT)
         {
             printf("\nType Error: Addition Operator requires data type INT\n");
             exit(1);
@@ -17,7 +17,7 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
         break;
 
     case MINUS_NODE:
-        if (leftTree->dataType != TYPE_INT || rightTree->dataType != TYPE_INT)
+        if (leftTree->typeTablePtr != typeTableINT || rightTree->typeTablePtr != typeTableINT)
         {
             printf("\nType Error: Subtraction Operator requires data type INT\n");
             exit(1);
@@ -29,7 +29,7 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
         if (middleTree == NULL)
         {
 
-            if ((leftTree->dataType != TYPE_INT || rightTree->dataType != TYPE_INT))
+            if ((leftTree->typeTablePtr != typeTableINT || rightTree->typeTablePtr != typeTableINT))
             {
                 printf("\nType Error: Multiplication Operator requires data type INT\n");
                 exit(1);
@@ -37,7 +37,7 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
         }
         else
         {
-            if (middleTree->dataType != TYPE_INT_PTR && middleTree->dataType != TYPE_STR_PTR)
+            if (middleTree->typeTablePtr != typeTableINTPtr && middleTree->typeTablePtr != typeTableSTRPtr)
             {
                 printf("\nDereference Operator expects a pointer variables\n");
                 exit(1);
@@ -46,7 +46,7 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
         break;
 
     case DIV_NODE:
-        if (leftTree->dataType != TYPE_INT || rightTree->dataType != TYPE_INT)
+        if (leftTree->typeTablePtr != typeTableINT || rightTree->typeTablePtr != typeTableINT)
         {
             printf("\nType Error: Division Operator requires data type INT\n");
             exit(1);
@@ -54,7 +54,7 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
         break;
 
     case MOD_NODE:
-        if (leftTree->dataType != TYPE_INT || rightTree->dataType != TYPE_INT)
+        if (leftTree->typeTablePtr != typeTableINT || rightTree->typeTablePtr != typeTableINT)
         {
             printf("\nType Error: Modulus Operator requires data type INT\n");
             exit(1);
@@ -70,7 +70,7 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
         break;
 
     case LT_NODE:
-        if (leftTree->dataType != TYPE_INT || rightTree->dataType != TYPE_INT)
+        if (leftTree->typeTablePtr != typeTableINT || rightTree->typeTablePtr != typeTableINT)
         {
             printf("\nType Error: Less Than Operator requires data type INT\n");
             exit(1);
@@ -78,7 +78,7 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
         break;
 
     case LE_NODE:
-        if (leftTree->dataType != TYPE_INT || rightTree->dataType != TYPE_INT)
+        if (leftTree->typeTablePtr != typeTableINT || rightTree->typeTablePtr != typeTableINT)
         {
             printf("\nType Error: Less Than Equal Operator requires data type INT\n");
             exit(1);
@@ -86,7 +86,7 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
         break;
 
     case GT_NODE:
-        if (leftTree->dataType != TYPE_INT || rightTree->dataType != TYPE_INT)
+        if (leftTree->typeTablePtr != typeTableINT || rightTree->typeTablePtr != typeTableINT)
         {
             printf("\nType Error: Greater Than Operator requires data type INT\n");
             exit(1);
@@ -94,7 +94,7 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
         break;
 
     case GE_NODE:
-        if (leftTree->dataType != TYPE_INT || rightTree->dataType != TYPE_INT)
+        if (leftTree->typeTablePtr != typeTableINT || rightTree->typeTablePtr != typeTableINT)
         {
             printf("\nType Error: Greater Than Equal Operator requires data type INT\n");
             exit(1);
@@ -102,7 +102,7 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
         break;
 
     case EQ_NODE:
-        if (leftTree->dataType != rightTree->dataType)
+        if (leftTree->typeTablePtr != rightTree->typeTablePtr)
         {
             printf("\nType Error: Equal To Operator requires same data type on both sides\n");
             exit(1);
@@ -110,7 +110,7 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
         break;
 
     case NE_NODE:
-        if (leftTree->dataType != rightTree->dataType)
+        if (leftTree->typeTablePtr != rightTree->typeTablePtr)
         {
             printf("\nType Error: Not Equal To Operator requires same data type on both sides\n");
             exit(1);
@@ -118,28 +118,28 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
         break;
 
     case AND_NODE:
-        if (leftTree->dataType != TYPE_BOOL || leftTree->dataType != TYPE_BOOL)
+        if (leftTree->typeTablePtr != typeTableBOOL || leftTree->typeTablePtr != typeTableBOOL)
         {
             printf("\nType Error: AND Operator requires type BOOL on both sides\n");
             exit(1);
         }
 
     case OR_NODE:
-        if (leftTree->dataType != TYPE_BOOL || leftTree->dataType != TYPE_BOOL)
+        if (leftTree->typeTablePtr != typeTableBOOL || leftTree->typeTablePtr != typeTableBOOL)
         {
             printf("\nType Error: OR Operator requires type BOOL on both sides\n");
             exit(1);
         }
 
     case NOT_NODE:
-        if (leftTree->dataType != TYPE_BOOL)
+        if (leftTree->typeTablePtr != typeTableBOOL)
         {
             printf("\nType Error: NOT Operator requires type BOOL\n");
             exit(1);
         }
 
     case IF_NODE:
-        if (leftTree->dataType != TYPE_BOOL)
+        if (leftTree->typeTablePtr != typeTableBOOL)
         {
             printf("\nType Error: Conditional Statement of IF should be of type BOOL\n");
             exit(1);
@@ -147,7 +147,7 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
         break;
 
     case WHILE_NODE:
-        if (leftTree->dataType != TYPE_BOOL)
+        if (leftTree->typeTablePtr != typeTableBOOL)
         {
             printf("\nType Error: Conditional Statement of WHILE should be of type BOOL\n");
             exit(1);
@@ -155,7 +155,7 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
         break;
 
     case DO_WHILE_NODE:
-        if (rightTree->dataType != TYPE_BOOL)
+        if (rightTree->typeTablePtr != typeTableBOOL)
         {
             printf("\nType Error: Conditional Statement of DO WHILE should be of type BOOL\n");
             exit(1);
@@ -169,7 +169,7 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
             exit(1);
         }
 
-        if (leftTree->dataType != TYPE_INT && leftTree->dataType != TYPE_STR)
+        if (leftTree->typeTablePtr != typeTableINT && leftTree->typeTablePtr != typeTableSTR)
         {
             printf("\nType Error: read() expects argument of type INT or STR\n");
             exit(1);
@@ -177,7 +177,7 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
         break;
 
     case WRITE_NODE:
-        if (leftTree->dataType != TYPE_INT && leftTree->dataType != TYPE_STR && leftTree->dataType != TYPE_INT_PTR && leftTree->dataType != TYPE_STR_PTR)
+        if (leftTree->typeTablePtr != typeTableINT && leftTree->typeTablePtr != typeTableSTR && leftTree->typeTablePtr != typeTableINTPtr && leftTree->typeTablePtr != typeTableSTRPtr)
         {
             printf("\nType Error: write() expects argument of type INT or STR\n");
             exit(1);
@@ -191,13 +191,13 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
             exit(1);
         }
 
-        if (rightTree->dataType != TYPE_INT && rightTree->dataType != TYPE_STR && rightTree->dataType != TYPE_INT_PTR && rightTree->dataType != TYPE_STR_PTR)
+        if (rightTree->typeTablePtr != typeTableINT && rightTree->typeTablePtr != typeTableSTR && rightTree->typeTablePtr != typeTableINTPtr && rightTree->typeTablePtr != typeTableSTRPtr)
         {
             printf("\nType Error: Assignment Operator expects data type INT or STR in RHS\n");
             exit(1);
         }
 
-        if (rightTree->dataType != leftTree->dataType)
+        if (rightTree->typeTablePtr != leftTree->typeTablePtr)
         {
             printf("\nType Error: Assignment Operator expects same data type on both sides\n");
             exit(1);

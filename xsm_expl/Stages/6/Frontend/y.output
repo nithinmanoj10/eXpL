@@ -125,59 +125,45 @@
   83            | LDecl
 
   84  LDecl : LType LIDList ';'
-  85        | LType '(' TupleFieldList ')' LIDList ';'
 
-  86  TupleFieldList : TupleFieldList ',' TupleField
-  87                 | TupleField
+  85  LType : INT
+  86        | STR
+  87        | ID
 
-  88  TupleField : TupleFieldType TupleFieldID
+  88  LIDList : LIDList ',' LID
+  89          | LID
 
-  89  TupleFieldType : INT
-  90                 | STR
+  90  LID : ID
+  91      | MUL ID
 
-  91  TupleFieldID : ID
+  92  MainBlock : MainFunc '(' ')' '{' LDeclBlock MBody '}'
 
-  92  LType : INT
-  93        | STR
-  94        | TUPLE TupleID
+  93  MainFunc : INT MAIN
 
-  95  LIDList : LIDList ',' LID
-  96          | LID
+  94  MBody : BEGIN_ Slist retStmt END ';'
 
-  97  TupleID : ID
-
-  98  LID : ID
-  99      | MUL ID
-
- 100  MainBlock : MainFunc '(' ')' '{' LDeclBlock MBody '}'
-
- 101  MainFunc : INT MAIN
-
- 102  MBody : BEGIN_ Slist retStmt END ';'
-
- 103  expr : expr PLUS expr
- 104       | expr MINUS expr
- 105       | expr MUL expr
- 106       | expr DIV expr
- 107       | expr MOD expr
- 108       | expr EQ expr
- 109       | expr NEQ expr
- 110       | expr LT expr
- 111       | expr LTE expr
- 112       | expr GT expr
- 113       | expr GTE expr
- 114       | expr AND expr
- 115       | expr OR expr
- 116       | NOT expr
- 117       | '(' expr ')'
- 118       | ID '.' ID
- 119       | ID '(' ArgList ')'
- 120       | ID '[' expr ']'
- 121       | AMPERSAND ID
- 122       | MUL ID
- 123       | ID
- 124       | NUM
- 125       | STRING
+  95  expr : expr PLUS expr
+  96       | expr MINUS expr
+  97       | expr MUL expr
+  98       | expr DIV expr
+  99       | expr MOD expr
+ 100       | expr EQ expr
+ 101       | expr NEQ expr
+ 102       | expr LT expr
+ 103       | expr LTE expr
+ 104       | expr GT expr
+ 105       | expr GTE expr
+ 106       | expr AND expr
+ 107       | expr OR expr
+ 108       | NOT expr
+ 109       | '(' expr ')'
+ 110       | ID '(' ArgList ')'
+ 111       | ID '[' expr ']'
+ 112       | AMPERSAND ID
+ 113       | MUL ID
+ 114       | ID
+ 115       | NUM
+ 116       | STRING
 
 state 0
 	$accept : . start $end  (0)
@@ -365,7 +351,7 @@ state 19
 state 20
 	FuncType : INT .  (75)
 	FuncType : INT . MUL  (77)
-	MainFunc : INT . MAIN  (101)
+	MainFunc : INT . MAIN  (93)
 
 	MAIN  shift 41
 	MUL  shift 42
@@ -424,7 +410,7 @@ state 26
 
 
 state 27
-	MainBlock : MainFunc . '(' ')' '{' LDeclBlock MBody '}'  (100)
+	MainBlock : MainFunc . '(' ')' '{' LDeclBlock MBody '}'  (92)
 
 	'('  shift 49
 	.  error
@@ -530,9 +516,9 @@ state 40
 
 
 state 41
-	MainFunc : INT MAIN .  (101)
+	MainFunc : INT MAIN .  (93)
 
-	.  reduce 101
+	.  reduce 93
 
 
 state 42
@@ -582,7 +568,7 @@ state 48
 
 
 state 49
-	MainBlock : MainFunc '(' . ')' '{' LDeclBlock MBody '}'  (100)
+	MainBlock : MainFunc '(' . ')' '{' LDeclBlock MBody '}'  (92)
 
 	')'  shift 62
 	.  error
@@ -671,10 +657,10 @@ state 59
 	LDeclBlock : DECL . LDeclList ENDDECL  (80)
 	LDeclBlock : DECL . ENDDECL  (81)
 
-	ENDDECL  shift 73
-	INT  shift 74
-	STR  shift 75
-	TUPLE  shift 76
+	ID  shift 73
+	ENDDECL  shift 74
+	INT  shift 75
+	STR  shift 76
 	.  error
 
 	LDeclList  goto 77
@@ -707,7 +693,7 @@ state 61
 
 
 state 62
-	MainBlock : MainFunc '(' ')' . '{' LDeclBlock MBody '}'  (100)
+	MainBlock : MainFunc '(' ')' . '{' LDeclBlock MBody '}'  (92)
 
 	'{'  shift 83
 	.  error
@@ -786,43 +772,40 @@ state 72
 
 
 state 73
+	LType : ID .  (87)
+
+	.  reduce 87
+
+
+state 74
 	LDeclBlock : DECL ENDDECL .  (81)
 
 	.  reduce 81
 
 
-state 74
-	LType : INT .  (92)
-
-	.  reduce 92
-
-
 state 75
-	LType : STR .  (93)
+	LType : INT .  (85)
 
-	.  reduce 93
+	.  reduce 85
 
 
 state 76
-	LType : TUPLE . TupleID  (94)
+	LType : STR .  (86)
 
-	ID  shift 91
-	.  error
-
-	TupleID  goto 92
+	.  reduce 86
 
 
 state 77
 	LDeclBlock : DECL LDeclList . ENDDECL  (80)
 	LDeclList : LDeclList . LDecl  (82)
 
-	ENDDECL  shift 93
-	INT  shift 74
-	STR  shift 75
-	TUPLE  shift 76
+	ID  shift 73
+	ENDDECL  shift 91
+	INT  shift 75
+	STR  shift 76
 	.  error
 
-	LDecl  goto 94
+	LDecl  goto 92
 	LType  goto 79
 
 
@@ -834,49 +817,47 @@ state 78
 
 state 79
 	LDecl : LType . LIDList ';'  (84)
-	LDecl : LType . '(' TupleFieldList ')' LIDList ';'  (85)
 
-	ID  shift 95
-	MUL  shift 96
-	'('  shift 97
+	ID  shift 93
+	MUL  shift 94
 	.  error
 
-	LIDList  goto 98
-	LID  goto 99
+	LIDList  goto 95
+	LID  goto 96
 
 
 state 80
 	FBody : BEGIN_ . Slist retStmt END ';'  (79)
 
-	ID  shift 100
-	READ  shift 101
-	WRITE  shift 102
-	MUL  shift 103
-	BREAKPOINT  shift 104
-	IF  shift 105
-	WHILE  shift 106
-	DO  shift 107
-	BREAK  shift 108
-	CONTINUE  shift 109
+	ID  shift 97
+	READ  shift 98
+	WRITE  shift 99
+	MUL  shift 100
+	BREAKPOINT  shift 101
+	IF  shift 102
+	WHILE  shift 103
+	DO  shift 104
+	BREAK  shift 105
+	CONTINUE  shift 106
 	.  error
 
-	Slist  goto 110
-	Stmt  goto 111
-	inputStmt  goto 112
-	outputStmt  goto 113
-	assignStmt  goto 114
-	ifStmt  goto 115
-	whileStmt  goto 116
-	doWhileStmt  goto 117
-	breakStmt  goto 118
-	continueStmt  goto 119
-	breakPointStmt  goto 120
+	Slist  goto 107
+	Stmt  goto 108
+	inputStmt  goto 109
+	outputStmt  goto 110
+	assignStmt  goto 111
+	ifStmt  goto 112
+	whileStmt  goto 113
+	doWhileStmt  goto 114
+	breakStmt  goto 115
+	continueStmt  goto 116
+	breakPointStmt  goto 117
 
 
 state 81
 	FDef : FuncSign '{' LDeclBlock FBody . '}'  (73)
 
-	'}'  shift 121
+	'}'  shift 118
 	.  error
 
 
@@ -885,17 +866,17 @@ state 82
 	FuncSign : FuncType FID '(' ParamList . ')'  (74)
 
 	','  shift 87
-	')'  shift 122
+	')'  shift 119
 	.  error
 
 
 state 83
-	MainBlock : MainFunc '(' ')' '{' . LDeclBlock MBody '}'  (100)
+	MainBlock : MainFunc '(' ')' '{' . LDeclBlock MBody '}'  (92)
 
 	DECL  shift 59
 	.  error
 
-	LDeclBlock  goto 123
+	LDeclBlock  goto 120
 
 
 state 84
@@ -924,7 +905,7 @@ state 87
 	STR  shift 67
 	.  error
 
-	Param  goto 124
+	Param  goto 121
 	ParamType  goto 70
 
 
@@ -947,2181 +928,2051 @@ state 90
 
 
 state 91
-	TupleID : ID .  (97)
-
-	.  reduce 97
-
-
-state 92
-	LType : TUPLE TupleID .  (94)
-
-	.  reduce 94
-
-
-state 93
 	LDeclBlock : DECL LDeclList ENDDECL .  (80)
 
 	.  reduce 80
 
 
-state 94
+state 92
 	LDeclList : LDeclList LDecl .  (82)
 
 	.  reduce 82
 
 
-state 95
-	LID : ID .  (98)
+state 93
+	LID : ID .  (90)
 
-	.  reduce 98
+	.  reduce 90
+
+
+state 94
+	LID : MUL . ID  (91)
+
+	ID  shift 122
+	.  error
+
+
+state 95
+	LDecl : LType LIDList . ';'  (84)
+	LIDList : LIDList . ',' LID  (88)
+
+	';'  shift 123
+	','  shift 124
+	.  error
 
 
 state 96
-	LID : MUL . ID  (99)
+	LIDList : LID .  (89)
 
-	ID  shift 125
-	.  error
+	.  reduce 89
 
 
 state 97
-	LDecl : LType '(' . TupleFieldList ')' LIDList ';'  (85)
-
-	INT  shift 126
-	STR  shift 127
-	.  error
-
-	TupleFieldList  goto 128
-	TupleField  goto 129
-	TupleFieldType  goto 130
-
-
-state 98
-	LDecl : LType LIDList . ';'  (84)
-	LIDList : LIDList . ',' LID  (95)
-
-	';'  shift 131
-	','  shift 132
-	.  error
-
-
-state 99
-	LIDList : LID .  (96)
-
-	.  reduce 96
-
-
-state 100
 	assignStmt : ID . EQUAL expr  (29)
 	assignStmt : ID . '[' expr ']' EQUAL expr  (30)
 
-	EQUAL  shift 133
-	'['  shift 134
+	EQUAL  shift 125
+	'['  shift 126
+	.  error
+
+
+state 98
+	inputStmt : READ . expr  (27)
+
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
+	.  error
+
+	expr  goto 134
+
+
+state 99
+	outputStmt : WRITE . expr  (28)
+
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
+	.  error
+
+	expr  goto 135
+
+
+state 100
+	assignStmt : MUL . ID EQUAL expr  (31)
+
+	ID  shift 136
 	.  error
 
 
 state 101
-	inputStmt : READ . expr  (27)
-
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
-	.  error
-
-	expr  goto 142
-
-
-state 102
-	outputStmt : WRITE . expr  (28)
-
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
-	.  error
-
-	expr  goto 143
-
-
-state 103
-	assignStmt : MUL . ID EQUAL expr  (31)
-
-	ID  shift 144
-	.  error
-
-
-state 104
 	breakPointStmt : BREAKPOINT .  (40)
 
 	.  reduce 40
 
 
-state 105
+state 102
 	ifStmt : IF . expr THEN Slist ELSE Slist ENDIF  (34)
 	ifStmt : IF . expr THEN Slist ENDIF  (35)
 
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
 	.  error
 
-	expr  goto 145
+	expr  goto 137
 
 
-state 106
+state 103
 	whileStmt : WHILE . expr DO Slist ENDWHILE  (36)
 
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
 	.  error
 
-	expr  goto 146
+	expr  goto 138
 
 
-state 107
+state 104
 	doWhileStmt : DO . Slist WHILE expr ENDWHILE  (37)
 
-	ID  shift 100
-	READ  shift 101
-	WRITE  shift 102
-	MUL  shift 103
-	BREAKPOINT  shift 104
-	IF  shift 105
-	WHILE  shift 106
-	DO  shift 107
-	BREAK  shift 108
-	CONTINUE  shift 109
+	ID  shift 97
+	READ  shift 98
+	WRITE  shift 99
+	MUL  shift 100
+	BREAKPOINT  shift 101
+	IF  shift 102
+	WHILE  shift 103
+	DO  shift 104
+	BREAK  shift 105
+	CONTINUE  shift 106
 	.  error
 
-	Slist  goto 147
-	Stmt  goto 111
-	inputStmt  goto 112
-	outputStmt  goto 113
-	assignStmt  goto 114
-	ifStmt  goto 115
-	whileStmt  goto 116
-	doWhileStmt  goto 117
-	breakStmt  goto 118
-	continueStmt  goto 119
-	breakPointStmt  goto 120
+	Slist  goto 139
+	Stmt  goto 108
+	inputStmt  goto 109
+	outputStmt  goto 110
+	assignStmt  goto 111
+	ifStmt  goto 112
+	whileStmt  goto 113
+	doWhileStmt  goto 114
+	breakStmt  goto 115
+	continueStmt  goto 116
+	breakPointStmt  goto 117
 
 
-state 108
+state 105
 	breakStmt : BREAK .  (38)
 
 	.  reduce 38
 
 
-state 109
+state 106
 	continueStmt : CONTINUE .  (39)
 
 	.  reduce 39
 
 
-state 110
+state 107
 	Slist : Slist . Stmt ';'  (16)
 	FBody : BEGIN_ Slist . retStmt END ';'  (79)
 
-	ID  shift 100
-	READ  shift 101
-	WRITE  shift 102
-	MUL  shift 103
-	BREAKPOINT  shift 104
-	IF  shift 105
-	WHILE  shift 106
-	DO  shift 107
-	BREAK  shift 108
-	CONTINUE  shift 109
-	RETURN  shift 148
+	ID  shift 97
+	READ  shift 98
+	WRITE  shift 99
+	MUL  shift 100
+	BREAKPOINT  shift 101
+	IF  shift 102
+	WHILE  shift 103
+	DO  shift 104
+	BREAK  shift 105
+	CONTINUE  shift 106
+	RETURN  shift 140
 	.  error
 
-	Stmt  goto 149
-	inputStmt  goto 112
-	outputStmt  goto 113
-	assignStmt  goto 114
-	ifStmt  goto 115
-	whileStmt  goto 116
-	doWhileStmt  goto 117
-	breakStmt  goto 118
-	continueStmt  goto 119
-	breakPointStmt  goto 120
-	retStmt  goto 150
+	Stmt  goto 141
+	inputStmt  goto 109
+	outputStmt  goto 110
+	assignStmt  goto 111
+	ifStmt  goto 112
+	whileStmt  goto 113
+	doWhileStmt  goto 114
+	breakStmt  goto 115
+	continueStmt  goto 116
+	breakPointStmt  goto 117
+	retStmt  goto 142
 
 
-state 111
+state 108
 	Slist : Stmt . ';'  (17)
 
-	';'  shift 151
+	';'  shift 143
 	.  error
 
 
-state 112
+state 109
 	Stmt : inputStmt .  (18)
 
 	.  reduce 18
 
 
-state 113
+state 110
 	Stmt : outputStmt .  (19)
 
 	.  reduce 19
 
 
-state 114
+state 111
 	Stmt : assignStmt .  (20)
 
 	.  reduce 20
 
 
-state 115
+state 112
 	Stmt : ifStmt .  (21)
 
 	.  reduce 21
 
 
-state 116
+state 113
 	Stmt : whileStmt .  (22)
 
 	.  reduce 22
 
 
-state 117
+state 114
 	Stmt : doWhileStmt .  (23)
 
 	.  reduce 23
 
 
-state 118
+state 115
 	Stmt : breakStmt .  (24)
 
 	.  reduce 24
 
 
-state 119
+state 116
 	Stmt : continueStmt .  (25)
 
 	.  reduce 25
 
 
-state 120
+state 117
 	Stmt : breakPointStmt .  (26)
 
 	.  reduce 26
 
 
-state 121
+state 118
 	FDef : FuncSign '{' LDeclBlock FBody '}' .  (73)
 
 	.  reduce 73
 
 
-state 122
+state 119
 	FuncSign : FuncType FID '(' ParamList ')' .  (74)
 
 	.  reduce 74
 
 
-state 123
-	MainBlock : MainFunc '(' ')' '{' LDeclBlock . MBody '}'  (100)
+state 120
+	MainBlock : MainFunc '(' ')' '{' LDeclBlock . MBody '}'  (92)
 
-	BEGIN_  shift 152
+	BEGIN_  shift 144
 	.  error
 
-	MBody  goto 153
+	MBody  goto 145
 
 
-state 124
+state 121
 	ParamList : ParamList ',' Param .  (57)
 
 	.  reduce 57
 
 
-state 125
-	LID : MUL ID .  (99)
+state 122
+	LID : MUL ID .  (91)
 
-	.  reduce 99
-
-
-state 126
-	TupleFieldType : INT .  (89)
-
-	.  reduce 89
+	.  reduce 91
 
 
-state 127
-	TupleFieldType : STR .  (90)
-
-	.  reduce 90
-
-
-state 128
-	LDecl : LType '(' TupleFieldList . ')' LIDList ';'  (85)
-	TupleFieldList : TupleFieldList . ',' TupleField  (86)
-
-	','  shift 154
-	')'  shift 155
-	.  error
-
-
-state 129
-	TupleFieldList : TupleField .  (87)
-
-	.  reduce 87
-
-
-state 130
-	TupleField : TupleFieldType . TupleFieldID  (88)
-
-	ID  shift 156
-	.  error
-
-	TupleFieldID  goto 157
-
-
-state 131
+state 123
 	LDecl : LType LIDList ';' .  (84)
 
 	.  reduce 84
 
 
-state 132
-	LIDList : LIDList ',' . LID  (95)
+state 124
+	LIDList : LIDList ',' . LID  (88)
 
-	ID  shift 95
-	MUL  shift 96
+	ID  shift 93
+	MUL  shift 94
 	.  error
 
-	LID  goto 158
+	LID  goto 146
+
+
+state 125
+	assignStmt : ID EQUAL . expr  (29)
+
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
+	.  error
+
+	expr  goto 147
+
+
+state 126
+	assignStmt : ID '[' . expr ']' EQUAL expr  (30)
+
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
+	.  error
+
+	expr  goto 148
+
+
+state 127
+	expr : ID . '(' ArgList ')'  (110)
+	expr : ID . '[' expr ']'  (111)
+	expr : ID .  (114)
+
+	'['  shift 149
+	'('  shift 150
+	PLUS  reduce 114
+	MINUS  reduce 114
+	MUL  reduce 114
+	DIV  reduce 114
+	MOD  reduce 114
+	THEN  reduce 114
+	DO  reduce 114
+	ENDWHILE  reduce 114
+	AND  reduce 114
+	OR  reduce 114
+	EQ  reduce 114
+	NEQ  reduce 114
+	LT  reduce 114
+	LTE  reduce 114
+	GT  reduce 114
+	GTE  reduce 114
+	';'  reduce 114
+	']'  reduce 114
+	','  reduce 114
+	')'  reduce 114
+
+
+state 128
+	expr : NUM .  (115)
+
+	.  reduce 115
+
+
+state 129
+	expr : STRING .  (116)
+
+	.  reduce 116
+
+
+state 130
+	expr : MUL . ID  (113)
+
+	ID  shift 151
+	.  error
+
+
+state 131
+	expr : AMPERSAND . ID  (112)
+
+	ID  shift 152
+	.  error
+
+
+state 132
+	expr : NOT . expr  (108)
+
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
+	.  error
+
+	expr  goto 153
 
 
 state 133
-	assignStmt : ID EQUAL . expr  (29)
+	expr : '(' . expr ')'  (109)
 
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
 	.  error
 
-	expr  goto 159
+	expr  goto 154
 
 
 state 134
-	assignStmt : ID '[' . expr ']' EQUAL expr  (30)
+	inputStmt : READ expr .  (27)
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
 
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
-	.  error
-
-	expr  goto 160
+	PLUS  shift 155
+	MINUS  shift 156
+	MUL  shift 157
+	DIV  shift 158
+	MOD  shift 159
+	AND  shift 160
+	OR  shift 161
+	EQ  shift 162
+	NEQ  shift 163
+	LT  shift 164
+	LTE  shift 165
+	GT  shift 166
+	GTE  shift 167
+	';'  reduce 27
 
 
 state 135
-	expr : ID . '.' ID  (118)
-	expr : ID . '(' ArgList ')'  (119)
-	expr : ID . '[' expr ']'  (120)
-	expr : ID .  (123)
+	outputStmt : WRITE expr .  (28)
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
 
-	'['  shift 161
-	'('  shift 162
-	'.'  shift 163
-	PLUS  reduce 123
-	MINUS  reduce 123
-	MUL  reduce 123
-	DIV  reduce 123
-	MOD  reduce 123
-	THEN  reduce 123
-	DO  reduce 123
-	ENDWHILE  reduce 123
-	AND  reduce 123
-	OR  reduce 123
-	';'  reduce 123
-	','  reduce 123
-	EQ  reduce 123
-	NEQ  reduce 123
-	LT  reduce 123
-	LTE  reduce 123
-	GT  reduce 123
-	GTE  reduce 123
-	']'  reduce 123
-	')'  reduce 123
+	PLUS  shift 155
+	MINUS  shift 156
+	MUL  shift 157
+	DIV  shift 158
+	MOD  shift 159
+	AND  shift 160
+	OR  shift 161
+	EQ  shift 162
+	NEQ  shift 163
+	LT  shift 164
+	LTE  shift 165
+	GT  shift 166
+	GTE  shift 167
+	';'  reduce 28
 
 
 state 136
-	expr : NUM .  (124)
+	assignStmt : MUL ID . EQUAL expr  (31)
 
-	.  reduce 124
+	EQUAL  shift 168
+	.  error
 
 
 state 137
-	expr : STRING .  (125)
+	ifStmt : IF expr . THEN Slist ELSE Slist ENDIF  (34)
+	ifStmt : IF expr . THEN Slist ENDIF  (35)
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
 
-	.  reduce 125
+	PLUS  shift 155
+	MINUS  shift 156
+	MUL  shift 157
+	DIV  shift 158
+	MOD  shift 159
+	THEN  shift 169
+	AND  shift 160
+	OR  shift 161
+	EQ  shift 162
+	NEQ  shift 163
+	LT  shift 164
+	LTE  shift 165
+	GT  shift 166
+	GTE  shift 167
+	.  error
 
 
 state 138
-	expr : MUL . ID  (122)
+	whileStmt : WHILE expr . DO Slist ENDWHILE  (36)
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
 
-	ID  shift 164
+	PLUS  shift 155
+	MINUS  shift 156
+	MUL  shift 157
+	DIV  shift 158
+	MOD  shift 159
+	DO  shift 170
+	AND  shift 160
+	OR  shift 161
+	EQ  shift 162
+	NEQ  shift 163
+	LT  shift 164
+	LTE  shift 165
+	GT  shift 166
+	GTE  shift 167
 	.  error
 
 
 state 139
-	expr : AMPERSAND . ID  (121)
-
-	ID  shift 165
-	.  error
-
-
-state 140
-	expr : NOT . expr  (116)
-
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
-	.  error
-
-	expr  goto 166
-
-
-state 141
-	expr : '(' . expr ')'  (117)
-
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
-	.  error
-
-	expr  goto 167
-
-
-state 142
-	inputStmt : READ expr .  (27)
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
-
-	PLUS  shift 168
-	MINUS  shift 169
-	MUL  shift 170
-	DIV  shift 171
-	MOD  shift 172
-	AND  shift 173
-	OR  shift 174
-	EQ  shift 175
-	NEQ  shift 176
-	LT  shift 177
-	LTE  shift 178
-	GT  shift 179
-	GTE  shift 180
-	';'  reduce 27
-
-
-state 143
-	outputStmt : WRITE expr .  (28)
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
-
-	PLUS  shift 168
-	MINUS  shift 169
-	MUL  shift 170
-	DIV  shift 171
-	MOD  shift 172
-	AND  shift 173
-	OR  shift 174
-	EQ  shift 175
-	NEQ  shift 176
-	LT  shift 177
-	LTE  shift 178
-	GT  shift 179
-	GTE  shift 180
-	';'  reduce 28
-
-
-state 144
-	assignStmt : MUL ID . EQUAL expr  (31)
-
-	EQUAL  shift 181
-	.  error
-
-
-state 145
-	ifStmt : IF expr . THEN Slist ELSE Slist ENDIF  (34)
-	ifStmt : IF expr . THEN Slist ENDIF  (35)
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
-
-	PLUS  shift 168
-	MINUS  shift 169
-	MUL  shift 170
-	DIV  shift 171
-	MOD  shift 172
-	THEN  shift 182
-	AND  shift 173
-	OR  shift 174
-	EQ  shift 175
-	NEQ  shift 176
-	LT  shift 177
-	LTE  shift 178
-	GT  shift 179
-	GTE  shift 180
-	.  error
-
-
-state 146
-	whileStmt : WHILE expr . DO Slist ENDWHILE  (36)
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
-
-	PLUS  shift 168
-	MINUS  shift 169
-	MUL  shift 170
-	DIV  shift 171
-	MOD  shift 172
-	DO  shift 183
-	AND  shift 173
-	OR  shift 174
-	EQ  shift 175
-	NEQ  shift 176
-	LT  shift 177
-	LTE  shift 178
-	GT  shift 179
-	GTE  shift 180
-	.  error
-
-
-state 147
 	Slist : Slist . Stmt ';'  (16)
 	doWhileStmt : DO Slist . WHILE expr ENDWHILE  (37)
 
-	ID  shift 100
-	READ  shift 101
-	WRITE  shift 102
-	MUL  shift 103
-	BREAKPOINT  shift 104
-	IF  shift 105
-	WHILE  shift 184
-	DO  shift 107
-	BREAK  shift 108
-	CONTINUE  shift 109
+	ID  shift 97
+	READ  shift 98
+	WRITE  shift 99
+	MUL  shift 100
+	BREAKPOINT  shift 101
+	IF  shift 102
+	WHILE  shift 171
+	DO  shift 104
+	BREAK  shift 105
+	CONTINUE  shift 106
 	.  error
 
-	Stmt  goto 149
-	inputStmt  goto 112
-	outputStmt  goto 113
-	assignStmt  goto 114
-	ifStmt  goto 115
-	whileStmt  goto 116
-	doWhileStmt  goto 117
-	breakStmt  goto 118
-	continueStmt  goto 119
-	breakPointStmt  goto 120
+	Stmt  goto 141
+	inputStmt  goto 109
+	outputStmt  goto 110
+	assignStmt  goto 111
+	ifStmt  goto 112
+	whileStmt  goto 113
+	doWhileStmt  goto 114
+	breakStmt  goto 115
+	continueStmt  goto 116
+	breakPointStmt  goto 117
 
 
-state 148
+state 140
 	retStmt : RETURN . retVal ';'  (33)
 
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
 	.  error
 
-	expr  goto 185
-	retVal  goto 186
+	expr  goto 172
+	retVal  goto 173
 
 
-state 149
+state 141
 	Slist : Slist Stmt . ';'  (16)
 
-	';'  shift 187
+	';'  shift 174
 	.  error
 
 
-state 150
+state 142
 	FBody : BEGIN_ Slist retStmt . END ';'  (79)
 
-	END  shift 188
+	END  shift 175
 	.  error
 
 
-state 151
+state 143
 	Slist : Stmt ';' .  (17)
 
 	.  reduce 17
 
 
-state 152
-	MBody : BEGIN_ . Slist retStmt END ';'  (102)
+state 144
+	MBody : BEGIN_ . Slist retStmt END ';'  (94)
 
-	ID  shift 100
-	READ  shift 101
-	WRITE  shift 102
-	MUL  shift 103
-	BREAKPOINT  shift 104
-	IF  shift 105
-	WHILE  shift 106
-	DO  shift 107
-	BREAK  shift 108
-	CONTINUE  shift 109
+	ID  shift 97
+	READ  shift 98
+	WRITE  shift 99
+	MUL  shift 100
+	BREAKPOINT  shift 101
+	IF  shift 102
+	WHILE  shift 103
+	DO  shift 104
+	BREAK  shift 105
+	CONTINUE  shift 106
 	.  error
 
-	Slist  goto 189
-	Stmt  goto 111
-	inputStmt  goto 112
-	outputStmt  goto 113
-	assignStmt  goto 114
-	ifStmt  goto 115
-	whileStmt  goto 116
-	doWhileStmt  goto 117
-	breakStmt  goto 118
-	continueStmt  goto 119
-	breakPointStmt  goto 120
+	Slist  goto 176
+	Stmt  goto 108
+	inputStmt  goto 109
+	outputStmt  goto 110
+	assignStmt  goto 111
+	ifStmt  goto 112
+	whileStmt  goto 113
+	doWhileStmt  goto 114
+	breakStmt  goto 115
+	continueStmt  goto 116
+	breakPointStmt  goto 117
 
 
-state 153
-	MainBlock : MainFunc '(' ')' '{' LDeclBlock MBody . '}'  (100)
+state 145
+	MainBlock : MainFunc '(' ')' '{' LDeclBlock MBody . '}'  (92)
 
-	'}'  shift 190
+	'}'  shift 177
 	.  error
 
 
-state 154
-	TupleFieldList : TupleFieldList ',' . TupleField  (86)
-
-	INT  shift 126
-	STR  shift 127
-	.  error
-
-	TupleField  goto 191
-	TupleFieldType  goto 130
-
-
-state 155
-	LDecl : LType '(' TupleFieldList ')' . LIDList ';'  (85)
-
-	ID  shift 95
-	MUL  shift 96
-	.  error
-
-	LIDList  goto 192
-	LID  goto 99
-
-
-state 156
-	TupleFieldID : ID .  (91)
-
-	.  reduce 91
-
-
-state 157
-	TupleField : TupleFieldType TupleFieldID .  (88)
+state 146
+	LIDList : LIDList ',' LID .  (88)
 
 	.  reduce 88
 
 
-state 158
-	LIDList : LIDList ',' LID .  (95)
-
-	.  reduce 95
-
-
-state 159
+state 147
 	assignStmt : ID EQUAL expr .  (29)
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
 
-	PLUS  shift 168
-	MINUS  shift 169
-	MUL  shift 170
-	DIV  shift 171
-	MOD  shift 172
-	AND  shift 173
-	OR  shift 174
-	EQ  shift 175
-	NEQ  shift 176
-	LT  shift 177
-	LTE  shift 178
-	GT  shift 179
-	GTE  shift 180
+	PLUS  shift 155
+	MINUS  shift 156
+	MUL  shift 157
+	DIV  shift 158
+	MOD  shift 159
+	AND  shift 160
+	OR  shift 161
+	EQ  shift 162
+	NEQ  shift 163
+	LT  shift 164
+	LTE  shift 165
+	GT  shift 166
+	GTE  shift 167
 	';'  reduce 29
 
 
-state 160
+state 148
 	assignStmt : ID '[' expr . ']' EQUAL expr  (30)
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
 
-	PLUS  shift 168
-	MINUS  shift 169
-	MUL  shift 170
-	DIV  shift 171
-	MOD  shift 172
-	AND  shift 173
-	OR  shift 174
-	EQ  shift 175
-	NEQ  shift 176
-	LT  shift 177
-	LTE  shift 178
-	GT  shift 179
-	GTE  shift 180
-	']'  shift 193
+	PLUS  shift 155
+	MINUS  shift 156
+	MUL  shift 157
+	DIV  shift 158
+	MOD  shift 159
+	AND  shift 160
+	OR  shift 161
+	EQ  shift 162
+	NEQ  shift 163
+	LT  shift 164
+	LTE  shift 165
+	GT  shift 166
+	GTE  shift 167
+	']'  shift 178
 	.  error
 
 
-state 161
-	expr : ID '[' . expr ']'  (120)
+state 149
+	expr : ID '[' . expr ']'  (111)
 
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
+	.  error
+
+	expr  goto 179
+
+
+state 150
+	expr : ID '(' . ArgList ')'  (110)
+	ArgList : .  (68)
+
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
+	','  reduce 68
+	')'  reduce 68
+
+	expr  goto 180
+	Arg  goto 181
+	ArgList  goto 182
+
+
+state 151
+	expr : MUL ID .  (113)
+
+	.  reduce 113
+
+
+state 152
+	expr : AMPERSAND ID .  (112)
+
+	.  reduce 112
+
+
+state 153
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
+	expr : NOT expr .  (108)
+
+	.  reduce 108
+
+
+state 154
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
+	expr : '(' expr . ')'  (109)
+
+	PLUS  shift 155
+	MINUS  shift 156
+	MUL  shift 157
+	DIV  shift 158
+	MOD  shift 159
+	AND  shift 160
+	OR  shift 161
+	EQ  shift 162
+	NEQ  shift 163
+	LT  shift 164
+	LTE  shift 165
+	GT  shift 166
+	GTE  shift 167
+	')'  shift 183
+	.  error
+
+
+state 155
+	expr : expr PLUS . expr  (95)
+
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
+	.  error
+
+	expr  goto 184
+
+
+state 156
+	expr : expr MINUS . expr  (96)
+
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
+	.  error
+
+	expr  goto 185
+
+
+state 157
+	expr : expr MUL . expr  (97)
+
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
+	.  error
+
+	expr  goto 186
+
+
+state 158
+	expr : expr DIV . expr  (98)
+
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
+	.  error
+
+	expr  goto 187
+
+
+state 159
+	expr : expr MOD . expr  (99)
+
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
+	.  error
+
+	expr  goto 188
+
+
+state 160
+	expr : expr AND . expr  (106)
+
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
+	.  error
+
+	expr  goto 189
+
+
+state 161
+	expr : expr OR . expr  (107)
+
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
+	.  error
+
+	expr  goto 190
+
+
+state 162
+	expr : expr EQ . expr  (100)
+
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
+	.  error
+
+	expr  goto 191
+
+
+state 163
+	expr : expr NEQ . expr  (101)
+
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
+	.  error
+
+	expr  goto 192
+
+
+state 164
+	expr : expr LT . expr  (102)
+
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
+	.  error
+
+	expr  goto 193
+
+
+state 165
+	expr : expr LTE . expr  (103)
+
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
 	.  error
 
 	expr  goto 194
 
 
-state 162
-	expr : ID '(' . ArgList ')'  (119)
-	ArgList : .  (68)
+state 166
+	expr : expr GT . expr  (104)
 
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
-	','  reduce 68
-	')'  reduce 68
-
-	expr  goto 195
-	Arg  goto 196
-	ArgList  goto 197
-
-
-state 163
-	expr : ID '.' . ID  (118)
-
-	ID  shift 198
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
 	.  error
 
-
-state 164
-	expr : MUL ID .  (122)
-
-	.  reduce 122
-
-
-state 165
-	expr : AMPERSAND ID .  (121)
-
-	.  reduce 121
-
-
-state 166
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
-	expr : NOT expr .  (116)
-
-	.  reduce 116
+	expr  goto 195
 
 
 state 167
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
-	expr : '(' expr . ')'  (117)
+	expr : expr GTE . expr  (105)
 
-	PLUS  shift 168
-	MINUS  shift 169
-	MUL  shift 170
-	DIV  shift 171
-	MOD  shift 172
-	AND  shift 173
-	OR  shift 174
-	EQ  shift 175
-	NEQ  shift 176
-	LT  shift 177
-	LTE  shift 178
-	GT  shift 179
-	GTE  shift 180
-	')'  shift 199
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
 	.  error
+
+	expr  goto 196
 
 
 state 168
-	expr : expr PLUS . expr  (103)
+	assignStmt : MUL ID EQUAL . expr  (31)
 
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
+	.  error
+
+	expr  goto 197
+
+
+state 169
+	ifStmt : IF expr THEN . Slist ELSE Slist ENDIF  (34)
+	ifStmt : IF expr THEN . Slist ENDIF  (35)
+
+	ID  shift 97
+	READ  shift 98
+	WRITE  shift 99
+	MUL  shift 100
+	BREAKPOINT  shift 101
+	IF  shift 102
+	WHILE  shift 103
+	DO  shift 104
+	BREAK  shift 105
+	CONTINUE  shift 106
+	.  error
+
+	Slist  goto 198
+	Stmt  goto 108
+	inputStmt  goto 109
+	outputStmt  goto 110
+	assignStmt  goto 111
+	ifStmt  goto 112
+	whileStmt  goto 113
+	doWhileStmt  goto 114
+	breakStmt  goto 115
+	continueStmt  goto 116
+	breakPointStmt  goto 117
+
+
+state 170
+	whileStmt : WHILE expr DO . Slist ENDWHILE  (36)
+
+	ID  shift 97
+	READ  shift 98
+	WRITE  shift 99
+	MUL  shift 100
+	BREAKPOINT  shift 101
+	IF  shift 102
+	WHILE  shift 103
+	DO  shift 104
+	BREAK  shift 105
+	CONTINUE  shift 106
+	.  error
+
+	Slist  goto 199
+	Stmt  goto 108
+	inputStmt  goto 109
+	outputStmt  goto 110
+	assignStmt  goto 111
+	ifStmt  goto 112
+	whileStmt  goto 113
+	doWhileStmt  goto 114
+	breakStmt  goto 115
+	continueStmt  goto 116
+	breakPointStmt  goto 117
+
+
+state 171
+	whileStmt : WHILE . expr DO Slist ENDWHILE  (36)
+	doWhileStmt : DO Slist WHILE . expr ENDWHILE  (37)
+
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
 	.  error
 
 	expr  goto 200
 
 
-state 169
-	expr : expr MINUS . expr  (104)
-
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
-	.  error
-
-	expr  goto 201
-
-
-state 170
-	expr : expr MUL . expr  (105)
-
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
-	.  error
-
-	expr  goto 202
-
-
-state 171
-	expr : expr DIV . expr  (106)
-
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
-	.  error
-
-	expr  goto 203
-
-
 state 172
-	expr : expr MOD . expr  (107)
-
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
-	.  error
-
-	expr  goto 204
-
-
-state 173
-	expr : expr AND . expr  (114)
-
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
-	.  error
-
-	expr  goto 205
-
-
-state 174
-	expr : expr OR . expr  (115)
-
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
-	.  error
-
-	expr  goto 206
-
-
-state 175
-	expr : expr EQ . expr  (108)
-
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
-	.  error
-
-	expr  goto 207
-
-
-state 176
-	expr : expr NEQ . expr  (109)
-
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
-	.  error
-
-	expr  goto 208
-
-
-state 177
-	expr : expr LT . expr  (110)
-
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
-	.  error
-
-	expr  goto 209
-
-
-state 178
-	expr : expr LTE . expr  (111)
-
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
-	.  error
-
-	expr  goto 210
-
-
-state 179
-	expr : expr GT . expr  (112)
-
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
-	.  error
-
-	expr  goto 211
-
-
-state 180
-	expr : expr GTE . expr  (113)
-
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
-	.  error
-
-	expr  goto 212
-
-
-state 181
-	assignStmt : MUL ID EQUAL . expr  (31)
-
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
-	.  error
-
-	expr  goto 213
-
-
-state 182
-	ifStmt : IF expr THEN . Slist ELSE Slist ENDIF  (34)
-	ifStmt : IF expr THEN . Slist ENDIF  (35)
-
-	ID  shift 100
-	READ  shift 101
-	WRITE  shift 102
-	MUL  shift 103
-	BREAKPOINT  shift 104
-	IF  shift 105
-	WHILE  shift 106
-	DO  shift 107
-	BREAK  shift 108
-	CONTINUE  shift 109
-	.  error
-
-	Slist  goto 214
-	Stmt  goto 111
-	inputStmt  goto 112
-	outputStmt  goto 113
-	assignStmt  goto 114
-	ifStmt  goto 115
-	whileStmt  goto 116
-	doWhileStmt  goto 117
-	breakStmt  goto 118
-	continueStmt  goto 119
-	breakPointStmt  goto 120
-
-
-state 183
-	whileStmt : WHILE expr DO . Slist ENDWHILE  (36)
-
-	ID  shift 100
-	READ  shift 101
-	WRITE  shift 102
-	MUL  shift 103
-	BREAKPOINT  shift 104
-	IF  shift 105
-	WHILE  shift 106
-	DO  shift 107
-	BREAK  shift 108
-	CONTINUE  shift 109
-	.  error
-
-	Slist  goto 215
-	Stmt  goto 111
-	inputStmt  goto 112
-	outputStmt  goto 113
-	assignStmt  goto 114
-	ifStmt  goto 115
-	whileStmt  goto 116
-	doWhileStmt  goto 117
-	breakStmt  goto 118
-	continueStmt  goto 119
-	breakPointStmt  goto 120
-
-
-state 184
-	whileStmt : WHILE . expr DO Slist ENDWHILE  (36)
-	doWhileStmt : DO Slist WHILE . expr ENDWHILE  (37)
-
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
-	.  error
-
-	expr  goto 216
-
-
-state 185
 	retVal : expr .  (32)
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
 
-	PLUS  shift 168
-	MINUS  shift 169
-	MUL  shift 170
-	DIV  shift 171
-	MOD  shift 172
-	AND  shift 173
-	OR  shift 174
-	EQ  shift 175
-	NEQ  shift 176
-	LT  shift 177
-	LTE  shift 178
-	GT  shift 179
-	GTE  shift 180
+	PLUS  shift 155
+	MINUS  shift 156
+	MUL  shift 157
+	DIV  shift 158
+	MOD  shift 159
+	AND  shift 160
+	OR  shift 161
+	EQ  shift 162
+	NEQ  shift 163
+	LT  shift 164
+	LTE  shift 165
+	GT  shift 166
+	GTE  shift 167
 	';'  reduce 32
 
 
-state 186
+state 173
 	retStmt : RETURN retVal . ';'  (33)
 
-	';'  shift 217
+	';'  shift 201
 	.  error
 
 
-state 187
+state 174
 	Slist : Slist Stmt ';' .  (16)
 
 	.  reduce 16
 
 
-state 188
+state 175
 	FBody : BEGIN_ Slist retStmt END . ';'  (79)
 
-	';'  shift 218
+	';'  shift 202
 	.  error
 
 
-state 189
+state 176
 	Slist : Slist . Stmt ';'  (16)
-	MBody : BEGIN_ Slist . retStmt END ';'  (102)
+	MBody : BEGIN_ Slist . retStmt END ';'  (94)
 
-	ID  shift 100
-	READ  shift 101
-	WRITE  shift 102
-	MUL  shift 103
-	BREAKPOINT  shift 104
-	IF  shift 105
-	WHILE  shift 106
-	DO  shift 107
-	BREAK  shift 108
-	CONTINUE  shift 109
-	RETURN  shift 148
+	ID  shift 97
+	READ  shift 98
+	WRITE  shift 99
+	MUL  shift 100
+	BREAKPOINT  shift 101
+	IF  shift 102
+	WHILE  shift 103
+	DO  shift 104
+	BREAK  shift 105
+	CONTINUE  shift 106
+	RETURN  shift 140
 	.  error
 
-	Stmt  goto 149
-	inputStmt  goto 112
-	outputStmt  goto 113
-	assignStmt  goto 114
-	ifStmt  goto 115
-	whileStmt  goto 116
-	doWhileStmt  goto 117
-	breakStmt  goto 118
-	continueStmt  goto 119
-	breakPointStmt  goto 120
-	retStmt  goto 219
+	Stmt  goto 141
+	inputStmt  goto 109
+	outputStmt  goto 110
+	assignStmt  goto 111
+	ifStmt  goto 112
+	whileStmt  goto 113
+	doWhileStmt  goto 114
+	breakStmt  goto 115
+	continueStmt  goto 116
+	breakPointStmt  goto 117
+	retStmt  goto 203
 
 
-state 190
-	MainBlock : MainFunc '(' ')' '{' LDeclBlock MBody '}' .  (100)
+state 177
+	MainBlock : MainFunc '(' ')' '{' LDeclBlock MBody '}' .  (92)
 
-	.  reduce 100
-
-
-state 191
-	TupleFieldList : TupleFieldList ',' TupleField .  (86)
-
-	.  reduce 86
+	.  reduce 92
 
 
-state 192
-	LDecl : LType '(' TupleFieldList ')' LIDList . ';'  (85)
-	LIDList : LIDList . ',' LID  (95)
-
-	';'  shift 220
-	','  shift 132
-	.  error
-
-
-state 193
+state 178
 	assignStmt : ID '[' expr ']' . EQUAL expr  (30)
 
-	EQUAL  shift 221
+	EQUAL  shift 204
 	.  error
 
 
-state 194
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
-	expr : ID '[' expr . ']'  (120)
+state 179
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
+	expr : ID '[' expr . ']'  (111)
 
-	PLUS  shift 168
-	MINUS  shift 169
-	MUL  shift 170
-	DIV  shift 171
-	MOD  shift 172
-	AND  shift 173
-	OR  shift 174
-	EQ  shift 175
-	NEQ  shift 176
-	LT  shift 177
-	LTE  shift 178
-	GT  shift 179
-	GTE  shift 180
-	']'  shift 222
+	PLUS  shift 155
+	MINUS  shift 156
+	MUL  shift 157
+	DIV  shift 158
+	MOD  shift 159
+	AND  shift 160
+	OR  shift 161
+	EQ  shift 162
+	NEQ  shift 163
+	LT  shift 164
+	LTE  shift 165
+	GT  shift 166
+	GTE  shift 167
+	']'  shift 205
 	.  error
 
 
-state 195
+state 180
 	Arg : expr .  (69)
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
 
-	PLUS  shift 168
-	MINUS  shift 169
-	MUL  shift 170
-	DIV  shift 171
-	MOD  shift 172
-	AND  shift 173
-	OR  shift 174
-	EQ  shift 175
-	NEQ  shift 176
-	LT  shift 177
-	LTE  shift 178
-	GT  shift 179
-	GTE  shift 180
+	PLUS  shift 155
+	MINUS  shift 156
+	MUL  shift 157
+	DIV  shift 158
+	MOD  shift 159
+	AND  shift 160
+	OR  shift 161
+	EQ  shift 162
+	NEQ  shift 163
+	LT  shift 164
+	LTE  shift 165
+	GT  shift 166
+	GTE  shift 167
 	','  reduce 69
 	')'  reduce 69
 
 
-state 196
+state 181
 	ArgList : Arg .  (67)
 
 	.  reduce 67
 
 
-state 197
+state 182
 	ArgList : ArgList . ',' Arg  (66)
-	expr : ID '(' ArgList . ')'  (119)
+	expr : ID '(' ArgList . ')'  (110)
 
-	','  shift 223
-	')'  shift 224
+	','  shift 206
+	')'  shift 207
 	.  error
 
 
-state 198
-	expr : ID '.' ID .  (118)
+state 183
+	expr : '(' expr ')' .  (109)
 
-	.  reduce 118
-
-
-state 199
-	expr : '(' expr ')' .  (117)
-
-	.  reduce 117
+	.  reduce 109
 
 
-state 200
-	expr : expr . PLUS expr  (103)
-	expr : expr PLUS expr .  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
+state 184
+	expr : expr . PLUS expr  (95)
+	expr : expr PLUS expr .  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
 
-	MUL  shift 170
-	DIV  shift 171
-	MOD  shift 172
-	PLUS  reduce 103
-	MINUS  reduce 103
+	MUL  shift 157
+	DIV  shift 158
+	MOD  shift 159
+	PLUS  reduce 95
+	MINUS  reduce 95
+	THEN  reduce 95
+	DO  reduce 95
+	ENDWHILE  reduce 95
+	AND  reduce 95
+	OR  reduce 95
+	EQ  reduce 95
+	NEQ  reduce 95
+	LT  reduce 95
+	LTE  reduce 95
+	GT  reduce 95
+	GTE  reduce 95
+	';'  reduce 95
+	']'  reduce 95
+	','  reduce 95
+	')'  reduce 95
+
+
+state 185
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr MINUS expr .  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
+
+	MUL  shift 157
+	DIV  shift 158
+	MOD  shift 159
+	PLUS  reduce 96
+	MINUS  reduce 96
+	THEN  reduce 96
+	DO  reduce 96
+	ENDWHILE  reduce 96
+	AND  reduce 96
+	OR  reduce 96
+	EQ  reduce 96
+	NEQ  reduce 96
+	LT  reduce 96
+	LTE  reduce 96
+	GT  reduce 96
+	GTE  reduce 96
+	';'  reduce 96
+	']'  reduce 96
+	','  reduce 96
+	')'  reduce 96
+
+
+state 186
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr MUL expr .  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
+
+	.  reduce 97
+
+
+state 187
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr DIV expr .  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
+
+	.  reduce 98
+
+
+state 188
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr MOD expr .  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
+
+	.  reduce 99
+
+
+state 189
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr AND expr .  (106)
+	expr : expr . OR expr  (107)
+
+	PLUS  shift 155
+	MINUS  shift 156
+	MUL  shift 157
+	DIV  shift 158
+	MOD  shift 159
+	EQ  shift 162
+	NEQ  shift 163
+	LT  shift 164
+	LTE  shift 165
+	GT  shift 166
+	GTE  shift 167
+	THEN  reduce 106
+	DO  reduce 106
+	ENDWHILE  reduce 106
+	AND  reduce 106
+	OR  reduce 106
+	';'  reduce 106
+	']'  reduce 106
+	','  reduce 106
+	')'  reduce 106
+
+
+state 190
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
+	expr : expr OR expr .  (107)
+
+	PLUS  shift 155
+	MINUS  shift 156
+	MUL  shift 157
+	DIV  shift 158
+	MOD  shift 159
+	AND  shift 160
+	EQ  shift 162
+	NEQ  shift 163
+	LT  shift 164
+	LTE  shift 165
+	GT  shift 166
+	GTE  shift 167
+	THEN  reduce 107
+	DO  reduce 107
+	ENDWHILE  reduce 107
+	OR  reduce 107
+	';'  reduce 107
+	']'  reduce 107
+	','  reduce 107
+	')'  reduce 107
+
+
+state 191
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr EQ expr .  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
+
+	PLUS  shift 155
+	MINUS  shift 156
+	MUL  shift 157
+	DIV  shift 158
+	MOD  shift 159
+	LT  shift 164
+	LTE  shift 165
+	GT  shift 166
+	GTE  shift 167
+	THEN  reduce 100
+	DO  reduce 100
+	ENDWHILE  reduce 100
+	AND  reduce 100
+	OR  reduce 100
+	EQ  reduce 100
+	NEQ  reduce 100
+	';'  reduce 100
+	']'  reduce 100
+	','  reduce 100
+	')'  reduce 100
+
+
+state 192
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr NEQ expr .  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
+
+	PLUS  shift 155
+	MINUS  shift 156
+	MUL  shift 157
+	DIV  shift 158
+	MOD  shift 159
+	LT  shift 164
+	LTE  shift 165
+	GT  shift 166
+	GTE  shift 167
+	THEN  reduce 101
+	DO  reduce 101
+	ENDWHILE  reduce 101
+	AND  reduce 101
+	OR  reduce 101
+	EQ  reduce 101
+	NEQ  reduce 101
+	';'  reduce 101
+	']'  reduce 101
+	','  reduce 101
+	')'  reduce 101
+
+
+state 193
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr LT expr .  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
+
+	PLUS  shift 155
+	MINUS  shift 156
+	MUL  shift 157
+	DIV  shift 158
+	MOD  shift 159
+	THEN  reduce 102
+	DO  reduce 102
+	ENDWHILE  reduce 102
+	AND  reduce 102
+	OR  reduce 102
+	EQ  reduce 102
+	NEQ  reduce 102
+	LT  reduce 102
+	LTE  reduce 102
+	GT  reduce 102
+	GTE  reduce 102
+	';'  reduce 102
+	']'  reduce 102
+	','  reduce 102
+	')'  reduce 102
+
+
+state 194
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr LTE expr .  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
+
+	PLUS  shift 155
+	MINUS  shift 156
+	MUL  shift 157
+	DIV  shift 158
+	MOD  shift 159
 	THEN  reduce 103
 	DO  reduce 103
 	ENDWHILE  reduce 103
 	AND  reduce 103
 	OR  reduce 103
-	';'  reduce 103
-	','  reduce 103
 	EQ  reduce 103
 	NEQ  reduce 103
 	LT  reduce 103
 	LTE  reduce 103
 	GT  reduce 103
 	GTE  reduce 103
+	';'  reduce 103
 	']'  reduce 103
+	','  reduce 103
 	')'  reduce 103
 
 
-state 201
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr MINUS expr .  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
+state 195
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr GT expr .  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
 
-	MUL  shift 170
-	DIV  shift 171
-	MOD  shift 172
-	PLUS  reduce 104
-	MINUS  reduce 104
+	PLUS  shift 155
+	MINUS  shift 156
+	MUL  shift 157
+	DIV  shift 158
+	MOD  shift 159
 	THEN  reduce 104
 	DO  reduce 104
 	ENDWHILE  reduce 104
 	AND  reduce 104
 	OR  reduce 104
-	';'  reduce 104
-	','  reduce 104
 	EQ  reduce 104
 	NEQ  reduce 104
 	LT  reduce 104
 	LTE  reduce 104
 	GT  reduce 104
 	GTE  reduce 104
+	';'  reduce 104
 	']'  reduce 104
+	','  reduce 104
 	')'  reduce 104
 
 
-state 202
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr MUL expr .  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
+state 196
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr GTE expr .  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
 
-	.  reduce 105
-
-
-state 203
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr DIV expr .  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
-
-	.  reduce 106
-
-
-state 204
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr MOD expr .  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
-
-	.  reduce 107
+	PLUS  shift 155
+	MINUS  shift 156
+	MUL  shift 157
+	DIV  shift 158
+	MOD  shift 159
+	THEN  reduce 105
+	DO  reduce 105
+	ENDWHILE  reduce 105
+	AND  reduce 105
+	OR  reduce 105
+	EQ  reduce 105
+	NEQ  reduce 105
+	LT  reduce 105
+	LTE  reduce 105
+	GT  reduce 105
+	GTE  reduce 105
+	';'  reduce 105
+	']'  reduce 105
+	','  reduce 105
+	')'  reduce 105
 
 
-state 205
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr AND expr .  (114)
-	expr : expr . OR expr  (115)
-
-	PLUS  shift 168
-	MINUS  shift 169
-	MUL  shift 170
-	DIV  shift 171
-	MOD  shift 172
-	EQ  shift 175
-	NEQ  shift 176
-	LT  shift 177
-	LTE  shift 178
-	GT  shift 179
-	GTE  shift 180
-	THEN  reduce 114
-	DO  reduce 114
-	ENDWHILE  reduce 114
-	AND  reduce 114
-	OR  reduce 114
-	';'  reduce 114
-	','  reduce 114
-	']'  reduce 114
-	')'  reduce 114
-
-
-state 206
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
-	expr : expr OR expr .  (115)
-
-	PLUS  shift 168
-	MINUS  shift 169
-	MUL  shift 170
-	DIV  shift 171
-	MOD  shift 172
-	AND  shift 173
-	EQ  shift 175
-	NEQ  shift 176
-	LT  shift 177
-	LTE  shift 178
-	GT  shift 179
-	GTE  shift 180
-	THEN  reduce 115
-	DO  reduce 115
-	ENDWHILE  reduce 115
-	OR  reduce 115
-	';'  reduce 115
-	','  reduce 115
-	']'  reduce 115
-	')'  reduce 115
-
-
-state 207
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr EQ expr .  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
-
-	PLUS  shift 168
-	MINUS  shift 169
-	MUL  shift 170
-	DIV  shift 171
-	MOD  shift 172
-	LT  shift 177
-	LTE  shift 178
-	GT  shift 179
-	GTE  shift 180
-	THEN  reduce 108
-	DO  reduce 108
-	ENDWHILE  reduce 108
-	AND  reduce 108
-	OR  reduce 108
-	';'  reduce 108
-	','  reduce 108
-	EQ  reduce 108
-	NEQ  reduce 108
-	']'  reduce 108
-	')'  reduce 108
-
-
-state 208
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr NEQ expr .  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
-
-	PLUS  shift 168
-	MINUS  shift 169
-	MUL  shift 170
-	DIV  shift 171
-	MOD  shift 172
-	LT  shift 177
-	LTE  shift 178
-	GT  shift 179
-	GTE  shift 180
-	THEN  reduce 109
-	DO  reduce 109
-	ENDWHILE  reduce 109
-	AND  reduce 109
-	OR  reduce 109
-	';'  reduce 109
-	','  reduce 109
-	EQ  reduce 109
-	NEQ  reduce 109
-	']'  reduce 109
-	')'  reduce 109
-
-
-state 209
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr LT expr .  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
-
-	PLUS  shift 168
-	MINUS  shift 169
-	MUL  shift 170
-	DIV  shift 171
-	MOD  shift 172
-	THEN  reduce 110
-	DO  reduce 110
-	ENDWHILE  reduce 110
-	AND  reduce 110
-	OR  reduce 110
-	';'  reduce 110
-	','  reduce 110
-	EQ  reduce 110
-	NEQ  reduce 110
-	LT  reduce 110
-	LTE  reduce 110
-	GT  reduce 110
-	GTE  reduce 110
-	']'  reduce 110
-	')'  reduce 110
-
-
-state 210
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr LTE expr .  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
-
-	PLUS  shift 168
-	MINUS  shift 169
-	MUL  shift 170
-	DIV  shift 171
-	MOD  shift 172
-	THEN  reduce 111
-	DO  reduce 111
-	ENDWHILE  reduce 111
-	AND  reduce 111
-	OR  reduce 111
-	';'  reduce 111
-	','  reduce 111
-	EQ  reduce 111
-	NEQ  reduce 111
-	LT  reduce 111
-	LTE  reduce 111
-	GT  reduce 111
-	GTE  reduce 111
-	']'  reduce 111
-	')'  reduce 111
-
-
-state 211
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr GT expr .  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
-
-	PLUS  shift 168
-	MINUS  shift 169
-	MUL  shift 170
-	DIV  shift 171
-	MOD  shift 172
-	THEN  reduce 112
-	DO  reduce 112
-	ENDWHILE  reduce 112
-	AND  reduce 112
-	OR  reduce 112
-	';'  reduce 112
-	','  reduce 112
-	EQ  reduce 112
-	NEQ  reduce 112
-	LT  reduce 112
-	LTE  reduce 112
-	GT  reduce 112
-	GTE  reduce 112
-	']'  reduce 112
-	')'  reduce 112
-
-
-state 212
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr GTE expr .  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
-
-	PLUS  shift 168
-	MINUS  shift 169
-	MUL  shift 170
-	DIV  shift 171
-	MOD  shift 172
-	THEN  reduce 113
-	DO  reduce 113
-	ENDWHILE  reduce 113
-	AND  reduce 113
-	OR  reduce 113
-	';'  reduce 113
-	','  reduce 113
-	EQ  reduce 113
-	NEQ  reduce 113
-	LT  reduce 113
-	LTE  reduce 113
-	GT  reduce 113
-	GTE  reduce 113
-	']'  reduce 113
-	')'  reduce 113
-
-
-state 213
+state 197
 	assignStmt : MUL ID EQUAL expr .  (31)
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
 
-	PLUS  shift 168
-	MINUS  shift 169
-	MUL  shift 170
-	DIV  shift 171
-	MOD  shift 172
-	AND  shift 173
-	OR  shift 174
-	EQ  shift 175
-	NEQ  shift 176
-	LT  shift 177
-	LTE  shift 178
-	GT  shift 179
-	GTE  shift 180
+	PLUS  shift 155
+	MINUS  shift 156
+	MUL  shift 157
+	DIV  shift 158
+	MOD  shift 159
+	AND  shift 160
+	OR  shift 161
+	EQ  shift 162
+	NEQ  shift 163
+	LT  shift 164
+	LTE  shift 165
+	GT  shift 166
+	GTE  shift 167
 	';'  reduce 31
 
 
-state 214
+state 198
 	Slist : Slist . Stmt ';'  (16)
 	ifStmt : IF expr THEN Slist . ELSE Slist ENDIF  (34)
 	ifStmt : IF expr THEN Slist . ENDIF  (35)
 
-	ID  shift 100
-	READ  shift 101
-	WRITE  shift 102
-	MUL  shift 103
-	BREAKPOINT  shift 104
-	IF  shift 105
-	ELSE  shift 225
-	ENDIF  shift 226
-	WHILE  shift 106
-	DO  shift 107
-	BREAK  shift 108
-	CONTINUE  shift 109
+	ID  shift 97
+	READ  shift 98
+	WRITE  shift 99
+	MUL  shift 100
+	BREAKPOINT  shift 101
+	IF  shift 102
+	ELSE  shift 208
+	ENDIF  shift 209
+	WHILE  shift 103
+	DO  shift 104
+	BREAK  shift 105
+	CONTINUE  shift 106
 	.  error
 
-	Stmt  goto 149
-	inputStmt  goto 112
-	outputStmt  goto 113
-	assignStmt  goto 114
-	ifStmt  goto 115
-	whileStmt  goto 116
-	doWhileStmt  goto 117
-	breakStmt  goto 118
-	continueStmt  goto 119
-	breakPointStmt  goto 120
+	Stmt  goto 141
+	inputStmt  goto 109
+	outputStmt  goto 110
+	assignStmt  goto 111
+	ifStmt  goto 112
+	whileStmt  goto 113
+	doWhileStmt  goto 114
+	breakStmt  goto 115
+	continueStmt  goto 116
+	breakPointStmt  goto 117
 
 
-state 215
+state 199
 	Slist : Slist . Stmt ';'  (16)
 	whileStmt : WHILE expr DO Slist . ENDWHILE  (36)
 
-	ID  shift 100
-	READ  shift 101
-	WRITE  shift 102
-	MUL  shift 103
-	BREAKPOINT  shift 104
-	IF  shift 105
-	WHILE  shift 106
-	DO  shift 107
-	ENDWHILE  shift 227
-	BREAK  shift 108
-	CONTINUE  shift 109
+	ID  shift 97
+	READ  shift 98
+	WRITE  shift 99
+	MUL  shift 100
+	BREAKPOINT  shift 101
+	IF  shift 102
+	WHILE  shift 103
+	DO  shift 104
+	ENDWHILE  shift 210
+	BREAK  shift 105
+	CONTINUE  shift 106
 	.  error
 
-	Stmt  goto 149
-	inputStmt  goto 112
-	outputStmt  goto 113
-	assignStmt  goto 114
-	ifStmt  goto 115
-	whileStmt  goto 116
-	doWhileStmt  goto 117
-	breakStmt  goto 118
-	continueStmt  goto 119
-	breakPointStmt  goto 120
+	Stmt  goto 141
+	inputStmt  goto 109
+	outputStmt  goto 110
+	assignStmt  goto 111
+	ifStmt  goto 112
+	whileStmt  goto 113
+	doWhileStmt  goto 114
+	breakStmt  goto 115
+	continueStmt  goto 116
+	breakPointStmt  goto 117
 
 
-state 216
+state 200
 	whileStmt : WHILE expr . DO Slist ENDWHILE  (36)
 	doWhileStmt : DO Slist WHILE expr . ENDWHILE  (37)
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
 
-	PLUS  shift 168
-	MINUS  shift 169
-	MUL  shift 170
-	DIV  shift 171
-	MOD  shift 172
-	DO  shift 183
-	ENDWHILE  shift 228
-	AND  shift 173
-	OR  shift 174
-	EQ  shift 175
-	NEQ  shift 176
-	LT  shift 177
-	LTE  shift 178
-	GT  shift 179
-	GTE  shift 180
+	PLUS  shift 155
+	MINUS  shift 156
+	MUL  shift 157
+	DIV  shift 158
+	MOD  shift 159
+	DO  shift 170
+	ENDWHILE  shift 211
+	AND  shift 160
+	OR  shift 161
+	EQ  shift 162
+	NEQ  shift 163
+	LT  shift 164
+	LTE  shift 165
+	GT  shift 166
+	GTE  shift 167
 	.  error
 
 
-state 217
+state 201
 	retStmt : RETURN retVal ';' .  (33)
 
 	.  reduce 33
 
 
-state 218
+state 202
 	FBody : BEGIN_ Slist retStmt END ';' .  (79)
 
 	.  reduce 79
 
 
-state 219
-	MBody : BEGIN_ Slist retStmt . END ';'  (102)
+state 203
+	MBody : BEGIN_ Slist retStmt . END ';'  (94)
 
-	END  shift 229
+	END  shift 212
 	.  error
 
 
-state 220
-	LDecl : LType '(' TupleFieldList ')' LIDList ';' .  (85)
-
-	.  reduce 85
-
-
-state 221
+state 204
 	assignStmt : ID '[' expr ']' EQUAL . expr  (30)
 
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
 	.  error
 
-	expr  goto 230
+	expr  goto 213
 
 
-state 222
-	expr : ID '[' expr ']' .  (120)
+state 205
+	expr : ID '[' expr ']' .  (111)
 
-	.  reduce 120
+	.  reduce 111
 
 
-state 223
+state 206
 	ArgList : ArgList ',' . Arg  (66)
 
-	ID  shift 135
-	NUM  shift 136
-	STRING  shift 137
-	MUL  shift 138
-	AMPERSAND  shift 139
-	NOT  shift 140
-	'('  shift 141
+	ID  shift 127
+	NUM  shift 128
+	STRING  shift 129
+	MUL  shift 130
+	AMPERSAND  shift 131
+	NOT  shift 132
+	'('  shift 133
 	.  error
 
-	expr  goto 195
-	Arg  goto 231
+	expr  goto 180
+	Arg  goto 214
 
 
-state 224
-	expr : ID '(' ArgList ')' .  (119)
+state 207
+	expr : ID '(' ArgList ')' .  (110)
 
-	.  reduce 119
+	.  reduce 110
 
 
-state 225
+state 208
 	ifStmt : IF expr THEN Slist ELSE . Slist ENDIF  (34)
 
-	ID  shift 100
-	READ  shift 101
-	WRITE  shift 102
-	MUL  shift 103
-	BREAKPOINT  shift 104
-	IF  shift 105
-	WHILE  shift 106
-	DO  shift 107
-	BREAK  shift 108
-	CONTINUE  shift 109
+	ID  shift 97
+	READ  shift 98
+	WRITE  shift 99
+	MUL  shift 100
+	BREAKPOINT  shift 101
+	IF  shift 102
+	WHILE  shift 103
+	DO  shift 104
+	BREAK  shift 105
+	CONTINUE  shift 106
 	.  error
 
-	Slist  goto 232
-	Stmt  goto 111
-	inputStmt  goto 112
-	outputStmt  goto 113
-	assignStmt  goto 114
-	ifStmt  goto 115
-	whileStmt  goto 116
-	doWhileStmt  goto 117
-	breakStmt  goto 118
-	continueStmt  goto 119
-	breakPointStmt  goto 120
+	Slist  goto 215
+	Stmt  goto 108
+	inputStmt  goto 109
+	outputStmt  goto 110
+	assignStmt  goto 111
+	ifStmt  goto 112
+	whileStmt  goto 113
+	doWhileStmt  goto 114
+	breakStmt  goto 115
+	continueStmt  goto 116
+	breakPointStmt  goto 117
 
 
-state 226
+state 209
 	ifStmt : IF expr THEN Slist ENDIF .  (35)
 
 	.  reduce 35
 
 
-state 227
+state 210
 	whileStmt : WHILE expr DO Slist ENDWHILE .  (36)
 
 	.  reduce 36
 
 
-state 228
+state 211
 	doWhileStmt : DO Slist WHILE expr ENDWHILE .  (37)
 
 	.  reduce 37
 
 
-state 229
-	MBody : BEGIN_ Slist retStmt END . ';'  (102)
+state 212
+	MBody : BEGIN_ Slist retStmt END . ';'  (94)
 
-	';'  shift 233
+	';'  shift 216
 	.  error
 
 
-state 230
+state 213
 	assignStmt : ID '[' expr ']' EQUAL expr .  (30)
-	expr : expr . PLUS expr  (103)
-	expr : expr . MINUS expr  (104)
-	expr : expr . MUL expr  (105)
-	expr : expr . DIV expr  (106)
-	expr : expr . MOD expr  (107)
-	expr : expr . EQ expr  (108)
-	expr : expr . NEQ expr  (109)
-	expr : expr . LT expr  (110)
-	expr : expr . LTE expr  (111)
-	expr : expr . GT expr  (112)
-	expr : expr . GTE expr  (113)
-	expr : expr . AND expr  (114)
-	expr : expr . OR expr  (115)
+	expr : expr . PLUS expr  (95)
+	expr : expr . MINUS expr  (96)
+	expr : expr . MUL expr  (97)
+	expr : expr . DIV expr  (98)
+	expr : expr . MOD expr  (99)
+	expr : expr . EQ expr  (100)
+	expr : expr . NEQ expr  (101)
+	expr : expr . LT expr  (102)
+	expr : expr . LTE expr  (103)
+	expr : expr . GT expr  (104)
+	expr : expr . GTE expr  (105)
+	expr : expr . AND expr  (106)
+	expr : expr . OR expr  (107)
 
-	PLUS  shift 168
-	MINUS  shift 169
-	MUL  shift 170
-	DIV  shift 171
-	MOD  shift 172
-	AND  shift 173
-	OR  shift 174
-	EQ  shift 175
-	NEQ  shift 176
-	LT  shift 177
-	LTE  shift 178
-	GT  shift 179
-	GTE  shift 180
+	PLUS  shift 155
+	MINUS  shift 156
+	MUL  shift 157
+	DIV  shift 158
+	MOD  shift 159
+	AND  shift 160
+	OR  shift 161
+	EQ  shift 162
+	NEQ  shift 163
+	LT  shift 164
+	LTE  shift 165
+	GT  shift 166
+	GTE  shift 167
 	';'  reduce 30
 
 
-state 231
+state 214
 	ArgList : ArgList ',' Arg .  (66)
 
 	.  reduce 66
 
 
-state 232
+state 215
 	Slist : Slist . Stmt ';'  (16)
 	ifStmt : IF expr THEN Slist ELSE Slist . ENDIF  (34)
 
-	ID  shift 100
-	READ  shift 101
-	WRITE  shift 102
-	MUL  shift 103
-	BREAKPOINT  shift 104
-	IF  shift 105
-	ENDIF  shift 234
-	WHILE  shift 106
-	DO  shift 107
-	BREAK  shift 108
-	CONTINUE  shift 109
+	ID  shift 97
+	READ  shift 98
+	WRITE  shift 99
+	MUL  shift 100
+	BREAKPOINT  shift 101
+	IF  shift 102
+	ENDIF  shift 217
+	WHILE  shift 103
+	DO  shift 104
+	BREAK  shift 105
+	CONTINUE  shift 106
 	.  error
 
-	Stmt  goto 149
-	inputStmt  goto 112
-	outputStmt  goto 113
-	assignStmt  goto 114
-	ifStmt  goto 115
-	whileStmt  goto 116
-	doWhileStmt  goto 117
-	breakStmt  goto 118
-	continueStmt  goto 119
-	breakPointStmt  goto 120
+	Stmt  goto 141
+	inputStmt  goto 109
+	outputStmt  goto 110
+	assignStmt  goto 111
+	ifStmt  goto 112
+	whileStmt  goto 113
+	doWhileStmt  goto 114
+	breakStmt  goto 115
+	continueStmt  goto 116
+	breakPointStmt  goto 117
 
 
-state 233
-	MBody : BEGIN_ Slist retStmt END ';' .  (102)
+state 216
+	MBody : BEGIN_ Slist retStmt END ';' .  (94)
 
-	.  reduce 102
+	.  reduce 94
 
 
-state 234
+state 217
 	ifStmt : IF expr THEN Slist ELSE Slist ENDIF .  (34)
 
 	.  reduce 34
 
 
-54 terminals, 55 nonterminals
-126 grammar rules, 235 states
+51 terminals, 50 nonterminals
+117 grammar rules, 218 states

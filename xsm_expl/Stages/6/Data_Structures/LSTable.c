@@ -10,10 +10,13 @@
 struct LSTNode *LSTHead = NULL;
 struct LSTNode *LSTTail = NULL;
 
+struct TypeTable *currentLDeclType = NULL;
+struct TypeTable *currentFDefType = NULL;
+
 struct FunctionLSTTable *FLTHead = NULL;
 struct FunctionLSTTable *FLTTail = NULL;
 
-struct LSTNode *LSTInstall(char *name, int type, int size)
+struct LSTNode *LSTInstall(char *name, struct TypeTable *typeTablePtr, int size)
 {
     if (LSTLookup(name) != NULL)
     {
@@ -25,7 +28,7 @@ struct LSTNode *LSTInstall(char *name, int type, int size)
     newLSTNode->name = (char *)malloc(sizeof(name));
 
     strcpy(newLSTNode->name, name);
-    newLSTNode->type = type;
+    newLSTNode->typeTablePtr = typeTablePtr;
     newLSTNode->binding = 0;
     newLSTNode->size = size;
     newLSTNode->next = NULL;
@@ -62,17 +65,21 @@ struct LSTNode *LSTPrint()
 
     struct LSTNode *traversalPtr = LSTHead;
 
-    printf("\nLST Table -------------------------------------------------------\n");
+    printf("\n🧭 LST Table\n");
 
-    printf("%p\n", traversalPtr);
+    printf("Function : %s()\n", currentFuncName);
+    printf("Address: %p\n\n", traversalPtr);
+
+    printf("      Location             Type             Name  Size  Binding\n");
+    printf("────────────────────────────────────────────────────────────────\n\n");
 
     while (traversalPtr != NULL)
     {
-        printf("%d %s %d %d\n", traversalPtr->type, traversalPtr->name, traversalPtr->binding, traversalPtr->size);
+        printf("%p%17s%17s%6d%9d\n", traversalPtr, traversalPtr->typeTablePtr->typeName, traversalPtr->name, traversalPtr->size, traversalPtr->binding);
         traversalPtr = traversalPtr->next;
     }
 
-    printf("\n-----------------------------------------------------------------\n");
+    printf("\n────────────────────────────────────────────────────────────────\n");
     printf("\n\n");
 }
 
@@ -99,7 +106,7 @@ int LSTAddParams()
 
     while (listHead != NULL)
     {
-        LSTInstall(listHead->paramName, listHead->paramType, 1);
+        LSTInstall(listHead->paramName, listHead->typeTablePtr, 1);
         listHead = listHead->next;
     }
 
@@ -115,10 +122,9 @@ int verifyFunctionSignature(char *funcName)
 
     struct GSTNode *funcGSTEntry = GSTLookup(funcName);
 
-    // checking if the return type matches
-    if (funcGSTEntry->type != getFuncType())
+    if (funcGSTEntry->typeTablePtr != currentFDefType)
     {
-        printf("\nReturn type for %s() doesn't match one given in declaration\n", funcName);
+        printf("\n%s() function signature is invalid\n", funcName);
         exit(1);
     }
 
@@ -128,7 +134,7 @@ int verifyFunctionSignature(char *funcName)
     // checking if the formal parameters and its types matches
     while (declaredParamList != NULL && formalParamList != NULL)
     {
-        if (strcmp(declaredParamList->paramName, formalParamList->paramName) != 0 || declaredParamList->paramType != formalParamList->paramType)
+        if (strcmp(declaredParamList->paramName, formalParamList->paramName) != 0 || declaredParamList->typeTablePtr != formalParamList->typeTablePtr)
         {
             printf("\nFunction parameters for %s() doesn't match one given in declaration\n", funcName);
             exit(1);

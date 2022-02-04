@@ -26,13 +26,28 @@ decl
     int students[5];
 enddecl
 
+int add(int a, int b) {
+    decl
+        int addTemp;
+    enddecl
+
+    begin
+        write("Addd");
+        return a+b;
+    end;
+}
+
 int main() {
     decl
-        int temp;
+        int temp, num;
+        str currentName;
+        linkedList LLHead;
     enddecl
 
     begin
         write("typppe");
+        temp = 1;
+        write(add(1,6));
         return 1;
     end;
 }

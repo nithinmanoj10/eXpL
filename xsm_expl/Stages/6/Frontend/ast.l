@@ -1,9 +1,11 @@
 %{
 	#include <stdio.h>
 	#include <stdlib.h>
+	#include <limits.h>
 	#include "y.tab.h"
 	#include "ast.h"
 	#include "../Functions/stringMan.h"
+	#include "../Data_Structures/typeTable.h"
 
 	int yywrap();
 	char* getString(char* ogString);
@@ -19,7 +21,6 @@
 "enddecl"			{ setDeclarationStatus(DECL_END); return ENDDECL;}
 "int"				{ return INT;}
 "str"				{ return STR;}
-"tuple"				{ return TUPLE; } 
 "breakpoint"		{ return BREAKPOINT;}
 "return"			{ return RETURN; }
 "AND"				{ return AND; }
@@ -44,14 +45,14 @@
 
 [a-zA-Z][a-zA-Z0-9]*	{	
 							// ECHO;
-							yylval.node = TreeCreate(TYPE_VOID, ID_NODE, yytext, 0, NULL, NULL, NULL, NULL);
+							yylval.node = TreeCreate(typeTableVOID, ID_NODE, yytext, INT_MAX, NULL, NULL, NULL, NULL);
 							return ID;
 						}
 
 
 
 [0-9]+	{
-			yylval.node = TreeCreate(TYPE_INT, CONST_INT_NODE, NULL, atoi(yytext), NULL, NULL, NULL, NULL);
+			yylval.node = TreeCreate(typeTableINT, CONST_INT_NODE, NULL, atoi(yytext), NULL, NULL, NULL, NULL);
 			return NUM;
 		}
 
@@ -60,7 +61,7 @@
 
 ["][a-zA-Z0-9" "]*["] 	{	
 							char* stringConst = removeStringQuotes(yytext);
-							yylval.node = TreeCreate(TYPE_STR, CONST_STR_NODE, NULL, 0, stringConst, NULL, NULL, NULL);
+							yylval.node = TreeCreate(typeTableSTR, CONST_STR_NODE, NULL, INT_MAX, stringConst, NULL, NULL, NULL);
 							return STRING;
 						}
 

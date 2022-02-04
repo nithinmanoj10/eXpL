@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include "ast.h"
 #include "../Functions/reg.h"
 #include "../Functions/typeCheck.h"
@@ -9,14 +10,17 @@
 #include "../Data_Structures/LSTable.h"
 #include "../Data_Structures/typeTable.h"
 
-struct ASTNode *TreeCreate(int dataType, int nodeType, char *nodeName, int intConstVal, char *strConstVal, struct ASTNode *left, struct ASTNode *middle, struct ASTNode *right)
+int ASTTableSno = 0;
+
+struct ASTNode *TreeCreate(struct TypeTable *typeTablePtr, int nodeType, char *nodeName, int intConstVal, char *strConstVal, struct ASTNode *left, struct ASTNode *middle, struct ASTNode *right)
 {
 
     typeCheck(nodeType, left, right, middle);
 
     struct ASTNode *newASTNode = (struct ASTNode *)malloc(sizeof(struct ASTNode));
 
-    newASTNode->dataType = dataType;
+    newASTNode->sno = 0;
+    newASTNode->typeTablePtr = typeTablePtr;
     newASTNode->nodeType = nodeType;
     newASTNode->nodeName = NULL;
     newASTNode->intConstVal = intConstVal;
@@ -44,27 +48,35 @@ struct ASTNode *TreeCreate(int dataType, int nodeType, char *nodeName, int intCo
     return newASTNode;
 }
 
-int printAST(struct ASTNode *root)
+int printAST(struct ASTNode *root, int sno)
 {
 
     if (root == NULL)
         return 1;
 
-    printAST(root->left);
-    printAST(root->middle);
-    printAST(root->right);
+    printAST(root->left, sno);
+    printAST(root->middle, sno);
+    printAST(root->right, sno);
 
-    printf("\n-----------------------------------------------------\n");
-    printf("🌳 nodeName: %s\n", root->nodeName);
-    printf("➡ Data Type: %d\n", root->dataType);
-    printf("➡ nodeType: %d\n", root->nodeType);
-    printf("➡ intConstVal: %d\n", root->intConstVal);
-    printf("➡ strConstVal: %s\n", root->strConstVal);
-    printf("➡ left: %p\n", root->left);
-    printf("➡ middle: %p\n", root->middle);
-    printf("➡ right: %p\n", root->right);
-    printf("➡ GST: %p\n", root->GSTEntry);
-    printf("➡ LST: %p\n\n", root->LSTEntry);
+    ++ASTTableSno;
+    root->sno = ASTTableSno;
+
+    if (root->intConstVal == INT_MAX)
+        printf("%3d%17s%10s%20s%13s%21s%6d%8d%7d%19p\n", ASTTableSno, getNodeName(root->nodeType), (root->typeTablePtr == typeTableVOID) ? ("-") : (root->typeTablePtr->typeName), (root->nodeName == NULL) ? ("-") : (root->nodeName), "-", (root->strConstVal == NULL) ? ("-") : (root->strConstVal), (root->left == NULL) ? (0) : (root->left->sno), (root->middle == NULL) ? (0) : (root->middle->sno), (root->right == NULL) ? (0) : (root->right->sno), root->GSTEntry);
+    else
+        printf("%3d%17s%10s%20s%13d%21s%6d%8d%7d%19p\n", ASTTableSno, getNodeName(root->nodeType), (root->typeTablePtr == typeTableVOID) ? ("-") : (root->typeTablePtr->typeName), (root->nodeName == NULL) ? ("-") : (root->nodeName), root->intConstVal, (root->strConstVal == NULL) ? ("-") : (root->strConstVal), (root->left == NULL) ? (0) : (root->left->sno), (root->middle == NULL) ? (0) : (root->middle->sno), (root->right == NULL) ? (0) : (root->right->sno), root->GSTEntry);
+
+    // printf("\n-----------------------------------------------------\n");
+    // printf("🌳 nodeName: %s\n", root->nodeName);
+    // printf("➡ Data Type: %d\n", root->dataType);
+    // printf("➡ nodeType: %d\n", root->nodeType);
+    // printf("➡ intConstVal: %d\n", root->intConstVal);
+    // printf("➡ strConstVal: %s\n", root->strConstVal);
+    // printf("➡ left: %p\n", root->left);
+    // printf("➡ middle: %p\n", root->middle);
+    // printf("➡ right: %p\n", root->right);
+    // printf("➡ GST: %p\n", root->GSTEntry);
+    // printf("➡ LST: %p\n\n", root->LSTEntry);
 
     // if (root->argList != NULL)
     // {
@@ -79,6 +91,143 @@ int printAST(struct ASTNode *root)
     // }
 
     return 0;
+}
+
+void printASTTable(struct ASTNode *root, int sno)
+{
+    ASTTableSno = 0;
+    printf("\n\nAbstract Syntax Tree\n\n");
+
+    printf("SNo         NodeType  DataType            NodeName  intConstVal          strConstVal  Left  Middle  Right           GSTEntry\n");
+    printf("─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n\n");
+    printAST(root, sno);
+}
+
+char *getNodeName(int nodeType)
+{
+    switch (nodeType)
+    {
+    case CONST_INT_NODE:
+        return "Number";
+        break;
+
+    case CONST_STR_NODE:
+        return "String";
+        break;
+
+    case ID_NODE:
+        return "Identifier";
+        break;
+
+    case PLUS_NODE:
+        return "Plus";
+        break;
+
+    case MINUS_NODE:
+        return "Minus";
+        break;
+
+    case MUL_NODE:
+        return "Multiply";
+        break;
+
+    case DIV_NODE:
+        return "Division";
+        break;
+
+    case AMP_NODE:
+        return "Ampersand";
+        break;
+
+    case GT_NODE:
+        return "Greater Than";
+        break;
+
+    case LT_NODE:
+        return "Lesser Than";
+        break;
+
+    case GE_NODE:
+        return "Greater Equal";
+        break;
+
+    case LE_NODE:
+        return "Less Equal";
+        break;
+
+    case EQ_NODE:
+        return "Equal To";
+        break;
+
+    case NE_NODE:
+        return "Not Equal To";
+        break;
+
+    case IF_NODE:
+        return "If";
+        break;
+
+    case WHILE_NODE:
+        return "While";
+        break;
+
+    case DO_WHILE_NODE:
+        return "Do While";
+        break;
+
+    case BREAK_NODE:
+        return "Break";
+        break;
+
+    case CONTINUE_NODE:
+        return "Continue";
+        break;
+
+    case ASGN_NODE:
+        return "Assignment";
+        break;
+
+    case READ_NODE:
+        return "Read()";
+        break;
+
+    case WRITE_NODE:
+        return "write()";
+        break;
+
+    case SLIST_NODE:
+        return "SList";
+        break;
+
+    case BREAKPOINT_NODE:
+        return "Breakpoint";
+        break;
+
+    case FUNC_NODE:
+        return "Function";
+        break;
+
+    case RETURN_NODE:
+        return "Return";
+        break;
+
+    case AND_NODE:
+        return "And";
+        break;
+
+    case OR_NODE:
+        return "Or";
+        break;
+
+    case NOT_NODE:
+        return "Not";
+        break;
+
+    default:
+        break;
+    }
+
+    return "-";
 }
 
 int getVariableAddress(FILE *filePtr, struct ASTNode *root)
@@ -114,8 +263,8 @@ int getVariableAddress(FILE *filePtr, struct ASTNode *root)
         fprintf(filePtr, "MOV R%d, BP\n", variableAddrReg);
         fprintf(filePtr, "ADD R%d, R%d\n", variableAddrReg, variableBindingReg);
 
-        if (root->nodeType == TUPLE_FIELD_NODE) {
-            
+        if (root->nodeType == TUPLE_FIELD_NODE)
+        {
         }
 
         freeReg();
@@ -319,12 +468,12 @@ struct ASTNode *lookupID(struct ASTNode *IDNode)
         }
         else
         {
-            IDNode->dataType = IDNode->GSTEntry->type;
+            IDNode->typeTablePtr = IDNode->GSTEntry->typeTablePtr;
         }
     }
     else
     {
-        IDNode->dataType = IdLSTEntry->type;
+        IDNode->typeTablePtr = IdLSTEntry->typeTablePtr;
     }
 
     return IDNode;
@@ -353,7 +502,9 @@ int verifyFunctionArguments(char *funcName, struct ASTNode *argumentList)
     while (funcParamList != NULL)
     {
         ++argCount;
-        if (funcParamList->paramType != argumentList->dataType)
+
+        // TODO: Change AST Node data type field
+        if (funcParamList->typeTablePtr != argumentList->typeTablePtr)
         {
             printf("\n%s() expects data type %s for argument %d\n", funcName, (funcParamList->paramType == TYPE_INT) ? ("int") : ("str"), argCount);
             exit(1);
