@@ -46,6 +46,8 @@
 #define RETURN_NODE 24
 #define FUNC_NODE 25
 
+#define FIELD_NODE 26
+
 #define AND_NODE 30
 #define OR_NODE 31
 #define NOT_NODE 32

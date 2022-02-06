@@ -189,6 +189,20 @@ struct FieldList *FLCreateNode(char *fieldName, struct TypeTable *type)
     return newFLNode;
 }
 
+struct FieldList *FLLookUp(struct TypeTable *type, char *fieldName)
+{
+    struct FieldList *traversalPtr = type->fields;
+
+    while (traversalPtr != NULL)
+    {
+        if (strcmp(traversalPtr->fieldName, fieldName) == 0)
+            return traversalPtr;
+        traversalPtr = traversalPtr->next;
+    }
+
+    return traversalPtr;
+}
+
 void FLPrint(struct TypeTable *typeNode)
 {
     struct FieldList *traversalPtr = fieldListHead;

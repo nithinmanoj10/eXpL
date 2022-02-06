@@ -36,7 +36,7 @@
 	struct FieldList* FLNode;
 }
 
-%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID
+%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID StructField
 %type <TTNode> TypeName TypeID GType
 %type <FLNode> FieldDecl FieldDeclList
 
@@ -417,6 +417,64 @@ MBody		:	BEGIN_ Slist retStmt END ';'	{
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
 
+ /* Struct Fields ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
+
+StructField		:	StructField '.' ID		{
+												struct ASTNode* traversalPtr = $1;
+												while (traversalPtr->right != NULL){
+													traversalPtr = traversalPtr->right;
+												}
+
+												struct TypeTable* lastFieldType = traversalPtr->typeTablePtr;
+
+												if(lastFieldType == typeTableINTPtr || lastFieldType == typeTableSTRPtr){
+													printf("\n. operator cannot be used for non User Defined variable\n");
+													exit(1);
+												}
+												
+												struct FieldList* fieldListEntry = FLLookUp(lastFieldType, $3->nodeName);
+
+												// if field is not present in the field list
+												if(fieldListEntry == NULL){
+													printf("\nUndeclared field \"%s\" used in variable %s\n", $3->nodeName, traversalPtr->nodeName);
+													exit(1);
+												}
+
+												$3->typeTablePtr = fieldListEntry->type;
+												traversalPtr->right = $3;
+												$$ = $1;
+												$$->typeTablePtr = $3->typeTablePtr;
+											}
+				|	ID '.' ID				{
+												$1->nodeType = FIELD_NODE;
+
+												// Checking if ID($1) exists in LST or GST
+												$1 = lookupID($1);
+
+												// Check if ID($1) is user-defined
+												if($1->typeTablePtr == typeTableINT || $1->typeTablePtr == typeTableSTR){
+													printf("\n. operator cannot be used for non User Defined variable\n");
+													exit(1);
+												}
+
+												struct FieldList* fieldListEntry = FLLookUp($1->typeTablePtr, $3->nodeName);
+
+												// if field is not present in the field list
+												if(fieldListEntry == NULL){
+													printf("\nUndeclared field \"%s\" used in variable %s\n", $3->nodeName, $1->nodeName);
+													exit(1);
+												}
+
+												$3->typeTablePtr = fieldListEntry->type;
+												$1->right = $3;
+												$$ = $1;
+												$$->typeTablePtr = $3->typeTablePtr;
+											}
+				;
+
+ /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
+
+
 expr		: expr PLUS expr		{ $$ =  TreeCreate(typeTableINT, PLUS_NODE, NULL, INT_MAX, NULL, $1, NULL, $3); }
 			| expr MINUS expr 		{ $$ =  TreeCreate(typeTableINT, MINUS_NODE, NULL, INT_MAX, NULL, $1, NULL, $3); }
 			| expr MUL expr 		{ $$ =  TreeCreate(typeTableINT, MUL_NODE, NULL, INT_MAX, NULL, $1, NULL, $3); }
@@ -432,6 +490,7 @@ expr		: expr PLUS expr		{ $$ =  TreeCreate(typeTableINT, PLUS_NODE, NULL, INT_MA
 			| expr OR expr			{ $$ =  TreeCreate(typeTableBOOL, OR_NODE, NULL, INT_MAX, NULL, $1, NULL, $3); }
 			| NOT expr				{ $$ =  TreeCreate(typeTableBOOL, NOT_NODE, NULL, INT_MAX, NULL, $2, NULL, NULL); }
 			| '(' expr ')'			{ $$ = $2; }
+			| StructField			{ $$ = $1; }
 			| ID '(' ArgList ')'	{ 
 										$1 = lookupID($1);	
 										verifyFunctionArguments($1->nodeName, $3);	
@@ -482,7 +541,7 @@ void yyerror(char const *s){
 int main(int argc, char* argv[]){
 
 	if (argc > 1){
-		yydebug = 0;
+		yydebug = 1;
 		filePtr = fopen("../Target_Files/round1.xsm", "w");
 		writeXexeHeader(filePtr);
 		TypeTableCreate();

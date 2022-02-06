@@ -62,9 +62,9 @@ int printAST(struct ASTNode *root, int sno)
     root->sno = ASTTableSno;
 
     if (root->intConstVal == INT_MAX)
-        printf("%3d%17s%10s%20s%13s%21s%6d%8d%7d%19p\n", ASTTableSno, getNodeName(root->nodeType), (root->typeTablePtr == typeTableVOID) ? ("-") : (root->typeTablePtr->typeName), (root->nodeName == NULL) ? ("-") : (root->nodeName), "-", (root->strConstVal == NULL) ? ("-") : (root->strConstVal), (root->left == NULL) ? (0) : (root->left->sno), (root->middle == NULL) ? (0) : (root->middle->sno), (root->right == NULL) ? (0) : (root->right->sno), root->GSTEntry);
+        printf("%3d%17s%15s%20s%13s%21s%6d%8d%7d%19p\n", ASTTableSno, getNodeName(root->nodeType), (root->typeTablePtr == typeTableVOID) ? ("-") : (root->typeTablePtr->typeName), (root->nodeName == NULL) ? ("-") : (root->nodeName), "-", (root->strConstVal == NULL) ? ("-") : (root->strConstVal), (root->left == NULL) ? (0) : (root->left->sno), (root->middle == NULL) ? (0) : (root->middle->sno), (root->right == NULL) ? (0) : (root->right->sno), root->GSTEntry);
     else
-        printf("%3d%17s%10s%20s%13d%21s%6d%8d%7d%19p\n", ASTTableSno, getNodeName(root->nodeType), (root->typeTablePtr == typeTableVOID) ? ("-") : (root->typeTablePtr->typeName), (root->nodeName == NULL) ? ("-") : (root->nodeName), root->intConstVal, (root->strConstVal == NULL) ? ("-") : (root->strConstVal), (root->left == NULL) ? (0) : (root->left->sno), (root->middle == NULL) ? (0) : (root->middle->sno), (root->right == NULL) ? (0) : (root->right->sno), root->GSTEntry);
+        printf("%3d%17s%15s%20s%13d%21s%6d%8d%7d%19p\n", ASTTableSno, getNodeName(root->nodeType), (root->typeTablePtr == typeTableVOID) ? ("-") : (root->typeTablePtr->typeName), (root->nodeName == NULL) ? ("-") : (root->nodeName), root->intConstVal, (root->strConstVal == NULL) ? ("-") : (root->strConstVal), (root->left == NULL) ? (0) : (root->left->sno), (root->middle == NULL) ? (0) : (root->middle->sno), (root->right == NULL) ? (0) : (root->right->sno), root->GSTEntry);
 
     // printf("\n-----------------------------------------------------\n");
     // printf("🌳 nodeName: %s\n", root->nodeName);
@@ -98,8 +98,8 @@ void printASTTable(struct ASTNode *root, int sno)
     ASTTableSno = 0;
     printf("\n\nAbstract Syntax Tree\n\n");
 
-    printf("SNo         NodeType  DataType            NodeName  intConstVal          strConstVal  Left  Middle  Right           GSTEntry\n");
-    printf("─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n\n");
+    printf("SNo         NodeType       DataType            NodeName  intConstVal          strConstVal  Left  Middle  Right           GSTEntry\n");
+    printf("─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n\n");
     printAST(root, sno);
 }
 
@@ -205,6 +205,10 @@ char *getNodeName(int nodeType)
 
     case FUNC_NODE:
         return "Function";
+        break;
+
+    case FIELD_NODE:
+        return "Struct Field";
         break;
 
     case RETURN_NODE:

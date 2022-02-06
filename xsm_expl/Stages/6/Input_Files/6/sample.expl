@@ -7,6 +7,7 @@ type
 
     linkedList{
         int num;
+        str name;
         linkedList next;
     }
 
@@ -46,7 +47,10 @@ int main() {
 
     begin
         write("typppe");
-        temp = 1;
+
+        // read(LLHead.next.next.name);
+
+        temp = LLHead.num * 2;
         write(add(1,6));
         return 1;
     end;
