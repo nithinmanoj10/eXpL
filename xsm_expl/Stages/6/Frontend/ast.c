@@ -6,6 +6,7 @@
 #include "../Functions/reg.h"
 #include "../Functions/typeCheck.h"
 #include "../Functions/label.h"
+#include "../Functions/xsm_library.h"
 #include "../Data_Structures/GSTable.h"
 #include "../Data_Structures/LSTable.h"
 #include "../Data_Structures/typeTable.h"

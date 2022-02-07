@@ -10,7 +10,7 @@
  * @return	0:	Success
  *		-1:	File Descriptor is invalid
  */
-int Write(FILE* filePtr, int arg1, char* arg2, int arg3);
+int Write(FILE *filePtr, int arg1, char *arg2, int arg3);
 
 /**
  * Writes the header in XEXE Format to the first 8 lines
@@ -20,4 +20,32 @@ int Write(FILE* filePtr, int arg1, char* arg2, int arg3);
  *
  * @return	-
  */
-void writeXexeHeader(FILE* filePtr);
+void writeXexeHeader(FILE *filePtr);
+
+/**
+ *  @brief  High level Expl API that invokes Initialize()
+ *          from the low level runtime library.
+ *
+ *  @param  filePtr     Pointer to target code file
+ *
+ *  @return Register number where the return value is stored
+ */
+int Initialize(FILE *filePtr);
+
+/**
+ *  @brief  High level Expl API that invokes Alloc()
+ *          from the low level runtime library.
+ *
+ *  @param  filePtr     Pointer to target code file
+ */
+int Alloc(FILE *filePtr);
+
+/**
+ *  @brief  High level Expl API that invokes Free()
+ *          from the low level runtime library.
+ *
+ *  @param  filePtr     Pointer to target code file
+ *
+ *  @param  pointer     Pointer to be freed
+ */
+int Free(FILE *filePtr, int pointer);

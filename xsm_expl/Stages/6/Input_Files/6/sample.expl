@@ -40,7 +40,7 @@ int add(int a, int b) {
 
 int main() {
     decl
-        int temp, num;
+        int temp, num, x;
         str currentName;
         linkedList LLHead;
     enddecl
@@ -49,8 +49,15 @@ int main() {
         write("typppe");
 
         temp = initialize();
+        
         temp = alloc();
-        temp = free(temp);
+        num = alloc();
+
+        write(temp);
+        write(num);
+
+        x = free(1024);
+        breakpoint;
 
         read(LLHead.next.next.name);
 

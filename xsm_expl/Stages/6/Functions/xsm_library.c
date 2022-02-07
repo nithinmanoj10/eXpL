@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "xsm_library.h"
 #include "stackMemory.h"
+#include "reg.h"
 
 int Write(FILE *filePtr, int arg1, char *arg2, int arg3)
 {
@@ -31,4 +32,82 @@ void writeXexeHeader(FILE *filePtr)
 		fprintf(filePtr, "0\n");
 
 	// fprintf(filePtr, "MOV SP, %d\n", freeStackMemory);
+}
+
+int Initialize(FILE *filePtr)
+{
+
+	fprintf(filePtr, "MOV R0, \"Heapset\"\n");
+
+	fprintf(filePtr, "PUSH R0\n");
+	fprintf(filePtr, "PUSH R0\n");
+	fprintf(filePtr, "PUSH R0\n");
+	fprintf(filePtr, "PUSH R0\n");
+	fprintf(filePtr, "PUSH R0\n");
+
+	fprintf(filePtr, "CALL 0\n");
+
+	int returnReg = getReg();
+	int tempReg = getReg();
+
+	fprintf(filePtr, "POP R%d\n", returnReg);
+	fprintf(filePtr, "POP R%d\n", tempReg);
+	fprintf(filePtr, "POP R%d\n", tempReg);
+	fprintf(filePtr, "POP R%d\n", tempReg);
+	fprintf(filePtr, "POP R%d\n", tempReg);
+
+	return returnReg;
+}
+
+int Alloc(FILE *filePtr)
+{
+	fprintf(filePtr, "MOV R0, \"Alloc\"\n");
+	fprintf(filePtr, "PUSH R0\n");
+
+	fprintf(filePtr, "MOV R0, 8\n");
+	fprintf(filePtr, "PUSH R0\n");
+
+	fprintf(filePtr, "PUSH R0\n");
+	fprintf(filePtr, "PUSH R0\n");
+	fprintf(filePtr, "PUSH R0\n");
+
+	fprintf(filePtr, "CALL 0\n");
+
+	int returnReg = getReg();
+	int tempReg = getReg();
+
+	fprintf(filePtr, "POP R%d\n", returnReg);
+	fprintf(filePtr, "POP R%d\n", tempReg);
+	fprintf(filePtr, "POP R%d\n", tempReg);
+	fprintf(filePtr, "POP R%d\n", tempReg);
+	fprintf(filePtr, "POP R%d\n", tempReg);
+
+	return returnReg;
+}
+
+int Free(FILE *filePtr, int pointer)
+{
+
+	fprintf(filePtr, "MOV R0, \"Free\"\n");
+	fprintf(filePtr, "PUSH R0\n");
+
+	fprintf(filePtr, "MOV R0, %d\n", pointer);
+	fprintf(filePtr, "PUSH R0\n");
+
+	fprintf(filePtr, "PUSH R0\n");
+	fprintf(filePtr, "PUSH R0\n");
+	fprintf(filePtr, "PUSH R0\n");
+
+	fprintf(filePtr, "CALL 0\n");
+
+	int returnReg = getReg();
+	int tempReg = getReg();
+
+	fprintf(filePtr, "POP R%d\n", returnReg);
+	fprintf(filePtr, "POP R%d\n", tempReg);
+	fprintf(filePtr, "POP R%d\n", tempReg);
+	fprintf(filePtr, "POP R%d\n", tempReg);
+	fprintf(filePtr, "POP R%d\n", tempReg);
+
+	return returnReg;
 }

@@ -10,6 +10,7 @@
 #include "../Functions/xsm_syscalls.h"
 #include "../Functions/label.h"
 #include "../Functions/stackMemory.h"
+#include "../Functions/xsm_library.h"
 
 int codeGen(struct ASTNode *root, FILE *filePtr)
 {
@@ -156,6 +157,43 @@ int codeGen(struct ASTNode *root, FILE *filePtr)
 	// for an "=" OPERATOR Node
 	if (root->nodeType == ASGN_NODE)
 	{
+
+		if (root->right->nodeType == INITIALIZE_NODE)
+		{
+			multipush(filePtr);
+			int returnReg = Initialize(filePtr);
+			fprintf(filePtr, "MOV [R%d], R%d\n", getVariableAddress(filePtr, root->left), returnReg);
+			freeReg();
+			freeReg();
+			freeReg();
+			multipop(filePtr);
+			return 1;
+		}
+
+		if (root->right->nodeType == ALLOC_NODE)
+		{
+			multipush(filePtr);
+			int returnReg = Alloc(filePtr);
+			fprintf(filePtr, "MOV [R%d], R%d\n", getVariableAddress(filePtr, root->left), returnReg);
+			freeReg();
+			freeReg();
+			freeReg();
+			multipop(filePtr);
+			return 1;
+		}
+
+		if (root->right->nodeType == FREE_NODE)
+		{
+			multipush(filePtr);
+			struct ASTNode *allocNode = root->right;
+			int returnReg = Free(filePtr, allocNode->left->intConstVal);
+			fprintf(filePtr, "MOV [R%d], R%d\n", getVariableAddress(filePtr, root->left), returnReg);
+			freeReg();
+			freeReg();
+			freeReg();
+			multipop(filePtr);
+			return 1;
+		}
 
 		int resultRegNo = evalExprTree(filePtr, root->right);
 

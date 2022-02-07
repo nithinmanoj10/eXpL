@@ -5,10 +5,6 @@
 #define KNRM "\x1B[0m"
 #define KRED "\x1B[31m"
 
-/*
- * Initialised to -1 since no register is in use when the 
- * machine starts executing the instructions.
- */
 int regNum = -1;
 
 int getReg()
@@ -40,4 +36,20 @@ int freeReg()
 int getRegNumValue()
 {
 	return regNum;
+}
+
+void multipush(FILE *filePtr)
+{
+	for (int currentReg = 0; currentReg <= regNum; ++currentReg)
+	{
+		fprintf(filePtr, "PUSH R%d\n", currentReg);
+	}
+}
+
+void multipop(FILE *filePtr)
+{
+	for (int currentReg = regNum; currentReg >= 0; --currentReg)
+	{
+		fprintf(filePtr, "POP R%d\n", currentReg);
+	}
 }
