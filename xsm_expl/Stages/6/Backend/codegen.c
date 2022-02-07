@@ -22,6 +22,9 @@ int codeGen(struct ASTNode *root, FILE *filePtr)
 	if (root->nodeType == CONST_INT_NODE || root->nodeType == CONST_STR_NODE || root->nodeType == ID_NODE)
 		return 1;
 
+	if (root->nodeType == FIELD_NODE)
+		return 1;
+
 	// for a IF Node
 	if (root->nodeType == IF_NODE)
 	{

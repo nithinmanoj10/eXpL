@@ -52,6 +52,10 @@
 #define OR_NODE 31
 #define NOT_NODE 32
 
+#define INITIALIZE_NODE 40
+#define ALLOC_NODE 41
+#define FREE_NODE 42
+
 #define TYPE_INT 50
 #define TYPE_BOOL 51
 #define TYPE_VOID 52

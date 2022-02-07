@@ -29,8 +29,20 @@
 "type"				{ return TYPE;}
 "endtype"			{ return ENDTYPE;}
 
-"read" 	{ return READ;}		/* Functions */
-"write" { return WRITE;}
+"read" 				{ return READ;}		/* Functions */
+"write" 			{ return WRITE;}
+"alloc"				{ 
+						yylval.node = TreeCreate(typeTableINT, ALLOC_NODE, NULL, INT_MAX, NULL, NULL, NULL, NULL);
+						return ALLOC;
+					}
+"free"				{ 
+						yylval.node = TreeCreate(typeTableINT, FREE_NODE, NULL, INT_MAX, NULL, NULL, NULL, NULL);
+						return FREE;
+					}
+"initialize" 		{ 
+						yylval.node = TreeCreate(typeTableINT, INITIALIZE_NODE, NULL, INT_MAX, NULL, NULL, NULL, NULL);
+						return INITIALIZE;
+					}
 
 "if"		{ return IF;}		/* Control Flow */
 "then"		{ return THEN;}

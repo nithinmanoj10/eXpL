@@ -36,13 +36,14 @@
 	struct FieldList* FLNode;
 }
 
-%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID StructField
+%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID StructField INITIALIZE InitializeStmt ALLOC AllocStmt FREE FreeStmt
 %type <TTNode> TypeName TypeID GType
 %type <FLNode> FieldDecl FieldDeclList
 
 %token BEGIN_ END MAIN READ WRITE ID NUM STRING PLUS MINUS MUL DIV MOD AMPERSAND EQUAL BREAKPOINT TYPE ENDTYPE
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE AND OR NOT
 %token DECL ENDDECL INT STR RETURN
+%token ALLOC FREE INITIALIZE
 
 %left EQUAL
 %left OR
@@ -119,7 +120,8 @@ Slist	: Slist Stmt ';' 	{ $$ = TreeCreate(typeTableVOID, SLIST_NODE, NULL, INT_M
 Stmt	: inputStmt | outputStmt | assignStmt 
 		| ifStmt | whileStmt | doWhileStmt
    		| breakStmt | continueStmt	
-		| breakPointStmt									{ ++statementCount; }
+		| breakPointStmt
+		| DynamicMemStmt									{ ++statementCount; }
 		;
 
 inputStmt	: READ expr	 		{ $$ = TreeCreate(typeTableVOID, READ_NODE, NULL, INT_MAX, NULL, $2, NULL, NULL); }
@@ -146,6 +148,9 @@ assignStmt 	: ID EQUAL expr					{
 												if ($2->typeTablePtr == typeTableSTRPtr)
 													mulNode = TreeCreate(typeTableSTR, MUL_NODE, NULL, INT_MAX, NULL, NULL, $2, NULL);
 												$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, mulNode, NULL, $4);
+											}
+			| StructField EQUAL expr		{
+												$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $3);
 											}
 	   		;
 
@@ -416,6 +421,50 @@ MBody		:	BEGIN_ Slist retStmt END ';'	{
 			;
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
+
+ /* Dynamic Memory Allocation ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
+
+DynamicMemStmt	:	AllocStmt
+				|	FreeStmt
+				|	InitializeStmt
+				;	
+
+AllocStmt		:	ID EQUAL ALLOC '(' ')'		{
+													$1 = lookupID($1);
+													if($1->typeTablePtr != typeTableINT) {
+														printf("\nAlloc() returns int, %s is not of data type int\n", $1->nodeName);
+														exit(1);
+													}
+													$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $3);
+												}
+				;
+
+FreeStmt		:	ID EQUAL FREE '(' expr ')'	{
+													$1 = lookupID($1);
+													if($1->typeTablePtr != typeTableINT) {
+														printf("\nFree() returns int, %s is not of data type int\n", $1->nodeName);
+														exit(1);
+													}
+													if($5->typeTablePtr != typeTableINT){
+														printf("\nFree() expects argument of type int\n");
+														exit(1);
+													}
+													$3->left = $5;
+													$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $3);
+												}
+				;
+
+InitializeStmt	:	ID EQUAL INITIALIZE '(' ')'	{
+													$1 = lookupID($1);					
+													if($1->typeTablePtr != typeTableINT) {
+														printf("\nInitialize() returns int, %s is not of data type int\n", $1->nodeName);
+														exit(1);
+													}
+													$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $3);
+												}
+				;
+
+ /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
  /* Struct Fields ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 

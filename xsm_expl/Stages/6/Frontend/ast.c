@@ -62,9 +62,9 @@ int printAST(struct ASTNode *root, int sno)
     root->sno = ASTTableSno;
 
     if (root->intConstVal == INT_MAX)
-        printf("%3d%17s%15s%20s%13s%21s%6d%8d%7d%19p\n", ASTTableSno, getNodeName(root->nodeType), (root->typeTablePtr == typeTableVOID) ? ("-") : (root->typeTablePtr->typeName), (root->nodeName == NULL) ? ("-") : (root->nodeName), "-", (root->strConstVal == NULL) ? ("-") : (root->strConstVal), (root->left == NULL) ? (0) : (root->left->sno), (root->middle == NULL) ? (0) : (root->middle->sno), (root->right == NULL) ? (0) : (root->right->sno), root->GSTEntry);
+        printf("%3d%19s%15s%20s%13s%21s%6d%8d%7d%19p\n", ASTTableSno, getNodeName(root->nodeType), (root->typeTablePtr == typeTableVOID) ? ("-") : (root->typeTablePtr->typeName), (root->nodeName == NULL) ? ("-") : (root->nodeName), "-", (root->strConstVal == NULL) ? ("-") : (root->strConstVal), (root->left == NULL) ? (0) : (root->left->sno), (root->middle == NULL) ? (0) : (root->middle->sno), (root->right == NULL) ? (0) : (root->right->sno), root->GSTEntry);
     else
-        printf("%3d%17s%15s%20s%13d%21s%6d%8d%7d%19p\n", ASTTableSno, getNodeName(root->nodeType), (root->typeTablePtr == typeTableVOID) ? ("-") : (root->typeTablePtr->typeName), (root->nodeName == NULL) ? ("-") : (root->nodeName), root->intConstVal, (root->strConstVal == NULL) ? ("-") : (root->strConstVal), (root->left == NULL) ? (0) : (root->left->sno), (root->middle == NULL) ? (0) : (root->middle->sno), (root->right == NULL) ? (0) : (root->right->sno), root->GSTEntry);
+        printf("%3d%19s%15s%20s%13d%21s%6d%8d%7d%19p\n", ASTTableSno, getNodeName(root->nodeType), (root->typeTablePtr == typeTableVOID) ? ("-") : (root->typeTablePtr->typeName), (root->nodeName == NULL) ? ("-") : (root->nodeName), root->intConstVal, (root->strConstVal == NULL) ? ("-") : (root->strConstVal), (root->left == NULL) ? (0) : (root->left->sno), (root->middle == NULL) ? (0) : (root->middle->sno), (root->right == NULL) ? (0) : (root->right->sno), root->GSTEntry);
 
     // printf("\n-----------------------------------------------------\n");
     // printf("🌳 nodeName: %s\n", root->nodeName);
@@ -108,123 +108,135 @@ char *getNodeName(int nodeType)
     switch (nodeType)
     {
     case CONST_INT_NODE:
-        return "Number";
+        return "Number 🔢";
         break;
 
     case CONST_STR_NODE:
-        return "String";
+        return "String 🧵";
         break;
 
     case ID_NODE:
-        return "Identifier";
+        return "Identifier 🆔";
         break;
 
     case PLUS_NODE:
-        return "Plus";
+        return "Plus ➕";
         break;
 
     case MINUS_NODE:
-        return "Minus";
+        return "Minus ➖";
         break;
 
     case MUL_NODE:
-        return "Multiply";
+        return "Multiply 💑";
         break;
 
     case DIV_NODE:
-        return "Division";
+        return "Division ➗";
         break;
 
     case AMP_NODE:
-        return "Ampersand";
+        return "Ampersand ⚓";
         break;
 
     case GT_NODE:
-        return "Greater Than";
+        return "Greater Than >";
         break;
 
     case LT_NODE:
-        return "Lesser Than";
+        return "Lesser Than <";
         break;
 
     case GE_NODE:
-        return "Greater Equal";
+        return "Greater Equal >=";
         break;
 
     case LE_NODE:
-        return "Less Equal";
+        return "Less Equal <=";
         break;
 
     case EQ_NODE:
-        return "Equal To";
+        return "Equal To ==";
         break;
 
     case NE_NODE:
-        return "Not Equal To";
+        return "Not Equal To !=";
         break;
 
     case IF_NODE:
-        return "If";
+        return "If 🤷";
         break;
 
     case WHILE_NODE:
-        return "While";
+        return "While 💁";
         break;
 
     case DO_WHILE_NODE:
-        return "Do While";
+        return "Do While 💆";
         break;
 
     case BREAK_NODE:
-        return "Break";
+        return "Break 💔";
         break;
 
     case CONTINUE_NODE:
-        return "Continue";
+        return "Continue 🏃";
         break;
 
     case ASGN_NODE:
-        return "Assignment";
+        return "Assignment 💫";
         break;
 
     case READ_NODE:
-        return "Read()";
+        return "Read() 📖";
         break;
 
     case WRITE_NODE:
-        return "write()";
+        return "write() 📝";
         break;
 
     case SLIST_NODE:
-        return "SList";
+        return "SList 🔗";
         break;
 
     case BREAKPOINT_NODE:
-        return "Breakpoint";
+        return "Breakpoint 🛑";
         break;
 
     case FUNC_NODE:
-        return "Function";
+        return "Function 🎁";
         break;
 
     case FIELD_NODE:
-        return "Struct Field";
+        return "Struct Field 📦";
         break;
 
     case RETURN_NODE:
-        return "Return";
+        return "Return 🔙";
         break;
 
     case AND_NODE:
-        return "And";
+        return "And 🔷";
         break;
 
     case OR_NODE:
-        return "Or";
+        return "Or 🔶";
         break;
 
     case NOT_NODE:
-        return "Not";
+        return "Not 🙅";
+        break;
+
+    case INITIALIZE_NODE:
+        return "Initialize 🌟";
+        break;
+
+    case ALLOC_NODE:
+        return "Alloc 🧧";
+        break;
+
+    case FREE_NODE:
+        return "Free 🆓";
         break;
 
     default:
@@ -345,6 +357,10 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
 
         return reg1;
     }
+
+    // TODO : MEMORY ADDRESSING FOR FIELD NODES
+    if (root->nodeType == FIELD_NODE)
+        return 0;
 
     // for a FUNCTION Node
     if (root->nodeType == FUNC_NODE)

@@ -48,7 +48,13 @@ int main() {
     begin
         write("typppe");
 
-        // read(LLHead.next.next.name);
+        temp = initialize();
+        temp = alloc();
+        temp = free(temp);
+
+        read(LLHead.next.next.name);
+
+        LLHead.num = 10;
 
         temp = LLHead.num * 2;
         write(add(1,6));
