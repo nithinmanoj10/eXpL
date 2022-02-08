@@ -37,7 +37,7 @@
 	struct FieldList* FLNode;
 }
 
-%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID StructField INITIALIZE InitializeStmt ALLOC AllocStmt FREE FreeStmt NULL_
+%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID StructField INITIALIZE InitializeStmt ALLOC AllocStmt FREE FreeStmt NULL_ DynaMemID StructID
 %type <TTNode> TypeName TypeID GType
 %type <FLNode> FieldDecl FieldDeclList
 
@@ -227,7 +227,7 @@ GIDList		:	GIDList ',' GID				{}
 			|	GID							{}
 			;
 
-GID			:	ID							{ GSTInstall($1->nodeName, currentGDeclType, currentGDeclType->size, NULL); }
+GID			:	ID							{ GSTInstall($1->nodeName, currentGDeclType, 1, NULL); }
 			|	ID '[' NUM ']'				{
 												if ($3->intConstVal < 1) {
 													printf("\nArray Declaration expects valid size\n");
@@ -389,7 +389,14 @@ LIDList		:	LIDList ',' LID		{}
 			|	LID						{}
 			; 
 
-LID			:	ID						{ LSTInstall($1->nodeName, currentLDeclType, currentLDeclType->size); }
+LID			:	ID						{ LSTInstall($1->nodeName, currentLDeclType, 1); }
+			|	ID '[' NUM ']'			{
+											if ($3->intConstVal < 1) {
+												printf("\nArray Declaration expects valid size\n");
+												exit(1);
+											}
+											LSTInstall($1->nodeName, currentLDeclType, $3->intConstVal); 
+										}
 			|	MUL ID					{
 											if(strcmp(currentLDeclType->typeName, "int") == 0)
 												LSTInstall($2->nodeName, TTLookUp("int*"), 1);	
@@ -443,23 +450,30 @@ DynamicMemStmt	:	AllocStmt
 				|	InitializeStmt
 				;	
 
-AllocStmt		:	ID EQUAL ALLOC '(' ')'		{
-													$1 = lookupID($1);
-													$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $3);
-												}
+AllocStmt		:	DynaMemID ALLOC '(' ')'		{
+															$1 = lookupID($1);
+															$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $2);
+														}
 				;
 
-FreeStmt		:	ID EQUAL FREE '(' expr ')'	{
-													$1 = lookupID($1);
-													$3->left = $5;
-													$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $3);
-												}
+FreeStmt		:	DynaMemID FREE '(' expr ')'	{
+															$1 = lookupID($1);
+															$2->left = $4;
+															$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $2);
+														}
 				;
 
-InitializeStmt	:	ID EQUAL INITIALIZE '(' ')'	{
-													$1 = lookupID($1);
-													$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $3);
-												}
+InitializeStmt	:	DynaMemID INITIALIZE '(' ')'	{
+															$1 = lookupID($1);
+															$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $2);
+														}
+				;
+
+DynaMemID		:	ID EQUAL							{ $$ = $1; }
+				|	ID '[' expr ']'	EQUAL				{
+															$$ = $1;
+															$$->left = $3;	
+														}
 				;
 
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
@@ -493,7 +507,7 @@ StructField		:	StructField '.' ID		{
 												$$ = $1;
 												$$->typeTablePtr = $3->typeTablePtr;
 											}
-				|	ID '.' ID				{
+				|	StructID '.' ID			{
 												$1->nodeType = FIELD_NODE;
 
 												// Checking if ID($1) exists in LST or GST
@@ -519,6 +533,12 @@ StructField		:	StructField '.' ID		{
 												$$->typeTablePtr = $3->typeTablePtr;
 											}
 				;
+
+StructID		:	ID						{ $$ = $1; }
+				|	ID '[' expr ']'			{
+												$$ = $1;
+												$$->left = $3;
+											}				
 
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 

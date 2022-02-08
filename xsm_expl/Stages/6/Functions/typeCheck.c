@@ -183,11 +183,11 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
         break;
 
     case WRITE_NODE:
-        if (leftTree->typeTablePtr != typeTableINT && leftTree->typeTablePtr != typeTableSTR && leftTree->typeTablePtr != typeTableINTPtr && leftTree->typeTablePtr != typeTableSTRPtr)
-        {
-            printf("\nType Error: write() expects argument of type INT or STR\n");
-            exit(1);
-        }
+        // if (leftTree->typeTablePtr != typeTableINT && leftTree->typeTablePtr != typeTableSTR && leftTree->typeTablePtr != typeTableINTPtr && leftTree->typeTablePtr != typeTableSTRPtr)
+        // {
+        //     printf("\nType Error: write() expects argument of type INT or STR\n");
+        //     exit(1);
+        // }
         break;
 
     case ASGN_NODE:

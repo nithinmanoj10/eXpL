@@ -267,8 +267,25 @@ int getVariableAddress(FILE *filePtr, struct ASTNode *root)
         int variableAddr = root->GSTEntry->binding;
         fprintf(filePtr, "MOV R%d, %d\n", variableAddrReg, variableAddr);
 
+        // for array variable
+        if (root->left != NULL)
+        {
+            int offsetReg = getReg();
+            fprintf(filePtr, "MOV R%d, R%d\n", offsetReg, evalExprTree(filePtr, root->left));
+            fprintf(filePtr, "ADD R%d, R%d\n", variableAddrReg, offsetReg);
+            freeReg();
+            freeReg();
+        }
+
         if (root->nodeType == FIELD_NODE)
             getStructVariableAddress(filePtr, root, variableAddrReg);
+    }
+    else
+    {
+        int variableBindingReg = getReg();
+        fprintf(filePtr, "MOV R%d, %d\n", variableBindingReg, varLSTEntry->binding);
+        fprintf(filePtr, "MOV R%d, BP\n", variableAddrReg);
+        fprintf(filePtr, "ADD R%d, R%d\n", variableAddrReg, variableBindingReg);
 
         // for array variable
         if (root->left != NULL)
@@ -279,13 +296,6 @@ int getVariableAddress(FILE *filePtr, struct ASTNode *root)
             freeReg();
             freeReg();
         }
-    }
-    else
-    {
-        int variableBindingReg = getReg();
-        fprintf(filePtr, "MOV R%d, %d\n", variableBindingReg, varLSTEntry->binding);
-        fprintf(filePtr, "MOV R%d, BP\n", variableAddrReg);
-        fprintf(filePtr, "ADD R%d, R%d\n", variableAddrReg, variableBindingReg);
 
         if (root->nodeType == FIELD_NODE)
             getStructVariableAddress(filePtr, root, variableAddrReg);
