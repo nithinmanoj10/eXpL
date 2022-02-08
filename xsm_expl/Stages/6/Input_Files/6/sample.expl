@@ -56,7 +56,15 @@ int main() {
         write(temp);
         write(num);
 
-        x = free(1024);
+        x = free(temp);
+        write(x);
+
+        temp = alloc();
+        write(temp);
+
+        num = alloc();
+        write(num);
+
         breakpoint;
 
         read(LLHead.next.next.name);

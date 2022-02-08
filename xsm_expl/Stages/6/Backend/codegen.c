@@ -161,11 +161,14 @@ int codeGen(struct ASTNode *root, FILE *filePtr)
 		if (root->right->nodeType == INITIALIZE_NODE)
 		{
 			multipush(filePtr);
+
 			int returnReg = Initialize(filePtr);
 			fprintf(filePtr, "MOV [R%d], R%d\n", getVariableAddress(filePtr, root->left), returnReg);
-			freeReg();
-			freeReg();
-			freeReg();
+
+			freeReg(); // variableAddrReg from getVariableAddress()
+			freeReg(); // tempReg from Initialize()
+			freeReg(); // returnReg from Initialize()
+
 			multipop(filePtr);
 			return 1;
 		}
@@ -173,11 +176,14 @@ int codeGen(struct ASTNode *root, FILE *filePtr)
 		if (root->right->nodeType == ALLOC_NODE)
 		{
 			multipush(filePtr);
+
 			int returnReg = Alloc(filePtr);
 			fprintf(filePtr, "MOV [R%d], R%d\n", getVariableAddress(filePtr, root->left), returnReg);
-			freeReg();
-			freeReg();
-			freeReg();
+
+			freeReg(); // variableAddrReg from getVariableAddress()
+			freeReg(); // tempReg from Alloc()
+			freeReg(); // returnReg from Alloc()
+
 			multipop(filePtr);
 			return 1;
 		}
@@ -185,12 +191,18 @@ int codeGen(struct ASTNode *root, FILE *filePtr)
 		if (root->right->nodeType == FREE_NODE)
 		{
 			multipush(filePtr);
+
 			struct ASTNode *allocNode = root->right;
-			int returnReg = Free(filePtr, allocNode->left->intConstVal);
+
+			int exprReg = evalExprTree(filePtr, allocNode->left);
+			int returnReg = Free(filePtr, exprReg);
 			fprintf(filePtr, "MOV [R%d], R%d\n", getVariableAddress(filePtr, root->left), returnReg);
-			freeReg();
-			freeReg();
-			freeReg();
+
+			freeReg(); // variableAddrReg from getVariableAddress()
+			freeReg(); // tempReg from Free()
+			freeReg(); // returnReg from Free()
+			freeReg(); // returnValueReg from evalExprTree()
+
 			multipop(filePtr);
 			return 1;
 		}

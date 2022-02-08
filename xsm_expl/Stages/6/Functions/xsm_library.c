@@ -36,14 +36,17 @@ void writeXexeHeader(FILE *filePtr)
 
 int Initialize(FILE *filePtr)
 {
+	int emptyPushReg = getReg();
 
-	fprintf(filePtr, "MOV R0, \"Heapset\"\n");
+	fprintf(filePtr, "MOV R%d, \"Heapset\"\n", emptyPushReg);
 
-	fprintf(filePtr, "PUSH R0\n");
-	fprintf(filePtr, "PUSH R0\n");
-	fprintf(filePtr, "PUSH R0\n");
-	fprintf(filePtr, "PUSH R0\n");
-	fprintf(filePtr, "PUSH R0\n");
+	fprintf(filePtr, "PUSH R%d\n", emptyPushReg);
+	fprintf(filePtr, "PUSH R%d\n", emptyPushReg);
+	fprintf(filePtr, "PUSH R%d\n", emptyPushReg);
+	fprintf(filePtr, "PUSH R%d\n", emptyPushReg);
+	fprintf(filePtr, "PUSH R%d\n", emptyPushReg);
+
+	freeReg();
 
 	fprintf(filePtr, "CALL 0\n");
 
@@ -61,15 +64,19 @@ int Initialize(FILE *filePtr)
 
 int Alloc(FILE *filePtr)
 {
-	fprintf(filePtr, "MOV R0, \"Alloc\"\n");
-	fprintf(filePtr, "PUSH R0\n");
+	int emptyPushReg = getReg();
 
-	fprintf(filePtr, "MOV R0, 8\n");
-	fprintf(filePtr, "PUSH R0\n");
+	fprintf(filePtr, "MOV R%d, \"Alloc\"\n", emptyPushReg);
+	fprintf(filePtr, "PUSH R%d\n", emptyPushReg);
 
-	fprintf(filePtr, "PUSH R0\n");
-	fprintf(filePtr, "PUSH R0\n");
-	fprintf(filePtr, "PUSH R0\n");
+	fprintf(filePtr, "MOV R%d, 8\n", emptyPushReg);
+	fprintf(filePtr, "PUSH R%d\n", emptyPushReg);
+
+	fprintf(filePtr, "PUSH R%d\n", emptyPushReg);
+	fprintf(filePtr, "PUSH R%d\n", emptyPushReg);
+	fprintf(filePtr, "PUSH R%d\n", emptyPushReg);
+
+	freeReg();
 
 	fprintf(filePtr, "CALL 0\n");
 
@@ -85,18 +92,21 @@ int Alloc(FILE *filePtr)
 	return returnReg;
 }
 
-int Free(FILE *filePtr, int pointer)
+int Free(FILE *filePtr, int pointerReg)
 {
+	int emptyPushReg = getReg();
 
-	fprintf(filePtr, "MOV R0, \"Free\"\n");
-	fprintf(filePtr, "PUSH R0\n");
+	fprintf(filePtr, "MOV R%d, \"Free\"\n", emptyPushReg);
+	fprintf(filePtr, "PUSH R%d\n", emptyPushReg);
 
-	fprintf(filePtr, "MOV R0, %d\n", pointer);
-	fprintf(filePtr, "PUSH R0\n");
+	fprintf(filePtr, "MOV R%d, R%d\n", emptyPushReg, pointerReg);
+	fprintf(filePtr, "PUSH R%d\n", emptyPushReg);
 
-	fprintf(filePtr, "PUSH R0\n");
-	fprintf(filePtr, "PUSH R0\n");
-	fprintf(filePtr, "PUSH R0\n");
+	fprintf(filePtr, "PUSH R%d\n", emptyPushReg);
+	fprintf(filePtr, "PUSH R%d\n", emptyPushReg);
+	fprintf(filePtr, "PUSH R%d\n", emptyPushReg);
+
+	freeReg();
 
 	fprintf(filePtr, "CALL 0\n");
 

@@ -37,6 +37,8 @@ int Initialize(FILE *filePtr);
  *          from the low level runtime library.
  *
  *  @param  filePtr     Pointer to target code file
+ *
+ *  @return Register number where the return value is stored
  */
 int Alloc(FILE *filePtr);
 
@@ -46,6 +48,9 @@ int Alloc(FILE *filePtr);
  *
  *  @param  filePtr     Pointer to target code file
  *
- *  @param  pointer     Pointer to be freed
+ *  @param  pointerReg  Register which stores the value
+ *                      of pointer to be freed
+ *
+ *  @return Register number where the return value is stored
  */
-int Free(FILE *filePtr, int pointer);
+int Free(FILE *filePtr, int pointerReg);
