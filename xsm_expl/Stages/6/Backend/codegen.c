@@ -15,8 +15,10 @@
 int codeGen(struct ASTNode *root, FILE *filePtr)
 {
 
-	// for NULL node
 	if (root == NULL)
+		return 1;
+
+	if (root->nodeType == NULL_NODE)
 		return 1;
 
 	// if its a NUM or VARIABLE (array variable as well)
@@ -157,6 +159,14 @@ int codeGen(struct ASTNode *root, FILE *filePtr)
 	// for an "=" OPERATOR Node
 	if (root->nodeType == ASGN_NODE)
 	{
+
+		if (root->right->nodeType == NULL_NODE)
+		{
+			fprintf(filePtr, "MOV [R%d], \"null\"\n", getVariableAddress(filePtr, root->left));
+
+			freeReg(); // variableAddrReg from getVariableAddress()
+			return 1;
+		}
 
 		if (root->right->nodeType == INITIALIZE_NODE)
 		{

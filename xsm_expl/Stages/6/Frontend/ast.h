@@ -71,6 +71,8 @@
 #define DECL_END 71
 #define DECL_NULL 72
 
+#define NULL_NODE 100
+
 // TODO: Add typetable field
 struct ASTNode
 {
@@ -96,6 +98,8 @@ extern int ASTTableSno;
 char *getNodeName(int nodeType);
 
 int getVariableAddress(FILE *filePtr, struct ASTNode *root);
+
+int getStructVariableAddress(FILE *filePtr, struct ASTNode *root, int structAddrReg);
 
 int getAddress(FILE *filePtr, struct ASTNode *root);
 

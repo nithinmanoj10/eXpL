@@ -240,6 +240,10 @@ char *getNodeName(int nodeType)
         return "Free 🆓";
         break;
 
+    case NULL_NODE:
+        return "NULL 🎃";
+        break;
+
     default:
         break;
     }
@@ -263,6 +267,9 @@ int getVariableAddress(FILE *filePtr, struct ASTNode *root)
         int variableAddr = root->GSTEntry->binding;
         fprintf(filePtr, "MOV R%d, %d\n", variableAddrReg, variableAddr);
 
+        if (root->nodeType == FIELD_NODE)
+            getStructVariableAddress(filePtr, root, variableAddrReg);
+
         // for array variable
         if (root->left != NULL)
         {
@@ -280,14 +287,53 @@ int getVariableAddress(FILE *filePtr, struct ASTNode *root)
         fprintf(filePtr, "MOV R%d, BP\n", variableAddrReg);
         fprintf(filePtr, "ADD R%d, R%d\n", variableAddrReg, variableBindingReg);
 
-        if (root->nodeType == TUPLE_FIELD_NODE)
-        {
-        }
+        if (root->nodeType == FIELD_NODE)
+            getStructVariableAddress(filePtr, root, variableAddrReg);
 
         freeReg();
     }
 
     return variableAddrReg;
+}
+
+int getStructVariableAddress(FILE *filePtr, struct ASTNode *root, int structAddrReg)
+{
+    int fieldIndexReg = getReg();
+    int heapAddrReg = getReg();
+    struct FieldList *currentField = NULL;
+    struct TypeTable *currentStructType = NULL;
+    struct LSTNode *structLSTEntry = NULL;
+
+    while (root->nodeType == FIELD_NODE)
+    {
+        structLSTEntry = LSTLookup(root->nodeName);
+
+        if (structLSTEntry == NULL)
+        {
+            struct GSTNode *structGSTEntry = GSTLookup(root->nodeName);
+
+            if (structGSTEntry == NULL)
+                currentStructType = root->typeTablePtr;
+            else
+                currentStructType = structGSTEntry->typeTablePtr;
+        }
+        else
+            currentStructType = structLSTEntry->typeTablePtr;
+
+        currentField = FLLookUp(currentStructType, root->right->nodeName);
+
+        fprintf(filePtr, "MOV R%d, [R%d]\n", heapAddrReg, structAddrReg);
+        fprintf(filePtr, "MOV R%d, %d\n", fieldIndexReg, currentField->fieldIndex);
+        fprintf(filePtr, "ADD R%d, R%d\n", heapAddrReg, fieldIndexReg);
+        fprintf(filePtr, "MOV R%d, R%d\n", structAddrReg, heapAddrReg);
+
+        root = root->right;
+    }
+
+    freeReg(); // heapAddrReg from getStructVariableAddress()
+    freeReg(); // fieldIndexReg from getStructVariableAddress()
+
+    return structAddrReg;
 }
 
 // int getVariableAddress(FILE *filePtr, struct ASTNode *root)
@@ -325,6 +371,14 @@ int getAddress(FILE *filePtr, struct ASTNode *root)
 int evalExprTree(FILE *filePtr, struct ASTNode *root)
 {
 
+    if (root->nodeType == NULL_NODE)
+    {
+        int resultReg = getReg();
+        fprintf(filePtr, "MOV R%d, \"null\"\n", resultReg);
+
+        return resultReg;
+    }
+
     if (root->nodeType == CONST_INT_NODE || root->nodeType == CONST_STR_NODE || root->nodeType == ID_NODE || root->nodeType == AMP_NODE || (root->nodeType == MUL_NODE && root->middle != NULL))
     {
 
@@ -359,9 +413,17 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
         return reg1;
     }
 
-    // TODO : MEMORY ADDRESSING FOR FIELD NODES
     if (root->nodeType == FIELD_NODE)
-        return 0;
+    {
+        int exprTreeResultReg = getReg();
+        int structAddressReg = getVariableAddress(filePtr, root);
+
+        fprintf(filePtr, "MOV R%d, [R%d]\n", exprTreeResultReg, structAddressReg);
+
+        freeReg(); // variableAddrReg from evalExprTree()
+
+        return exprTreeResultReg;
+    }
 
     // for a FUNCTION Node
     if (root->nodeType == FUNC_NODE)

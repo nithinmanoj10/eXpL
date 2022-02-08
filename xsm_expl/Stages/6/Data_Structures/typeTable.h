@@ -117,6 +117,15 @@ int getTypeSize(struct TypeTable *typeTablePtr);
 
 void printTypeTable();
 
+/**
+ *  @brief  Checks whether the type is a primitve type or not.
+ *          Primitive type includes int, int*, str, str*, bool, void
+ *
+ * @param   typeTablePtr    Pointer to type table entry
+ * @return  1 if it's a primitive type, else 0
+ */
+int isPrimitiveType(struct TypeTable *typeTablePtr);
+
 /* ----------------------------------------------------------------------------------------- */
 
 /** Field List - Linked List ------------------------------------------------------------------

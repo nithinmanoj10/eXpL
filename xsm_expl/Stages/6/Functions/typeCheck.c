@@ -70,33 +70,33 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
         break;
 
     case LT_NODE:
-        if (leftTree->typeTablePtr != typeTableINT || rightTree->typeTablePtr != typeTableINT)
+        if (leftTree->typeTablePtr != rightTree->typeTablePtr)
         {
-            printf("\nType Error: Less Than Operator requires data type INT\n");
+            printf("\nType Error: Less Than Operator requires same data type on both sides\n");
             exit(1);
         }
         break;
 
     case LE_NODE:
-        if (leftTree->typeTablePtr != typeTableINT || rightTree->typeTablePtr != typeTableINT)
+        if (leftTree->typeTablePtr != rightTree->typeTablePtr)
         {
-            printf("\nType Error: Less Than Equal Operator requires data type INT\n");
+            printf("\nType Error: Less Than Equal Operator requires same data type on both sides\n");
             exit(1);
         }
         break;
 
     case GT_NODE:
-        if (leftTree->typeTablePtr != typeTableINT || rightTree->typeTablePtr != typeTableINT)
+        if (leftTree->typeTablePtr != rightTree->typeTablePtr)
         {
-            printf("\nType Error: Greater Than Operator requires data type INT\n");
+            printf("\nType Error: Greater Than Operator requires same data type on both sides\n");
             exit(1);
         }
         break;
 
     case GE_NODE:
-        if (leftTree->typeTablePtr != typeTableINT || rightTree->typeTablePtr != typeTableINT)
+        if (leftTree->typeTablePtr != rightTree->typeTablePtr)
         {
-            printf("\nType Error: Greater Than Equal Operator requires data type INT\n");
+            printf("\nType Error: Greater Than Equal Operator requires same data type on both sides\n");
             exit(1);
         }
         break;
@@ -104,16 +104,22 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
     case EQ_NODE:
         if (leftTree->typeTablePtr != rightTree->typeTablePtr)
         {
-            printf("\nType Error: Equal To Operator requires same data type on both sides\n");
-            exit(1);
+            if (rightTree->nodeType != NULL_NODE)
+            {
+                printf("\nType Error: Equal To Operator requires same data type on both sides\n");
+                exit(1);
+            }
         }
         break;
 
     case NE_NODE:
         if (leftTree->typeTablePtr != rightTree->typeTablePtr)
         {
-            printf("\nType Error: Not Equal To Operator requires same data type on both sides\n");
-            exit(1);
+            if (rightTree->nodeType != NULL_NODE)
+            {
+                printf("\nType Error: Equal To Operator requires same data type on both sides\n");
+                exit(1);
+            }
         }
         break;
 
@@ -191,16 +197,29 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
             exit(1);
         }
 
-        if (rightTree->typeTablePtr != typeTableINT && rightTree->typeTablePtr != typeTableSTR && rightTree->typeTablePtr != typeTableINTPtr && rightTree->typeTablePtr != typeTableSTRPtr)
+        // if (rightTree->typeTablePtr != typeTableINT && rightTree->typeTablePtr != typeTableSTR && rightTree->typeTablePtr != typeTableINTPtr && rightTree->typeTablePtr != typeTableSTRPtr)
+        // {
+        //     printf("\nType Error: Assignment Operator expects data type INT or STR in RHS\n");
+        //     exit(1);
+        // }
+
+        if (rightTree->nodeType == ALLOC_NODE)
         {
-            printf("\nType Error: Assignment Operator expects data type INT or STR in RHS\n");
-            exit(1);
+            if (isPrimitiveType(leftTree->typeTablePtr))
+            {
+                printf("\nType Error: Dynamic Memory Allocation function expects a user defined type on LHS of assignment operator\n");
+                exit(1);
+            }
+            return 1;
         }
 
         if (rightTree->typeTablePtr != leftTree->typeTablePtr)
         {
-            printf("\nType Error: Assignment Operator expects same data type on both sides\n");
-            exit(1);
+            if (rightTree->nodeType != NULL_NODE)
+            {
+                printf("\nType Error: Assignment Operator expects same data type on both sides\n");
+                exit(1);
+            }
         }
 
         break;

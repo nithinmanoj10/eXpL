@@ -48,31 +48,21 @@ int main() {
     begin
         write("typppe");
 
-        temp = initialize();
-        
-        temp = alloc();
-        num = alloc();
+        x = initialize();
 
-        write(temp);
-        write(num);
-
-        x = free(temp);
-        write(x);
-
-        temp = alloc();
+        temp = null;
         write(temp);
 
-        num = alloc();
-        write(num);
+        if (temp == null) then
+            write("temp is null");
+        endif;
 
-        breakpoint;
+        LLHead = alloc();
 
-        read(LLHead.next.next.name);
+        // write(LLHead);
+        read(LLHead.next.num);
+        write(LLHead.next.num + 10);
 
-        LLHead.num = 10;
-
-        temp = LLHead.num * 2;
-        write(add(1,6));
         return 1;
     end;
 }

@@ -28,11 +28,15 @@
 "NOT"				{ return NOT;}
 "type"				{ return TYPE;}
 "endtype"			{ return ENDTYPE;}
+"null"				{ 
+						yylval.node = TreeCreate(typeTableVOID, NULL_NODE, NULL, INT_MAX, "null", NULL, NULL, NULL);
+						return NULL_;
+					}
 
 "read" 				{ return READ;}		/* Functions */
 "write" 			{ return WRITE;}
 "alloc"				{ 
-						yylval.node = TreeCreate(typeTableINT, ALLOC_NODE, NULL, INT_MAX, NULL, NULL, NULL, NULL);
+						yylval.node = TreeCreate(typeTableVOID, ALLOC_NODE, NULL, INT_MAX, NULL, NULL, NULL, NULL);
 						return ALLOC;
 					}
 "free"				{ 

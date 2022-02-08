@@ -23,6 +23,7 @@
 	int yylex(void);
 	void yyerror(char const *s);
 	int statementCount = 0;
+	int typeFieldCount = 0;
 	char* fileName;
 	FILE* filePtr;
 %}
@@ -36,13 +37,13 @@
 	struct FieldList* FLNode;
 }
 
-%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID StructField INITIALIZE InitializeStmt ALLOC AllocStmt FREE FreeStmt
+%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID StructField INITIALIZE InitializeStmt ALLOC AllocStmt FREE FreeStmt NULL_
 %type <TTNode> TypeName TypeID GType
 %type <FLNode> FieldDecl FieldDeclList
 
 %token BEGIN_ END MAIN READ WRITE ID NUM STRING PLUS MINUS MUL DIV MOD AMPERSAND EQUAL BREAKPOINT TYPE ENDTYPE
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE AND OR NOT
-%token DECL ENDDECL INT STR RETURN
+%token DECL ENDDECL INT STR RETURN NULL_
 %token ALLOC FREE INITIALIZE
 
 %left EQUAL
@@ -79,10 +80,18 @@ TypeDefList		:	TypeDefList TypeDef			{}
 
 TypeDef			:	TypeID 
 					'{' FieldDeclList '}'		{ 
+													if (typeFieldCount > 8){
+														printf("\nError: User defined type %s has more than 8 fields\n", $1->typeName);
+														exit(1);
+													}
+
 													FLPrint($1); 
 													$1->fields = $3;
+													$1->size = typeFieldCount;
+
 													fieldListTail = NULL;
 													fieldListHead = NULL;
+													typeFieldCount = 0;
 												}
 				;
 
@@ -103,7 +112,10 @@ FieldDeclList	:	FieldDeclList FieldDecl		{
 				 								}
 				;
 
-FieldDecl		:	TypeName ID ';'		{ $$ = FLCreateNode($2->nodeName, $1); }
+FieldDecl		:	TypeName ID ';'				{ 
+													$$ = FLCreateNode($2->nodeName, $1); 
+													++typeFieldCount;
+												}
 				;
 
 TypeName		:	INT							{ $$ = TTLookUp("int"); }
@@ -336,6 +348,7 @@ FuncType	:	INT										{ currentFDefType = TTLookUp("int"); }
 			|	STR										{ currentFDefType = TTLookUp("str"); }
 			|	INT MUL									{ currentFDefType = TTLookUp("int*"); }
 			|	STR MUL									{ currentFDefType = TTLookUp("str*"); }
+			|	ID										{ currentFDefType = TTLookUp($1->nodeName); }
 			;
 
 FBody		:	BEGIN_ Slist retStmt END ';'		{
@@ -347,7 +360,8 @@ FBody		:	BEGIN_ Slist retStmt END ';'		{
 
 
  /* Local Declarations ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
-LDeclBlock	:	DECL LDeclList ENDDECL	{  
+LDeclBlock	:	DECL LDeclList ENDDECL	
+			|							{  
 											// printTupleList();
 										}
 			|	DECL ENDDECL			{}
@@ -431,35 +445,19 @@ DynamicMemStmt	:	AllocStmt
 
 AllocStmt		:	ID EQUAL ALLOC '(' ')'		{
 													$1 = lookupID($1);
-													if($1->typeTablePtr != typeTableINT) {
-														printf("\nAlloc() returns int, %s is not of data type int\n", $1->nodeName);
-														exit(1);
-													}
 													$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $3);
 												}
 				;
 
 FreeStmt		:	ID EQUAL FREE '(' expr ')'	{
 													$1 = lookupID($1);
-													if($1->typeTablePtr != typeTableINT) {
-														printf("\nFree() returns int, %s is not of data type int\n", $1->nodeName);
-														exit(1);
-													}
-													if($5->typeTablePtr != typeTableINT){
-														printf("\nFree() expects argument of type int\n");
-														exit(1);
-													}
 													$3->left = $5;
 													$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $3);
 												}
 				;
 
 InitializeStmt	:	ID EQUAL INITIALIZE '(' ')'	{
-													$1 = lookupID($1);					
-													if($1->typeTablePtr != typeTableINT) {
-														printf("\nInitialize() returns int, %s is not of data type int\n", $1->nodeName);
-														exit(1);
-													}
+													$1 = lookupID($1);
 													$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $3);
 												}
 				;
@@ -475,6 +473,7 @@ StructField		:	StructField '.' ID		{
 												}
 
 												struct TypeTable* lastFieldType = traversalPtr->typeTablePtr;
+												traversalPtr->nodeType = FIELD_NODE;
 
 												if(lastFieldType == typeTableINTPtr || lastFieldType == typeTableSTRPtr){
 													printf("\n. operator cannot be used for non User Defined variable\n");
@@ -578,6 +577,7 @@ expr		: expr PLUS expr		{ $$ =  TreeCreate(typeTableINT, PLUS_NODE, NULL, INT_MA
 									}
 			| NUM					{$$ = $1;}
 			| STRING				{$$ = $1;}
+			| NULL_					{$$ = $1;}
 			;
 
 %%
@@ -590,7 +590,7 @@ void yyerror(char const *s){
 int main(int argc, char* argv[]){
 
 	if (argc > 1){
-		yydebug = 0;
+		yydebug = 1;
 		filePtr = fopen("../Target_Files/round1.xsm", "w");
 		writeXexeHeader(filePtr);
 		TypeTableCreate();

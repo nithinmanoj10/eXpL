@@ -171,6 +171,14 @@ void printTypeTable()
     printf("\n-------------------------------------------------------------\n");
 }
 
+int isPrimitiveType(struct TypeTable *typeTablePtr)
+{
+    if (typeTablePtr == typeTableINT || typeTablePtr == typeTableINTPtr || typeTablePtr == typeTableSTR || typeTablePtr == typeTableSTRPtr || typeTablePtr == typeTableBOOL || typeTablePtr == typeTableVOID)
+        return 1;
+
+    return 0;
+}
+
 /* Field List ------------------------------------------------------------------------------- */
 
 struct FieldList *fieldListHead = NULL;
