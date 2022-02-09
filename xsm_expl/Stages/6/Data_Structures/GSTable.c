@@ -122,15 +122,16 @@ int GSTPrint()
 
     printf("\n🌍 Global Symbol Table ---------------------------------------------------------------------\n\n");
 
-    printf("      Location             Type             Name  Size  Binding        paramList  fLabel\n\n");
+    printf("      Location             Type             Name  Size  Binding        paramList  fLabel\n");
 
+    printf("─────────────────────────────────────────────────────────────────────────────────────────\n\n");
     while (traversalPtr != NULL)
     {
         printf("%p%17s%17s%6d%9d%17p%8d\n", traversalPtr, traversalPtr->typeTablePtr->typeName, traversalPtr->name, traversalPtr->size, traversalPtr->binding, traversalPtr->paramList, traversalPtr->fLabel);
         traversalPtr = traversalPtr->next;
     }
 
-    printf("\n -------------------------------------------------------------------------------------------\n");
+    printf("\n─────────────────────────────────────────────────────────────────────────────────────────\n\n");
 
     return 0;
 }

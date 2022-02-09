@@ -13,7 +13,6 @@
 	#include "../Data_Structures/LSTable.h"
 	#include "../Data_Structures/typeTable.h"
 	#include "../Data_Structures/paramStruct.h"
-	#include "../Data_Structures/TupleListTable.h"
 	#include "../Functions/xsm_library.h"
 	#include "../Functions/xsm_syscalls.h"
 	#include "../Functions/stackMemory.h"
@@ -24,6 +23,7 @@
 	void yyerror(char const *s);
 	int statementCount = 0;
 	int typeFieldCount = 0;
+	int tupleFieldCount = 0;
 	char* fileName;
 	FILE* filePtr;
 %}
@@ -37,11 +37,11 @@
 	struct FieldList* FLNode;
 }
 
-%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID StructField INITIALIZE InitializeStmt ALLOC AllocStmt FREE FreeStmt NULL_ DynaMemID StructID
-%type <TTNode> TypeName TypeID GType
-%type <FLNode> FieldDecl FieldDeclList
+%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID StructField INITIALIZE InitializeStmt ALLOC AllocStmt FREE FreeStmt NULL_ DynaMemID StructID TupleFieldName
+%type <TTNode> TypeName TypeID GType TupleFieldType
+%type <FLNode> FieldDecl FieldDeclList TupleFieldDecl TupleFieldDeclList TupleDecl
 
-%token BEGIN_ END MAIN READ WRITE ID NUM STRING PLUS MINUS MUL DIV MOD AMPERSAND EQUAL BREAKPOINT TYPE ENDTYPE
+%token BEGIN_ END MAIN READ WRITE ID NUM STRING PLUS MINUS MUL DIV MOD AMPERSAND EQUAL BREAKPOINT TYPE ENDTYPE TUPLE
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE AND OR NOT
 %token DECL ENDDECL INT STR RETURN NULL_
 %token ALLOC FREE INITIALIZE
@@ -198,7 +198,8 @@ breakPointStmt	:	BREAKPOINT { $$ = TreeCreate(typeTableVOID, BREAKPOINT_NODE, NU
  /* Global Declaration ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
 GDeclBlock	:	DECL GDeclList ENDDECL		{
-												GSTPrint(); 					
+												GSTPrint(); 
+												printTypeTable();					
 												initStackBP(filePtr);
 												printGlobalParamList();
 											}
@@ -210,6 +211,16 @@ GDeclList	:	GDeclList GDecl				{}
 			;
 
 GDecl		:	GType GIDList ';'			{}
+			|	GType TupleDecl GIDList ';'	{ 
+												currentGDeclType->fields = $2; 
+												currentGDeclType->size = tupleFieldCount;
+
+												FLPrint($1);
+
+												fieldListTail = NULL;
+												fieldListHead = NULL;
+												tupleFieldCount = 0;
+											}
 			;
 
 GType		:	INT							{ currentGDeclType = TTLookUp("int"); }
@@ -221,13 +232,21 @@ GType		:	INT							{ currentGDeclType = TTLookUp("int"); }
 													exit(1);
 												}
 			 								}
+			|	TUPLE ID					{ 
+												if (TTLookUp($2->nodeName) != NULL){
+													printf("\nType Error: Tuple %s decalred twice\n", $2->nodeName);
+													exit(1);
+												}					
+												currentGDeclType = TTInstall($2->nodeName, 0, NULL); 
+												$$ = currentGDeclType;
+											}
 			;
 
 GIDList		:	GIDList ',' GID				{}
 			|	GID							{}
 			;
 
-GID			:	ID							{ GSTInstall($1->nodeName, currentGDeclType, 1, NULL); }
+GID			:	ID							{ GSTInstall($1->nodeName, currentGDeclType, currentGDeclType->size, NULL); }
 			|	ID '[' NUM ']'				{
 												if ($3->intConstVal < 1) {
 													printf("\nArray Declaration expects valid size\n");
@@ -263,6 +282,43 @@ GID			:	ID							{ GSTInstall($1->nodeName, currentGDeclType, 1, NULL); }
 
 GPtrID		:	MUL ID						{ $$ = $2; }
 			;		
+
+ /* Tuple Declarations ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
+
+TupleDecl			:	'(' TupleFieldDeclList ')'				{ 
+																	$$ = $2; 
+																	currentGDeclType->size = tupleFieldCount;
+																}
+					;
+
+TupleFieldDeclList	:	TupleFieldDeclList ',' TupleFieldDecl	{
+																	$3->fieldIndex = fieldListTail->fieldIndex + 1;
+																	fieldListTail->next = $3;
+																	fieldListTail = $3;
+																	$$ = $1;
+																}
+					|	TupleFieldDecl							{
+																	$1->fieldIndex = 0;
+																	fieldListHead = $1;
+																	fieldListTail = $1;
+																	$$ = $1;
+																}
+					;
+
+TupleFieldDecl		:	TupleFieldType TupleFieldName			{
+																	$$ = FLCreateNode($2->nodeName, $1);
+																	++tupleFieldCount;
+																}
+					;
+
+TupleFieldType		:	INT										{ $$ = TTLookUp("int"); }
+					|	STR										{ $$ = TTLookUp("str"); }
+					;	
+
+TupleFieldName		:	ID										{ $$ = $1; }
+					;
+
+ /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
 	/* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
@@ -610,7 +666,7 @@ void yyerror(char const *s){
 int main(int argc, char* argv[]){
 
 	if (argc > 1){
-		yydebug = 1;
+		yydebug = 0;
 		filePtr = fopen("../Target_Files/round1.xsm", "w");
 		writeXexeHeader(filePtr);
 		TypeTableCreate();

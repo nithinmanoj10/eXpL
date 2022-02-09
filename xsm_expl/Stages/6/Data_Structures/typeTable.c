@@ -215,13 +215,15 @@ void FLPrint(struct TypeTable *typeNode)
 {
     struct FieldList *traversalPtr = fieldListHead;
 
-    printf("\n\nField List for %s --------------------------------\n", typeNode->typeName);
-    printf("%p\n\n", fieldListHead);
-    printf("fieldIndex  fieldName   type\n\n");
+    printf("\n\nField List for %s - %p\n", typeNode->typeName, fieldListHead);
+    printf("---------------------------------------------------\n\n");
+    printf("fieldIndex              fieldName             type\n");
+    printf("───────────────────────────────────────────────────\n\n");
     while (traversalPtr != NULL)
     {
-        printf("%10d%11s%17p\n", traversalPtr->fieldIndex, traversalPtr->fieldName, traversalPtr->type);
+        printf("%10d%23s%17p\n", traversalPtr->fieldIndex, traversalPtr->fieldName, traversalPtr->type);
         traversalPtr = traversalPtr->next;
     }
-    printf("\n---------------------------------------------------\n");
+
+    printf("\n───────────────────────────────────────────────────\n\n");
 }

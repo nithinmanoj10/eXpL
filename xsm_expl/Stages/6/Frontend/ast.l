@@ -48,6 +48,8 @@
 						return INITIALIZE;
 					}
 
+"tuple"				{ return TUPLE;}
+
 "if"		{ return IF;}		/* Control Flow */
 "then"		{ return THEN;}
 "else"		{ return ELSE;}
@@ -59,7 +61,7 @@
 "continue"	{ return CONTINUE;}
 
 
-[a-zA-Z][a-zA-Z0-9]*	{	
+[a-zA-Z][a-zA-Z0-9_]*	{	
 							// ECHO;
 							yylval.node = TreeCreate(typeTableVOID, ID_NODE, yytext, INT_MAX, NULL, NULL, NULL, NULL);
 							return ID;

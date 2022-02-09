@@ -1,0 +1,17 @@
+decl
+    int num;
+    str name;
+    tuple student (str name, int roll_no, str branchname, int year_of_admission) a, b, c; 
+    tuple faculty (str name, int employee_id, str dept) x, y, z;
+enddecl
+
+int main() {
+    decl
+        int temp;
+    enddecl
+
+    begin
+        write("tuplleee");
+        return 1;
+    end;
+}
