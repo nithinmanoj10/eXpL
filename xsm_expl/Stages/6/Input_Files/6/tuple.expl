@@ -1,7 +1,27 @@
+type
+    bst{
+        int a;
+        bst left;
+        bst right;
+    }
+
+    linkedList{
+        int num;
+        str name;
+        linkedList next;
+    }
+
+    markList{
+        str name;  
+        linkedList marks;
+    }
+endtype
+
 decl
     int num;
     str name;
     tuple student (str name, int roll_no, str branchname, int year_of_admission) a, b; 
+    linkedList GST;
 enddecl
 
 int main() {
@@ -9,9 +29,13 @@ int main() {
         int temp;
         tuple faculty (str name, int employee_id, str dept) x, y, z;
         tuple course (str name, int course_id, str teacher_name) c;
+        linkedList LST;
     enddecl
 
     begin
+
+        temp = initialize();
+
         write("tuplleee");
         
         temp = 2;
@@ -19,6 +43,10 @@ int main() {
         a = student("Nithin", 58, "CSE", 2019);
         x = faculty("Amal", 7, "CSE");
         c = course("CSE", 11, "Amal");
+
+        LST = alloc();
+        LST.num = 47;
+        LST.name = "Thor";
 
         if (a.branchname == x.dept) then
             write("Same dept");
@@ -33,6 +61,9 @@ int main() {
 
         y = x;
         write(y);
+
+        write(LST.num);
+        write(LST.name);
 
         return 1;
     end;

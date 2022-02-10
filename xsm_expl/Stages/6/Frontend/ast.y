@@ -251,7 +251,10 @@ GIDList		:	GIDList ',' GID				{}
 			|	GID							{}
 			;
 
-GID			:	ID							{ GSTInstall($1->nodeName, currentGDeclType, currentGDeclType->size, NULL); }
+GID			:	ID							{ 
+												int varSize = (currentGDeclType->typeCategory == TYPE_USER_DEFINED) ? (1) : (currentGDeclType->size);
+												GSTInstall($1->nodeName, currentGDeclType, varSize, NULL); 
+											}
 			|	ID '[' NUM ']'				{
 												if ($3->intConstVal < 1) {
 													printf("\nArray Declaration expects valid size\n");
@@ -471,7 +474,10 @@ LIDList		:	LIDList ',' LID		{}
 			|	LID						{}
 			; 
 
-LID			:	ID						{ LSTInstall($1->nodeName, currentLDeclType, currentLDeclType->size); }
+LID			:	ID						{ 
+											int varSize = (currentLDeclType->typeCategory == TYPE_USER_DEFINED) ? (1) : (currentLDeclType->size);							
+											LSTInstall($1->nodeName, currentLDeclType, varSize); 
+										}
 			|	ID '[' NUM ']'			{
 											if ($3->intConstVal < 1) {
 												printf("\nArray Declaration expects valid size\n");

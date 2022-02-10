@@ -1,0 +1,25 @@
+decl
+    int swap(int *a, int *b);
+    int result;
+enddecl
+
+int swap(int *a, int* b){
+    decl
+        int q;
+    enddecl
+    begin
+        write(&q);
+        return 1;
+    end;
+}
+
+int main() {
+    decl
+        int a, b;
+    enddecl
+
+    begin
+        result = swap(&a,&b);
+        return 1;
+    end;
+}

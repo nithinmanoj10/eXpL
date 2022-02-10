@@ -1,0 +1,35 @@
+$8 = {nodeType = 1, varType = 1, varName = 0x555555565360 "int", 
+  right = 0x0, left = 0x555555565490}
+createGST (root=0x7ffff7e56482 <putchar+130>, varType=21845)
+    at ../Data_Structures/globalSymbolTable.c:70
+$9 = {nodeType = 2, varType = 0, varName = 0x5555555654c0 "sum", 
+  right = 0x0, left = 0x5555555653e0}
+root = 0x555555565490
+varType = 1
+createGST (root=0x7ffff7e61013 <_IO_new_file_overflow+275>, varType=0)
+    at ../Data_Structures/globalSymbolTable.c:70
+$10 = {nodeType = 2, varType = 0, varName = 0x555555565410 "num", 
+  right = 0x0, left = 0x0}
+createGST (root=0x55555555f020 <stdout@@GLIBC_2.2.5>, varType=32767)
+    at ../Data_Structures/globalSymbolTable.c:70
+createGST (root=0x5555555653e0, varType=1)
+    at ../Data_Structures/globalSymbolTable.c:82
+$11 = {nodeType = 2, varType = 0, varName = 0x555555565410 "num", 
+  right = 0x0, left = 0x0}
+createGST (root=0x0, varType=1)
+    at ../Data_Structures/globalSymbolTable.c:70
+createGST (root=0x5555555653e0, varType=1)
+    at ../Data_Structures/globalSymbolTable.c:84
+$12 = 110 'n'
+$13 = 0x555555565410 "num"
+$14 = 1
+createGSTNode (name=0xa <error: Cannot access memory at address 0xa>, 
+    type=0, size=0) at ../Data_Structures/globalSymbolTable.c:11
+name = 0x555555565410 "num"
+type = 1
+size = 1
+searchGSTNode (
+    name=0x7ffff7fb96a0 <_IO_2_1_stdout_> "\204*\255", <incomplete sequence \373>) at ../Data_Structures/globalSymbolTable.c:51
+createGSTNode (name=0x555555565410 "num", type=1, size=1)
+    at ../Data_Structures/globalSymbolTable.c:13
+Please answer y or n.
