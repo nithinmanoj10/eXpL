@@ -2,13 +2,13 @@ decl
     int num;
     str name;
     tuple student (str name, int roll_no, str branchname, int year_of_admission) a, b; 
-    tuple faculty (str name, int employee_id, str dept) x, y, z;
 enddecl
 
 int main() {
     decl
         int temp;
-        // tuple course (str name, int course_id, str teacher_name) c;
+        tuple faculty (str name, int employee_id, str dept) x, y, z;
+        tuple course (str name, int course_id, str teacher_name) c;
     enddecl
 
     begin
@@ -18,7 +18,7 @@ int main() {
 
         a = student("Nithin", 58, "CSE", 2019);
         x = faculty("Amal", 7, "CSE");
-        // c = course("CSE", 11, "Amal");
+        c = course("CSE", 11, "Amal");
 
         if (a.branchname == x.dept) then
             write("Same dept");
@@ -26,7 +26,13 @@ int main() {
 
         write(a);
         write(x);
-        // write(c);
+        write(c);
+
+        b = a;
+        write(b);
+
+        y = x;
+        write(y);
 
         return 1;
     end;

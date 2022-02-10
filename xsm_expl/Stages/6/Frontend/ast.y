@@ -38,7 +38,7 @@
 }
 
 %type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID StructField INITIALIZE InitializeStmt ALLOC AllocStmt FREE FreeStmt NULL_ DynaMemID StructID TupleFieldName
-%type <TTNode> TypeName TypeID GType TupleFieldType
+%type <TTNode> TypeName TypeID GType LType TupleFieldType
 %type <FLNode> FieldDecl FieldDeclList TupleFieldDecl TupleFieldDeclList TupleDecl
 
 %token BEGIN_ END MAIN READ WRITE ID NUM STRING PLUS MINUS MUL DIV MOD AMPERSAND BREAKPOINT TYPE ENDTYPE TUPLE
@@ -223,6 +223,7 @@ GDecl		:	GType GIDList ';'			{}
 
 												fieldListTail = NULL;
 												fieldListHead = NULL;
+												currentGDeclType = NULL;
 												tupleFieldCount = 0;
 											}
 			;
@@ -291,7 +292,11 @@ GPtrID		:	MUL ID						{ $$ = $2; }
 
 TupleDecl			:	'(' TupleFieldDeclList ')'				{ 
 																	$$ = $2; 
-																	currentGDeclType->size = tupleFieldCount;
+
+																	if (currentGDeclType != NULL)
+																		currentGDeclType->size = tupleFieldCount;
+																	if (currentLDeclType != NULL)
+																		currentLDeclType->size = tupleFieldCount;		
 																}
 					;
 
@@ -428,7 +433,19 @@ LDeclList	:	LDeclList LDecl			{}
 			|	LDecl					{}
 			;
 
-LDecl		:	LType LIDList ';'	{}
+LDecl		:	LType LIDList ';'			{}
+			|	LType TupleDecl LIDList ';'	{
+												$1->typeCategory = TYPE_TUPLE;				
+												$1->fields = $2; 
+												$1->size = tupleFieldCount;
+
+												FLPrint($1);
+
+												fieldListTail = NULL;
+												fieldListHead = NULL;
+												currentLDeclType = NULL;
+												tupleFieldCount = 0;
+											}
 			;
 
 LType		: 	INT						{ currentLDeclType = TTLookUp("int"); }
@@ -440,13 +457,21 @@ LType		: 	INT						{ currentLDeclType = TTLookUp("int"); }
 												exit(1);
 											}
 										}
+			|	TUPLE ID				{
+											if (TTLookUp($2->nodeName) != NULL){
+												printf("\nType Error: Tuple %s decalred twice\n", $2->nodeName);
+												exit(1);
+											}					
+											currentLDeclType = TTInstall($2->nodeName, 0, NULL); 
+											$$ = currentLDeclType;
+										}
 			;
 
 LIDList		:	LIDList ',' LID		{}
 			|	LID						{}
 			; 
 
-LID			:	ID						{ LSTInstall($1->nodeName, currentLDeclType, 1); }
+LID			:	ID						{ LSTInstall($1->nodeName, currentLDeclType, currentLDeclType->size); }
 			|	ID '[' NUM ']'			{
 											if ($3->intConstVal < 1) {
 												printf("\nArray Declaration expects valid size\n");
