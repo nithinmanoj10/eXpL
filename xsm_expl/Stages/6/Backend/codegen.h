@@ -89,12 +89,21 @@ void initStackBP(FILE *filePtr);
 void printTuple(FILE *filePtr, struct ASTNode *root);
 
 /**
- *  @brief  Codegen function for construction of a tuple 
- * 
- *  @param  filePtr         Pointer to target code file      
+ *  @brief  Codegen function for construction of a tuple
+ *
+ *  @param  filePtr         Pointer to target code file
  *  @param  tupleID         AST Node of the tuple variables to be constructed
  *  @param  tupleFields     List of tuple fields
  */
 void constructTuple(FILE *filePtr, struct ASTNode *tupleID, struct ASTNode *tupleFields);
+
+/**
+ *  @brief  Codegen function for assignment of a tuple
+ *
+ *  @param  filePtr     Pointer to target code file
+ *  @param  LHSTuple    AST Node of LHS Tuple variable
+ *  @param  RHSTuple    AST Node of RHS Tuple variable
+ */
+void assignTuple(FILE *filePtr, struct ASTNode *LHSTuple, struct ASTNode *RHSTuple);
 
 #endif

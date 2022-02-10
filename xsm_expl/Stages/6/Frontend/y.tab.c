@@ -651,7 +651,7 @@ typedef struct {
 } YYSTACKDATA;
 /* variables for the parser stack */
 static YYSTACKDATA yystack;
-#line 692 "ast.y"
+#line 677 "ast.y"
 
 void yyerror(char const *s){
 	printf("\n❌ ast.y | Error: %s, at statement %d\n", s, statementCount);
@@ -1022,43 +1022,43 @@ case 33:
 												}
 break;
 case 34:
-#line 179 "ast.y"
+#line 174 "ast.y"
 	{}
 break;
 case 35:
-#line 182 "ast.y"
+#line 177 "ast.y"
 	{ yyval.node = TreeCreate(typeTableVOID, RETURN_NODE, NULL, INT_MAX, NULL, yystack.l_mark[-1].node, NULL, NULL); }
 break;
 case 36:
-#line 187 "ast.y"
+#line 182 "ast.y"
 	{ yyval.node = TreeCreate(typeTableVOID, IF_NODE, NULL, INT_MAX, NULL, yystack.l_mark[-5].node, yystack.l_mark[-3].node, yystack.l_mark[-1].node); }
 break;
 case 37:
-#line 188 "ast.y"
+#line 183 "ast.y"
 	{ yyval.node = TreeCreate(typeTableVOID, IF_NODE, NULL, INT_MAX, NULL, yystack.l_mark[-3].node, yystack.l_mark[-1].node, NULL); }
 break;
 case 38:
-#line 191 "ast.y"
+#line 186 "ast.y"
 	{ yyval.node = TreeCreate(typeTableVOID, WHILE_NODE, NULL, INT_MAX, NULL, yystack.l_mark[-3].node, NULL, yystack.l_mark[-1].node); }
 break;
 case 39:
-#line 194 "ast.y"
+#line 189 "ast.y"
 	{ yyval.node = TreeCreate(typeTableVOID, DO_WHILE_NODE, NULL, INT_MAX, NULL, yystack.l_mark[-3].node, NULL, yystack.l_mark[-1].node); }
 break;
 case 40:
-#line 197 "ast.y"
+#line 192 "ast.y"
 	{ yyval.node = TreeCreate(typeTableVOID, BREAK_NODE, NULL, INT_MAX, NULL, NULL, NULL, NULL); }
 break;
 case 41:
-#line 200 "ast.y"
+#line 195 "ast.y"
 	{ yyval.node = TreeCreate(typeTableVOID, CONTINUE_NODE, NULL, INT_MAX, NULL, NULL, NULL, NULL); }
 break;
 case 42:
-#line 203 "ast.y"
+#line 198 "ast.y"
 	{ yyval.node = TreeCreate(typeTableVOID, BREAKPOINT_NODE, NULL, INT_MAX, NULL, NULL, NULL, NULL); }
 break;
 case 43:
-#line 208 "ast.y"
+#line 203 "ast.y"
 	{
 												GSTPrint(); 
 												printTypeTable();					
@@ -1067,23 +1067,23 @@ case 43:
 											}
 break;
 case 44:
-#line 214 "ast.y"
+#line 209 "ast.y"
 	{}
 break;
 case 45:
-#line 217 "ast.y"
+#line 212 "ast.y"
 	{}
 break;
 case 46:
-#line 218 "ast.y"
+#line 213 "ast.y"
 	{}
 break;
 case 47:
-#line 221 "ast.y"
+#line 216 "ast.y"
 	{}
 break;
 case 48:
-#line 222 "ast.y"
+#line 217 "ast.y"
 	{ 
 												yystack.l_mark[-3].TTNode->typeCategory = TYPE_TUPLE;				
 												yystack.l_mark[-3].TTNode->fields = yystack.l_mark[-2].FLNode; 
@@ -1097,15 +1097,15 @@ case 48:
 											}
 break;
 case 49:
-#line 235 "ast.y"
+#line 230 "ast.y"
 	{ currentGDeclType = TTLookUp("int"); }
 break;
 case 50:
-#line 236 "ast.y"
+#line 231 "ast.y"
 	{ currentGDeclType = TTLookUp("str"); }
 break;
 case 51:
-#line 237 "ast.y"
+#line 232 "ast.y"
 	{ 
 												currentGDeclType = TTLookUp(yystack.l_mark[0].node->nodeName);
 												if(currentGDeclType == NULL) {
@@ -1115,7 +1115,7 @@ case 51:
 			 								}
 break;
 case 52:
-#line 244 "ast.y"
+#line 239 "ast.y"
 	{ 
 												if (TTLookUp(yystack.l_mark[0].node->nodeName) != NULL){
 													printf("\nType Error: Tuple %s decalred twice\n", yystack.l_mark[0].node->nodeName);
@@ -1126,19 +1126,19 @@ case 52:
 											}
 break;
 case 53:
-#line 254 "ast.y"
+#line 249 "ast.y"
 	{}
 break;
 case 54:
-#line 255 "ast.y"
+#line 250 "ast.y"
 	{}
 break;
 case 55:
-#line 258 "ast.y"
+#line 253 "ast.y"
 	{ GSTInstall(yystack.l_mark[0].node->nodeName, currentGDeclType, currentGDeclType->size, NULL); }
 break;
 case 56:
-#line 259 "ast.y"
+#line 254 "ast.y"
 	{
 												if (yystack.l_mark[-1].node->intConstVal < 1) {
 													printf("\nArray Declaration expects valid size\n");
@@ -1148,7 +1148,7 @@ case 56:
 											}
 break;
 case 57:
-#line 266 "ast.y"
+#line 261 "ast.y"
 	{
 												GSTInstall(yystack.l_mark[-3].node->nodeName, currentGDeclType, -1, getParamListHead());
 												flushParamList();
@@ -1157,7 +1157,7 @@ case 57:
 											}
 break;
 case 58:
-#line 272 "ast.y"
+#line 267 "ast.y"
 	{
 												if (strcmp(currentGDeclType->typeName, "int") == 0)
 													GSTInstall(yystack.l_mark[0].node->nodeName, TTLookUp("int*"), 1, NULL);	
@@ -1167,7 +1167,7 @@ case 58:
 											}
 break;
 case 59:
-#line 279 "ast.y"
+#line 274 "ast.y"
 	{
 												if (strcmp(currentGDeclType->typeName, "int") == 0)
 													GSTInstall(yystack.l_mark[-3].node->nodeName, TTLookUp("int*"), -1, getParamListHead());	
@@ -1181,18 +1181,18 @@ case 59:
 											}
 break;
 case 60:
-#line 292 "ast.y"
+#line 287 "ast.y"
 	{ yyval.node = yystack.l_mark[0].node; }
 break;
 case 61:
-#line 297 "ast.y"
+#line 292 "ast.y"
 	{ 
 																	yyval.FLNode = yystack.l_mark[-1].FLNode; 
 																	currentGDeclType->size = tupleFieldCount;
 																}
 break;
 case 62:
-#line 303 "ast.y"
+#line 298 "ast.y"
 	{
 																	yystack.l_mark[0].FLNode->fieldIndex = fieldListTail->fieldIndex + 1;
 																	fieldListTail->next = yystack.l_mark[0].FLNode;
@@ -1201,7 +1201,7 @@ case 62:
 																}
 break;
 case 63:
-#line 309 "ast.y"
+#line 304 "ast.y"
 	{
 																	yystack.l_mark[0].FLNode->fieldIndex = 0;
 																	fieldListHead = yystack.l_mark[0].FLNode;
@@ -1210,89 +1210,89 @@ case 63:
 																}
 break;
 case 64:
-#line 317 "ast.y"
+#line 312 "ast.y"
 	{
 																	yyval.FLNode = FLCreateNode(yystack.l_mark[0].node->nodeName, yystack.l_mark[-1].TTNode);
 																	++tupleFieldCount;
 																}
 break;
 case 65:
-#line 323 "ast.y"
+#line 318 "ast.y"
 	{ yyval.TTNode = TTLookUp("int"); }
 break;
 case 66:
-#line 324 "ast.y"
+#line 319 "ast.y"
 	{ yyval.TTNode = TTLookUp("str"); }
 break;
 case 67:
-#line 327 "ast.y"
+#line 322 "ast.y"
 	{ yyval.node = yystack.l_mark[0].node; }
 break;
 case 68:
-#line 345 "ast.y"
+#line 330 "ast.y"
 	{}
 break;
 case 69:
-#line 346 "ast.y"
+#line 331 "ast.y"
 	{}
 break;
 case 70:
-#line 347 "ast.y"
+#line 332 "ast.y"
 	{}
 break;
 case 71:
-#line 350 "ast.y"
+#line 335 "ast.y"
 	{ 
 											paramListInstall(currentParamType, yystack.l_mark[0].node->nodeName);
 											++paramCount;	
 										}
 break;
 case 72:
-#line 356 "ast.y"
+#line 341 "ast.y"
 	{ currentParamType = TTLookUp("int"); }
 break;
 case 73:
-#line 357 "ast.y"
+#line 342 "ast.y"
 	{ currentParamType = TTLookUp("str"); }
 break;
 case 74:
-#line 358 "ast.y"
+#line 343 "ast.y"
 	{  }
 break;
 case 75:
-#line 359 "ast.y"
+#line 344 "ast.y"
 	{  }
 break;
 case 76:
-#line 360 "ast.y"
+#line 345 "ast.y"
 	{ currentParamType = TTLookUp(yystack.l_mark[0].node->nodeName); }
 break;
 case 77:
-#line 369 "ast.y"
+#line 354 "ast.y"
 	{ yyval.node = insertToArgList(yystack.l_mark[-2].node, yystack.l_mark[0].node); }
 break;
 case 78:
-#line 370 "ast.y"
+#line 355 "ast.y"
 	{ yyval.node = yystack.l_mark[0].node; }
 break;
 case 79:
-#line 371 "ast.y"
+#line 356 "ast.y"
 	{}
 break;
 case 80:
-#line 374 "ast.y"
+#line 359 "ast.y"
 	{ yyval.node = yystack.l_mark[0].node; }
 break;
 case 81:
-#line 380 "ast.y"
+#line 365 "ast.y"
 	{}
 break;
 case 82:
-#line 381 "ast.y"
+#line 366 "ast.y"
 	{}
 break;
 case 83:
-#line 384 "ast.y"
+#line 369 "ast.y"
 	{ 
 															if(GSTLookup(yystack.l_mark[0].node->nodeName) == NULL){
 																printf("\nFunction %s is not declared\n", yystack.l_mark[0].node->nodeName);
@@ -1303,7 +1303,7 @@ case 83:
 														}
 break;
 case 84:
-#line 395 "ast.y"
+#line 380 "ast.y"
 	{
 															char* currentFuncName = getCurrentFuncName();
 
@@ -1322,7 +1322,7 @@ case 84:
 														}
 break;
 case 85:
-#line 413 "ast.y"
+#line 398 "ast.y"
 	{
 															verifyFunctionSignature(yystack.l_mark[-3].node->nodeName);
 															LSTAddParams();
@@ -1330,64 +1330,64 @@ case 85:
 														}
 break;
 case 86:
-#line 419 "ast.y"
+#line 404 "ast.y"
 	{ currentFDefType = TTLookUp("int"); }
 break;
 case 87:
-#line 420 "ast.y"
+#line 405 "ast.y"
 	{ currentFDefType = TTLookUp("str"); }
 break;
 case 88:
-#line 421 "ast.y"
+#line 406 "ast.y"
 	{ currentFDefType = TTLookUp("int*"); }
 break;
 case 89:
-#line 422 "ast.y"
+#line 407 "ast.y"
 	{ currentFDefType = TTLookUp("str*"); }
 break;
 case 90:
-#line 423 "ast.y"
+#line 408 "ast.y"
 	{ currentFDefType = TTLookUp(yystack.l_mark[0].node->nodeName); }
 break;
 case 91:
-#line 426 "ast.y"
+#line 411 "ast.y"
 	{
 															struct ASTNode* funcBodyStmt = TreeCreate(typeTableVOID, SLIST_NODE, NULL, INT_MAX, NULL, yystack.l_mark[-3].node, NULL, yystack.l_mark[-2].node);
 															yyval.node = funcBodyStmt;
 														}
 break;
 case 93:
-#line 436 "ast.y"
+#line 421 "ast.y"
 	{  
 											/* printTupleList();*/
 										}
 break;
 case 94:
-#line 439 "ast.y"
+#line 424 "ast.y"
 	{}
 break;
 case 95:
-#line 442 "ast.y"
+#line 427 "ast.y"
 	{}
 break;
 case 96:
-#line 443 "ast.y"
+#line 428 "ast.y"
 	{}
 break;
 case 97:
-#line 446 "ast.y"
+#line 431 "ast.y"
 	{}
 break;
 case 98:
-#line 449 "ast.y"
+#line 434 "ast.y"
 	{ currentLDeclType = TTLookUp("int"); }
 break;
 case 99:
-#line 450 "ast.y"
+#line 435 "ast.y"
 	{ currentLDeclType = TTLookUp("str"); }
 break;
 case 100:
-#line 451 "ast.y"
+#line 436 "ast.y"
 	{ 
 											currentLDeclType = TTLookUp(yystack.l_mark[0].node->nodeName);
 											if(currentLDeclType == NULL) {
@@ -1397,19 +1397,19 @@ case 100:
 										}
 break;
 case 101:
-#line 460 "ast.y"
+#line 445 "ast.y"
 	{}
 break;
 case 102:
-#line 461 "ast.y"
+#line 446 "ast.y"
 	{}
 break;
 case 103:
-#line 464 "ast.y"
+#line 449 "ast.y"
 	{ LSTInstall(yystack.l_mark[0].node->nodeName, currentLDeclType, 1); }
 break;
 case 104:
-#line 465 "ast.y"
+#line 450 "ast.y"
 	{
 											if (yystack.l_mark[-1].node->intConstVal < 1) {
 												printf("\nArray Declaration expects valid size\n");
@@ -1419,7 +1419,7 @@ case 104:
 										}
 break;
 case 105:
-#line 472 "ast.y"
+#line 457 "ast.y"
 	{
 											if(strcmp(currentLDeclType->typeName, "int") == 0)
 												LSTInstall(yystack.l_mark[0].node->nodeName, TTLookUp("int*"), 1);	
@@ -1429,7 +1429,7 @@ case 105:
 										}
 break;
 case 106:
-#line 488 "ast.y"
+#line 473 "ast.y"
 	{
 														char* currentFuncName = getCurrentFuncName();
 
@@ -1449,25 +1449,25 @@ case 106:
 													}
 break;
 case 107:
-#line 507 "ast.y"
+#line 492 "ast.y"
 	{ setCurrentFuncName("int main"); }
 break;
 case 108:
-#line 510 "ast.y"
+#line 495 "ast.y"
 	{
 														struct ASTNode* statementList = TreeCreate(typeTableVOID, SLIST_NODE, NULL, INT_MAX, NULL, yystack.l_mark[-3].node, NULL, yystack.l_mark[-2].node);
 														yyval.node = statementList;
 													}
 break;
 case 112:
-#line 525 "ast.y"
+#line 510 "ast.y"
 	{
 															yystack.l_mark[-3].node = lookupID(yystack.l_mark[-3].node);
 															yyval.node = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, yystack.l_mark[-3].node, NULL, yystack.l_mark[-2].node);
 														}
 break;
 case 113:
-#line 531 "ast.y"
+#line 516 "ast.y"
 	{
 															yystack.l_mark[-4].node = lookupID(yystack.l_mark[-4].node);
 															yystack.l_mark[-3].node->left = yystack.l_mark[-1].node;
@@ -1475,25 +1475,25 @@ case 113:
 														}
 break;
 case 114:
-#line 538 "ast.y"
+#line 523 "ast.y"
 	{
 															yystack.l_mark[-3].node = lookupID(yystack.l_mark[-3].node);
 															yyval.node = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, yystack.l_mark[-3].node, NULL, yystack.l_mark[-2].node);
 														}
 break;
 case 115:
-#line 544 "ast.y"
+#line 529 "ast.y"
 	{ yyval.node = yystack.l_mark[-1].node; }
 break;
 case 116:
-#line 545 "ast.y"
+#line 530 "ast.y"
 	{
 															yyval.node = yystack.l_mark[-4].node;
 															yyval.node->left = yystack.l_mark[-2].node;	
 														}
 break;
 case 117:
-#line 555 "ast.y"
+#line 540 "ast.y"
 	{
 												struct ASTNode* traversalPtr = yystack.l_mark[-2].node;
 												while (traversalPtr->right != NULL){
@@ -1523,7 +1523,7 @@ case 117:
 											}
 break;
 case 118:
-#line 582 "ast.y"
+#line 567 "ast.y"
 	{
 												/* Checking if ID($1) exists in LST or GST*/
 												yystack.l_mark[-2].node = lookupID(yystack.l_mark[-2].node);
@@ -1554,82 +1554,82 @@ case 118:
 											}
 break;
 case 119:
-#line 612 "ast.y"
+#line 597 "ast.y"
 	{ yyval.node = yystack.l_mark[0].node; }
 break;
 case 120:
-#line 613 "ast.y"
+#line 598 "ast.y"
 	{
 												yyval.node = yystack.l_mark[-3].node;
 												yyval.node->left = yystack.l_mark[-1].node;
 											}
 break;
 case 121:
-#line 621 "ast.y"
+#line 606 "ast.y"
 	{ yyval.node =  TreeCreate(typeTableINT, PLUS_NODE, NULL, INT_MAX, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node); }
 break;
 case 122:
-#line 622 "ast.y"
+#line 607 "ast.y"
 	{ yyval.node =  TreeCreate(typeTableINT, MINUS_NODE, NULL, INT_MAX, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node); }
 break;
 case 123:
-#line 623 "ast.y"
+#line 608 "ast.y"
 	{ yyval.node =  TreeCreate(typeTableINT, MUL_NODE, NULL, INT_MAX, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node); }
 break;
 case 124:
-#line 624 "ast.y"
+#line 609 "ast.y"
 	{ yyval.node =  TreeCreate(typeTableINT, DIV_NODE, NULL, INT_MAX, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node); }
 break;
 case 125:
-#line 625 "ast.y"
+#line 610 "ast.y"
 	{ yyval.node =  TreeCreate(typeTableINT, MOD_NODE, NULL, INT_MAX, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node); }
 break;
 case 126:
-#line 626 "ast.y"
+#line 611 "ast.y"
 	{ yyval.node =  TreeCreate(typeTableBOOL, EQ_NODE, NULL, INT_MAX, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node); }
 break;
 case 127:
-#line 627 "ast.y"
+#line 612 "ast.y"
 	{ yyval.node =  TreeCreate(typeTableBOOL, NE_NODE, NULL, INT_MAX, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node); }
 break;
 case 128:
-#line 628 "ast.y"
+#line 613 "ast.y"
 	{ yyval.node =  TreeCreate(typeTableBOOL, LT_NODE, NULL, INT_MAX, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node); }
 break;
 case 129:
-#line 629 "ast.y"
+#line 614 "ast.y"
 	{ yyval.node =  TreeCreate(typeTableBOOL, LE_NODE, NULL, INT_MAX, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node); }
 break;
 case 130:
-#line 630 "ast.y"
+#line 615 "ast.y"
 	{ yyval.node =  TreeCreate(typeTableBOOL, GT_NODE, NULL, INT_MAX, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node); }
 break;
 case 131:
-#line 631 "ast.y"
+#line 616 "ast.y"
 	{ yyval.node =  TreeCreate(typeTableBOOL, GE_NODE, NULL, INT_MAX, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node); }
 break;
 case 132:
-#line 632 "ast.y"
+#line 617 "ast.y"
 	{ yyval.node =  TreeCreate(typeTableBOOL, AND_NODE, NULL, INT_MAX, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node); }
 break;
 case 133:
-#line 633 "ast.y"
+#line 618 "ast.y"
 	{ yyval.node =  TreeCreate(typeTableBOOL, OR_NODE, NULL, INT_MAX, NULL, yystack.l_mark[-2].node, NULL, yystack.l_mark[0].node); }
 break;
 case 134:
-#line 634 "ast.y"
+#line 619 "ast.y"
 	{ yyval.node =  TreeCreate(typeTableBOOL, NOT_NODE, NULL, INT_MAX, NULL, yystack.l_mark[0].node, NULL, NULL); }
 break;
 case 135:
-#line 635 "ast.y"
+#line 620 "ast.y"
 	{ yyval.node = yystack.l_mark[-1].node; }
 break;
 case 136:
-#line 636 "ast.y"
+#line 621 "ast.y"
 	{ yyval.node = yystack.l_mark[0].node; }
 break;
 case 137:
-#line 637 "ast.y"
+#line 622 "ast.y"
 	{ 
 										/* check if ID is a type constructor*/
 										struct TypeTable* idTTEntry = TTLookUp(yystack.l_mark[-3].node->nodeName);
@@ -1652,7 +1652,7 @@ case 137:
 									}
 break;
 case 138:
-#line 657 "ast.y"
+#line 642 "ast.y"
 	{	
 										yystack.l_mark[-3].node = lookupID(yystack.l_mark[-3].node);
 										if (yystack.l_mark[-1].node->typeTablePtr != typeTableINT){
@@ -1664,7 +1664,7 @@ case 138:
 									}
 break;
 case 139:
-#line 666 "ast.y"
+#line 651 "ast.y"
 	{
 										yystack.l_mark[0].node = lookupID(yystack.l_mark[0].node);
 										if (yystack.l_mark[0].node->typeTablePtr == typeTableINT || yystack.l_mark[0].node->typeTablePtr == typeTableINTPtr)
@@ -1675,7 +1675,7 @@ case 139:
 									}
 break;
 case 140:
-#line 674 "ast.y"
+#line 659 "ast.y"
 	{
 										yystack.l_mark[0].node = lookupID(yystack.l_mark[0].node);
 										if (yystack.l_mark[0].node->typeTablePtr == typeTableINTPtr)
@@ -1686,22 +1686,22 @@ case 140:
 									}
 break;
 case 141:
-#line 682 "ast.y"
+#line 667 "ast.y"
 	{
 										yystack.l_mark[0].node = lookupID(yystack.l_mark[0].node);
 										yyval.node = yystack.l_mark[0].node;
 									}
 break;
 case 142:
-#line 686 "ast.y"
+#line 671 "ast.y"
 	{yyval.node = yystack.l_mark[0].node;}
 break;
 case 143:
-#line 687 "ast.y"
+#line 672 "ast.y"
 	{yyval.node = yystack.l_mark[0].node;}
 break;
 case 144:
-#line 688 "ast.y"
+#line 673 "ast.y"
 	{yyval.node = yystack.l_mark[0].node;}
 break;
 #line 1708 "y.tab.c"

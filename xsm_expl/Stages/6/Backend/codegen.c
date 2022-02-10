@@ -227,6 +227,13 @@ int codeGen(struct ASTNode *root, FILE *filePtr)
 			return 1;
 		}
 
+		// For tuple assignments
+		if (LHS->typeTablePtr->typeCategory == TYPE_TUPLE && RHS->typeTablePtr->typeCategory == TYPE_TUPLE)
+		{
+			assignTuple(filePtr, LHS, RHS);
+			return 1;
+		}
+
 		int resultRegNo = evalExprTree(filePtr, root->right);
 
 		if (root->left->nodeType == MUL_NODE)
@@ -358,67 +365,91 @@ void initStackBP(FILE *filePtr)
 void printTuple(FILE *filePtr, struct ASTNode *root)
 {
 
-	// find the LST Entry for the tuple
-	struct LSTNode *tupleLSTEntry = LSTLookup(root->nodeName);
+	int tupleBinding = (root->LSTEntry == NULL) ? (root->GSTEntry->binding) : (root->LSTEntry->binding);
 
-	// if not present in LST, search in GST
-	if (tupleLSTEntry == NULL)
+	int tupleAddrReg = getReg();  // Holds address of current tuple field
+	int tupleFieldReg = getReg(); // Holds field value to be printed
+
+	fprintf(filePtr, "MOV R%d, %d\n", tupleAddrReg, tupleBinding);
+
+	// if tuple is part of LST
+	if (root->LSTEntry != NULL)
+		fprintf(filePtr, "ADD R%d, BP\n", tupleAddrReg);
+
+	int tupleSize = root->typeTablePtr->size;
+
+	for (int fieldIndex = 0; fieldIndex < tupleSize; ++fieldIndex)
 	{
-		struct GSTNode *tupleGSTEntry = GSTLookup(root->nodeName);
-
-		int tupleAddrReg = getReg();  // holds address of current tuple field
-		int tupleFieldReg = getReg(); // holds tuple field value that has to be printed
-		fprintf(filePtr, "MOV R%d, %d\n", tupleAddrReg, tupleGSTEntry->binding);
-
-		for (int fieldIndex = 0; fieldIndex < tupleGSTEntry->size; ++fieldIndex)
-		{
-			fprintf(filePtr, "MOV R%d, [R%d]\n", tupleFieldReg, tupleAddrReg);
-			INT_7(filePtr, -2, tupleFieldReg);
-			fprintf(filePtr, "ADD R%d, %d\n", tupleAddrReg, 1);
-		}
-
-		freeReg(); // tupleFieldReg from printTuple()
-		freeReg(); // tupleAddrReg from printTuple()
+		fprintf(filePtr, "MOV R%d, [R%d]\n", tupleFieldReg, tupleAddrReg);
+		INT_7(filePtr, -2, tupleFieldReg);
+		fprintf(filePtr, "ADD R%d, %d\n", tupleAddrReg, 1);
 	}
-	else
-	{
-		// TODO : For tuples declared locally
-	}
+
+	freeReg(); // tupleFieldReg from printTuple()
+	freeReg(); // tupleAddrReg from printTuple()
 }
 
 void constructTuple(FILE *filePtr, struct ASTNode *tupleID, struct ASTNode *tupleFields)
 {
 
-	// check if tuple is present in LST
-	struct LSTNode *tupleLSTEntry = LSTLookup(tupleID->nodeName);
+	int tupleBinding = (tupleID->LSTEntry == NULL) ? (tupleID->GSTEntry->binding) : (tupleID->LSTEntry->binding);
 
-	// if not present in LST, search in GST
-	if (tupleLSTEntry == NULL)
+	int tupleAddrReg = getReg();  // holds address of current tuple field
+	int tupleFieldReg = getReg(); // holds tuple field value that has to be added to the tuple
+
+	fprintf(filePtr, "MOV R%d, %d\n", tupleAddrReg, tupleBinding);
+
+	// if tuple is part of LST
+	if (tupleID->LSTEntry != NULL)
+		fprintf(filePtr, "ADD R%d, BP\n", tupleAddrReg);
+
+	int tupleSize = tupleID->typeTablePtr->size;
+
+	for (int fieldIndex = 0; fieldIndex < tupleSize; ++fieldIndex)
 	{
-		struct GSTNode *tupleGSTEntry = GSTLookup(tupleID->nodeName);
+		if (tupleFields->nodeType == CONST_INT_NODE)
+			fprintf(filePtr, "MOV R%d, %d\n", tupleFieldReg, tupleFields->intConstVal);
+		if (tupleFields->nodeType == CONST_STR_NODE)
+			fprintf(filePtr, "MOV R%d, \"%s\"\n", tupleFieldReg, tupleFields->strConstVal);
 
-		int tupleAddrReg = getReg();  // holds address of current tuple field
-		int tupleFieldReg = getReg(); // holds tuple field value that has to be added to the tuple
-		fprintf(filePtr, "MOV R%d, %d\n", tupleAddrReg, tupleGSTEntry->binding);
+		fprintf(filePtr, "MOV [R%d], R%d\n", tupleAddrReg, tupleFieldReg);
+		fprintf(filePtr, "ADD R%d, 1\n", tupleAddrReg);
 
-		for (int fieldIndex = 0; fieldIndex < tupleGSTEntry->size; ++fieldIndex)
-		{
-			if (tupleFields->nodeType == CONST_INT_NODE)
-				fprintf(filePtr, "MOV R%d, %d\n", tupleFieldReg, tupleFields->intConstVal);
-			if (tupleFields->nodeType == CONST_STR_NODE)
-				fprintf(filePtr, "MOV R%d, \"%s\"\n", tupleFieldReg, tupleFields->strConstVal);
-
-			fprintf(filePtr, "MOV [R%d], R%d\n", tupleAddrReg, tupleFieldReg);
-			fprintf(filePtr, "ADD R%d, 1\n", tupleAddrReg);
-
-			tupleFields = tupleFields->argListNext;
-		}
-
-		freeReg(); // tupleFieldReg from printTuple()
-		freeReg(); // tupleAddrReg from printTuple()
+		tupleFields = tupleFields->argListNext;
 	}
-	else
+
+	freeReg(); // tupleFieldReg from printTuple()
+	freeReg(); // tupleAddrReg from printTuple()
+}
+
+void assignTuple(FILE *filePtr, struct ASTNode *LHSTuple, struct ASTNode *RHSTuple)
+{
+	int LHSTupleBinding = (LHSTuple->LSTEntry == NULL) ? (LHSTuple->GSTEntry->binding) : (LHSTuple->LSTEntry->binding);
+	int RHSTupleBinding = (RHSTuple->LSTEntry == NULL) ? (RHSTuple->GSTEntry->binding) : (RHSTuple->LSTEntry->binding);
+
+	int LHSTupleAddrReg = getReg(); // Holds address of LHS Tuple
+	int RHSTupleAddrReg = getReg(); // Holds address of RHS Tuple
+
+	fprintf(filePtr, "MOV R%d, %d\n", LHSTupleAddrReg, LHSTupleBinding);
+	fprintf(filePtr, "MOV R%d, %d\n", RHSTupleAddrReg, RHSTupleBinding);
+
+	// if LHSTuple is part of LST
+	if (LHSTuple->LSTEntry != NULL)
+		fprintf(filePtr, "ADD R%d, BP\n", LHSTupleAddrReg);
+
+	// if RHSTuple is part of LST
+	if (RHSTuple->LSTEntry != NULL)
+		fprintf(filePtr, "ADD R%d, BP\n", RHSTupleAddrReg);
+
+	int tupleSize = LHSTuple->typeTablePtr->size;
+
+	for (int fieldIndex = 0; fieldIndex < tupleSize; ++fieldIndex)
 	{
-		// TODO : For tuples declared locally
+		fprintf(filePtr, "MOV [R%d], [R%d]\n", LHSTupleAddrReg, RHSTupleAddrReg);
+		fprintf(filePtr, "ADD R%d, 1\n", LHSTupleAddrReg);
+		fprintf(filePtr, "ADD R%d, 1\n", RHSTupleAddrReg);
 	}
+
+	freeReg(); // LHSTupleAddrReg from assignTuple
+	freeReg(); // RHSTupleAddrReg from assignTuple
 }
