@@ -25,7 +25,7 @@ int codeGen(struct ASTNode *root, FILE *filePtr)
 	if (root->nodeType == CONST_INT_NODE || root->nodeType == CONST_STR_NODE || root->nodeType == ID_NODE)
 		return 1;
 
-	if (root->nodeType == FIELD_NODE)
+	if (root->nodeType == FIELD_NODE || root->nodeType == TUPLE_NODE)
 		return 1;
 
 	// for a IF Node
@@ -217,6 +217,16 @@ int codeGen(struct ASTNode *root, FILE *filePtr)
 			return 1;
 		}
 
+		struct ASTNode *LHS = root->left;
+		struct ASTNode *RHS = root->right;
+
+		// For tuple constructors
+		if (LHS->typeTablePtr->typeCategory == TYPE_TUPLE && RHS->nodeType == TUPLE_CONSTRUCTOR_NODE)
+		{
+			constructTuple(filePtr, LHS, RHS->argListHead);
+			return 1;
+		}
+
 		int resultRegNo = evalExprTree(filePtr, root->right);
 
 		if (root->left->nodeType == MUL_NODE)
@@ -246,9 +256,19 @@ int codeGen(struct ASTNode *root, FILE *filePtr)
 	if (root->nodeType == WRITE_NODE)
 	{
 
-		int resultRegNo = evalExprTree(filePtr, root->left);
-		INT_7(filePtr, -2, resultRegNo);
-		freeReg();
+		struct ASTNode *writeArgument = root->left;
+
+		// for printing an entire tuple
+		if (writeArgument->nodeType == ID_NODE && writeArgument->typeTablePtr->typeCategory == TYPE_TUPLE)
+		{
+			printTuple(filePtr, writeArgument);
+		}
+		else
+		{
+			int resultRegNo = evalExprTree(filePtr, writeArgument);
+			INT_7(filePtr, -2, resultRegNo);
+			freeReg();
+		}
 	}
 
 	return 1;
@@ -270,35 +290,6 @@ int initVariables(FILE *filePtr)
 
 int codeGenWhile(FILE *filePtr, struct ASTNode *root, int label, int option)
 {
-
-	// struct ASTNode *LHS;
-	// struct ASTNode *RHS;
-	// int reg1, reg2;
-
-	// LHS = root->left;
-	// RHS = root->right;
-
-	// reg1 = evalExprTree(filePtr, LHS);
-	// reg2 = evalExprTree(filePtr, RHS);
-
-	// if (root->nodeType == EQ_NODE)
-	// 	fprintf(filePtr, "EQ R%d, R%d\n", reg1, reg2);
-
-	// if (root->nodeType == NE_NODE)
-	// 	fprintf(filePtr, "NE R%d, R%d\n", reg1, reg2);
-
-	// if (root->nodeType == LT_NODE)
-	// 	fprintf(filePtr, "LT R%d, R%d\n", reg1, reg2);
-
-	// if (root->nodeType == LE_NODE)
-	// 	fprintf(filePtr, "LE R%d, R%d\n", reg1, reg2);
-
-	// if (root->nodeType == GT_NODE)
-	// 	fprintf(filePtr, "GT R%d, R%d\n", reg1, reg2);
-
-	// if (root->nodeType == GE_NODE)
-	// 	fprintf(filePtr, "GE R%d, R%d\n", reg1, reg2);
-
 	int condValueReg = evalExprTree(filePtr, root);
 
 	if (option == 1)
@@ -362,4 +353,72 @@ void initStackBP(FILE *filePtr)
 	fprintf(filePtr, "PUSH R0\n");
 	fprintf(filePtr, "CALL F0\n");
 	fprintf(filePtr, "INT 10\n");
+}
+
+void printTuple(FILE *filePtr, struct ASTNode *root)
+{
+
+	// find the LST Entry for the tuple
+	struct LSTNode *tupleLSTEntry = LSTLookup(root->nodeName);
+
+	// if not present in LST, search in GST
+	if (tupleLSTEntry == NULL)
+	{
+		struct GSTNode *tupleGSTEntry = GSTLookup(root->nodeName);
+
+		int tupleAddrReg = getReg();  // holds address of current tuple field
+		int tupleFieldReg = getReg(); // holds tuple field value that has to be printed
+		fprintf(filePtr, "MOV R%d, %d\n", tupleAddrReg, tupleGSTEntry->binding);
+
+		for (int fieldIndex = 0; fieldIndex < tupleGSTEntry->size; ++fieldIndex)
+		{
+			fprintf(filePtr, "MOV R%d, [R%d]\n", tupleFieldReg, tupleAddrReg);
+			INT_7(filePtr, -2, tupleFieldReg);
+			fprintf(filePtr, "ADD R%d, %d\n", tupleAddrReg, 1);
+		}
+
+		freeReg(); // tupleFieldReg from printTuple()
+		freeReg(); // tupleAddrReg from printTuple()
+	}
+	else
+	{
+		// TODO : For tuples declared locally
+	}
+}
+
+void constructTuple(FILE *filePtr, struct ASTNode *tupleID, struct ASTNode *tupleFields)
+{
+
+	// check if tuple is present in LST
+	struct LSTNode *tupleLSTEntry = LSTLookup(tupleID->nodeName);
+
+	// if not present in LST, search in GST
+	if (tupleLSTEntry == NULL)
+	{
+		struct GSTNode *tupleGSTEntry = GSTLookup(tupleID->nodeName);
+
+		int tupleAddrReg = getReg();  // holds address of current tuple field
+		int tupleFieldReg = getReg(); // holds tuple field value that has to be added to the tuple
+		fprintf(filePtr, "MOV R%d, %d\n", tupleAddrReg, tupleGSTEntry->binding);
+
+		for (int fieldIndex = 0; fieldIndex < tupleGSTEntry->size; ++fieldIndex)
+		{
+			if (tupleFields->nodeType == CONST_INT_NODE)
+				fprintf(filePtr, "MOV R%d, %d\n", tupleFieldReg, tupleFields->intConstVal);
+			if (tupleFields->nodeType == CONST_STR_NODE)
+				fprintf(filePtr, "MOV R%d, \"%s\"\n", tupleFieldReg, tupleFields->strConstVal);
+
+			fprintf(filePtr, "MOV [R%d], R%d\n", tupleAddrReg, tupleFieldReg);
+			fprintf(filePtr, "ADD R%d, 1\n", tupleAddrReg);
+
+			tupleFields = tupleFields->argListNext;
+		}
+
+		freeReg(); // tupleFieldReg from printTuple()
+		freeReg(); // tupleAddrReg from printTuple()
+	}
+	else
+	{
+		// TODO : For tuples declared locally
+	}
 }

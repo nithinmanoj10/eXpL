@@ -1,2 +1,2 @@
-break ../Functions/typeCheck.c:210
-run input < ../Input_Files/6/sample.expl
+break ../Backend/codegen.c:249
+run input < ../Input_Files/6/tuple.expl

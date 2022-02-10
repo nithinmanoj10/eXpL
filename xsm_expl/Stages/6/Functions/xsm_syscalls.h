@@ -12,25 +12,24 @@
  * @return	[0]:		Success
  *		[-1]:		Fail
  */
-int INT_10(FILE* filePtr);
+int INT_10(FILE *filePtr);
 
 /**
- * Low Level System Call to print data to the terminal. Data to be
- * printed is stored in memory location 5000
+ * Low Level System Call to print data to the terminal.
  *
- * @params	filePtr:	Pointer to the file where the XSM Code
+ * @param	filePtr	Pointer to the file where the XSM Code
  *		 			has to be written for INT 7
- * 		
- *					arg1:			File Descriptor (-2 for terminal)
- *		
- *					regNo:		Register number where data to written
- *										is stored
+ *
+ * @param	arg1	File Descriptor (-2 for terminal)
+ *
+ * @param	regNo	Register number where data to written
+ *					is stored
  *
  * @return		[0]:		Success
  *						[-1]:		File Descriptor is invalid
- *  
+ *
  */
-int INT_7(FILE* filePtr, int arg1, int regNo);
+int INT_7(FILE *filePtr, int arg1, int regNo);
 
 /**
  * Low Level System Call to read input from the user
@@ -45,6 +44,6 @@ int INT_7(FILE* filePtr, int arg1, int regNo);
  *
  * @return	1:		Success
  */
-int INT_6(FILE* filePtr, int arg1, int arg2);
+int INT_6(FILE *filePtr, int arg1, int arg2);
 
 #endif

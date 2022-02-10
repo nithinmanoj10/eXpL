@@ -41,10 +41,10 @@
 
   29  outputStmt : WRITE expr
 
-  30  assignStmt : ID EQUAL expr
-  31             | ID '[' expr ']' EQUAL expr
-  32             | MUL ID EQUAL expr
-  33             | StructField EQUAL expr
+  30  assignStmt : ID '=' expr
+  31             | ID '[' expr ']' '=' expr
+  32             | MUL ID '=' expr
+  33             | StructField '=' expr
 
   34  retVal : expr
 
@@ -171,8 +171,8 @@
 
  114  InitializeStmt : DynaMemID INITIALIZE '(' ')'
 
- 115  DynaMemID : ID EQUAL
- 116            | ID '[' expr ']' EQUAL
+ 115  DynaMemID : ID '='
+ 116            | ID '[' expr ']' '='
 
  117  StructField : StructField '.' ID
  118              | StructID '.' ID
@@ -534,8 +534,8 @@ state 37
 
 	'['  shift 58
 	'('  shift 59
-	';'  reduce 55
 	','  reduce 55
+	';'  reduce 55
 
 
 state 38
@@ -562,8 +562,8 @@ state 40
 	GID : GPtrID . '(' ParamList ')'  (59)
 
 	'('  shift 66
-	';'  reduce 58
 	','  reduce 58
+	';'  reduce 58
 
 
 state 41
@@ -582,8 +582,8 @@ state 42
 	GDecl : GType GIDList . ';'  (47)
 	GIDList : GIDList . ',' GID  (53)
 
-	';'  shift 68
-	','  shift 69
+	','  shift 68
+	';'  shift 69
 	.  error
 
 
@@ -767,18 +767,12 @@ state 67
 	GDecl : GType TupleDecl GIDList . ';'  (48)
 	GIDList : GIDList . ',' GID  (53)
 
+	','  shift 68
 	';'  shift 87
-	','  shift 69
 	.  error
 
 
 state 68
-	GDecl : GType GIDList ';' .  (47)
-
-	.  reduce 47
-
-
-state 69
 	GIDList : GIDList ',' . GID  (53)
 
 	ID  shift 37
@@ -787,6 +781,12 @@ state 69
 
 	GPtrID  goto 40
 	GID  goto 88
+
+
+state 69
+	GDecl : GType GIDList ';' .  (47)
+
+	.  reduce 47
 
 
 state 70
@@ -1129,8 +1129,8 @@ state 110
 	LID : ID . '[' NUM ']'  (104)
 
 	'['  shift 146
-	';'  reduce 103
 	','  reduce 103
+	';'  reduce 103
 
 
 state 111
@@ -1144,8 +1144,8 @@ state 112
 	LDecl : LType LIDList . ';'  (97)
 	LIDList : LIDList . ',' LID  (101)
 
-	';'  shift 148
-	','  shift 149
+	','  shift 148
+	';'  shift 149
 	.  error
 
 
@@ -1156,14 +1156,14 @@ state 113
 
 
 state 114
-	assignStmt : ID . EQUAL expr  (30)
-	assignStmt : ID . '[' expr ']' EQUAL expr  (31)
-	DynaMemID : ID . EQUAL  (115)
-	DynaMemID : ID . '[' expr ']' EQUAL  (116)
+	assignStmt : ID . '=' expr  (30)
+	assignStmt : ID . '[' expr ']' '=' expr  (31)
+	DynaMemID : ID . '='  (115)
+	DynaMemID : ID . '[' expr ']' '='  (116)
 	StructID : ID .  (119)
 	StructID : ID . '[' expr ']'  (120)
 
-	EQUAL  shift 150
+	'='  shift 150
 	'['  shift 151
 	'.'  reduce 119
 
@@ -1205,7 +1205,7 @@ state 116
 
 
 state 117
-	assignStmt : MUL . ID EQUAL expr  (32)
+	assignStmt : MUL . ID '=' expr  (32)
 
 	ID  shift 163
 	.  error
@@ -1400,10 +1400,10 @@ state 134
 
 
 state 135
-	assignStmt : StructField . EQUAL expr  (33)
+	assignStmt : StructField . '=' expr  (33)
 	StructField : StructField . '.' ID  (117)
 
-	EQUAL  shift 171
+	'='  shift 171
 	'.'  shift 172
 	.  error
 
@@ -1491,12 +1491,6 @@ state 147
 
 
 state 148
-	LDecl : LType LIDList ';' .  (97)
-
-	.  reduce 97
-
-
-state 149
 	LIDList : LIDList ',' . LID  (101)
 
 	ID  shift 110
@@ -1506,9 +1500,15 @@ state 149
 	LID  goto 180
 
 
+state 149
+	LDecl : LType LIDList ';' .  (97)
+
+	.  reduce 97
+
+
 state 150
-	assignStmt : ID EQUAL . expr  (30)
-	DynaMemID : ID EQUAL .  (115)
+	assignStmt : ID '=' . expr  (30)
+	DynaMemID : ID '=' .  (115)
 
 	ID  shift 152
 	NUM  shift 153
@@ -1528,8 +1528,8 @@ state 150
 
 
 state 151
-	assignStmt : ID '[' . expr ']' EQUAL expr  (31)
-	DynaMemID : ID '[' . expr ']' EQUAL  (116)
+	assignStmt : ID '[' . expr ']' '=' expr  (31)
+	DynaMemID : ID '[' . expr ']' '='  (116)
 	StructID : ID '[' . expr ']'  (120)
 
 	ID  shift 152
@@ -1566,6 +1566,8 @@ state 152
 	ENDWHILE  reduce 141
 	AND  reduce 141
 	OR  reduce 141
+	','  reduce 141
+	')'  reduce 141
 	EQ  reduce 141
 	NEQ  reduce 141
 	LT  reduce 141
@@ -1574,8 +1576,6 @@ state 152
 	GTE  reduce 141
 	';'  reduce 141
 	']'  reduce 141
-	','  reduce 141
-	')'  reduce 141
 	'.'  reduce 119
 
 
@@ -1694,6 +1694,8 @@ state 161
 	ENDWHILE  reduce 136
 	AND  reduce 136
 	OR  reduce 136
+	','  reduce 136
+	')'  reduce 136
 	EQ  reduce 136
 	NEQ  reduce 136
 	LT  reduce 136
@@ -1702,8 +1704,6 @@ state 161
 	GTE  reduce 136
 	';'  reduce 136
 	']'  reduce 136
-	','  reduce 136
-	')'  reduce 136
 
 
 state 162
@@ -1739,9 +1739,9 @@ state 162
 
 
 state 163
-	assignStmt : MUL ID . EQUAL expr  (32)
+	assignStmt : MUL ID . '=' expr  (32)
 
-	EQUAL  shift 202
+	'='  shift 202
 	.  error
 
 
@@ -1887,7 +1887,7 @@ state 170
 
 
 state 171
-	assignStmt : StructField EQUAL . expr  (33)
+	assignStmt : StructField '=' . expr  (33)
 
 	ID  shift 152
 	NUM  shift 153
@@ -1995,7 +1995,7 @@ state 180
 
 
 state 181
-	assignStmt : ID EQUAL expr .  (30)
+	assignStmt : ID '=' expr .  (30)
 	expr : expr . PLUS expr  (121)
 	expr : expr . MINUS expr  (122)
 	expr : expr . MUL expr  (123)
@@ -2027,8 +2027,8 @@ state 181
 
 
 state 182
-	assignStmt : ID '[' expr . ']' EQUAL expr  (31)
-	DynaMemID : ID '[' expr . ']' EQUAL  (116)
+	assignStmt : ID '[' expr . ']' '=' expr  (31)
+	DynaMemID : ID '[' expr . ']' '='  (116)
 	StructID : ID '[' expr . ']'  (120)
 	expr : expr . PLUS expr  (121)
 	expr : expr . MINUS expr  (122)
@@ -2156,13 +2156,13 @@ state 188
 	MOD  shift 193
 	AND  shift 194
 	OR  shift 195
+	')'  shift 224
 	EQ  shift 196
 	NEQ  shift 197
 	LT  shift 198
 	LTE  shift 199
 	GT  shift 200
 	GTE  shift 201
-	')'  shift 224
 	.  error
 
 
@@ -2401,7 +2401,7 @@ state 201
 
 
 state 202
-	assignStmt : MUL ID EQUAL . expr  (32)
+	assignStmt : MUL ID '=' . expr  (32)
 
 	ID  shift 152
 	NUM  shift 153
@@ -2561,7 +2561,7 @@ state 209
 
 
 state 210
-	assignStmt : StructField EQUAL expr .  (33)
+	assignStmt : StructField '=' expr .  (33)
 	expr : expr . PLUS expr  (121)
 	expr : expr . MINUS expr  (122)
 	expr : expr . MUL expr  (123)
@@ -2686,11 +2686,11 @@ state 218
 
 
 state 219
-	assignStmt : ID '[' expr ']' . EQUAL expr  (31)
-	DynaMemID : ID '[' expr ']' . EQUAL  (116)
+	assignStmt : ID '[' expr ']' . '=' expr  (31)
+	DynaMemID : ID '[' expr ']' . '='  (116)
 	StructID : ID '[' expr ']' .  (120)
 
-	EQUAL  shift 248
+	'='  shift 248
 	'.'  reduce 120
 
 
@@ -2808,6 +2808,8 @@ state 225
 	ENDWHILE  reduce 121
 	AND  reduce 121
 	OR  reduce 121
+	','  reduce 121
+	')'  reduce 121
 	EQ  reduce 121
 	NEQ  reduce 121
 	LT  reduce 121
@@ -2816,8 +2818,6 @@ state 225
 	GTE  reduce 121
 	';'  reduce 121
 	']'  reduce 121
-	','  reduce 121
-	')'  reduce 121
 
 
 state 226
@@ -2846,6 +2846,8 @@ state 226
 	ENDWHILE  reduce 122
 	AND  reduce 122
 	OR  reduce 122
+	','  reduce 122
+	')'  reduce 122
 	EQ  reduce 122
 	NEQ  reduce 122
 	LT  reduce 122
@@ -2854,8 +2856,6 @@ state 226
 	GTE  reduce 122
 	';'  reduce 122
 	']'  reduce 122
-	','  reduce 122
-	')'  reduce 122
 
 
 state 227
@@ -2947,10 +2947,10 @@ state 230
 	ENDWHILE  reduce 132
 	AND  reduce 132
 	OR  reduce 132
-	';'  reduce 132
-	']'  reduce 132
 	','  reduce 132
 	')'  reduce 132
+	';'  reduce 132
+	']'  reduce 132
 
 
 state 231
@@ -2985,10 +2985,10 @@ state 231
 	DO  reduce 133
 	ENDWHILE  reduce 133
 	OR  reduce 133
-	';'  reduce 133
-	']'  reduce 133
 	','  reduce 133
 	')'  reduce 133
+	';'  reduce 133
+	']'  reduce 133
 
 
 state 232
@@ -3021,12 +3021,12 @@ state 232
 	ENDWHILE  reduce 126
 	AND  reduce 126
 	OR  reduce 126
+	','  reduce 126
+	')'  reduce 126
 	EQ  reduce 126
 	NEQ  reduce 126
 	';'  reduce 126
 	']'  reduce 126
-	','  reduce 126
-	')'  reduce 126
 
 
 state 233
@@ -3059,12 +3059,12 @@ state 233
 	ENDWHILE  reduce 127
 	AND  reduce 127
 	OR  reduce 127
+	','  reduce 127
+	')'  reduce 127
 	EQ  reduce 127
 	NEQ  reduce 127
 	';'  reduce 127
 	']'  reduce 127
-	','  reduce 127
-	')'  reduce 127
 
 
 state 234
@@ -3093,6 +3093,8 @@ state 234
 	ENDWHILE  reduce 128
 	AND  reduce 128
 	OR  reduce 128
+	','  reduce 128
+	')'  reduce 128
 	EQ  reduce 128
 	NEQ  reduce 128
 	LT  reduce 128
@@ -3101,8 +3103,6 @@ state 234
 	GTE  reduce 128
 	';'  reduce 128
 	']'  reduce 128
-	','  reduce 128
-	')'  reduce 128
 
 
 state 235
@@ -3131,6 +3131,8 @@ state 235
 	ENDWHILE  reduce 129
 	AND  reduce 129
 	OR  reduce 129
+	','  reduce 129
+	')'  reduce 129
 	EQ  reduce 129
 	NEQ  reduce 129
 	LT  reduce 129
@@ -3139,8 +3141,6 @@ state 235
 	GTE  reduce 129
 	';'  reduce 129
 	']'  reduce 129
-	','  reduce 129
-	')'  reduce 129
 
 
 state 236
@@ -3169,6 +3169,8 @@ state 236
 	ENDWHILE  reduce 130
 	AND  reduce 130
 	OR  reduce 130
+	','  reduce 130
+	')'  reduce 130
 	EQ  reduce 130
 	NEQ  reduce 130
 	LT  reduce 130
@@ -3177,8 +3179,6 @@ state 236
 	GTE  reduce 130
 	';'  reduce 130
 	']'  reduce 130
-	','  reduce 130
-	')'  reduce 130
 
 
 state 237
@@ -3207,6 +3207,8 @@ state 237
 	ENDWHILE  reduce 131
 	AND  reduce 131
 	OR  reduce 131
+	','  reduce 131
+	')'  reduce 131
 	EQ  reduce 131
 	NEQ  reduce 131
 	LT  reduce 131
@@ -3215,12 +3217,10 @@ state 237
 	GTE  reduce 131
 	';'  reduce 131
 	']'  reduce 131
-	','  reduce 131
-	')'  reduce 131
 
 
 state 238
-	assignStmt : MUL ID EQUAL expr .  (32)
+	assignStmt : MUL ID '=' expr .  (32)
 	expr : expr . PLUS expr  (121)
 	expr : expr . MINUS expr  (122)
 	expr : expr . MUL expr  (123)
@@ -3407,13 +3407,13 @@ state 246
 	MOD  shift 193
 	AND  shift 194
 	OR  shift 195
+	')'  shift 256
 	EQ  shift 196
 	NEQ  shift 197
 	LT  shift 198
 	LTE  shift 199
 	GT  shift 200
 	GTE  shift 201
-	')'  shift 256
 	.  error
 
 
@@ -3425,8 +3425,8 @@ state 247
 
 
 state 248
-	assignStmt : ID '[' expr ']' EQUAL . expr  (31)
-	DynaMemID : ID '[' expr ']' EQUAL .  (116)
+	assignStmt : ID '[' expr ']' '=' . expr  (31)
+	DynaMemID : ID '[' expr ']' '=' .  (116)
 
 	ID  shift 152
 	NUM  shift 153
@@ -3459,6 +3459,8 @@ state 249
 	ENDWHILE  reduce 138
 	AND  reduce 138
 	OR  reduce 138
+	','  reduce 138
+	')'  reduce 138
 	EQ  reduce 138
 	NEQ  reduce 138
 	LT  reduce 138
@@ -3467,8 +3469,6 @@ state 249
 	GTE  reduce 138
 	';'  reduce 138
 	']'  reduce 138
-	','  reduce 138
-	')'  reduce 138
 	'.'  reduce 120
 
 
@@ -3564,7 +3564,7 @@ state 257
 
 
 state 258
-	assignStmt : ID '[' expr ']' EQUAL expr .  (31)
+	assignStmt : ID '[' expr ']' '=' expr .  (31)
 	expr : expr . PLUS expr  (121)
 	expr : expr . MINUS expr  (122)
 	expr : expr . MUL expr  (123)

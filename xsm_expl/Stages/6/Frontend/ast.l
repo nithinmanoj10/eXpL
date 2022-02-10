@@ -87,7 +87,7 @@
 "-"		{return MINUS;}
 "*"		{return MUL;}
 "/"		{return DIV;}
-"="		{return EQUAL;}
+"="		{return *yytext;}
 "%"		{return MOD;}
 "&"		{return AMPERSAND;}
 

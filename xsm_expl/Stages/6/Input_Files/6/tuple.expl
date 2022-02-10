@@ -12,6 +12,17 @@ int main() {
 
     begin
         write("tuplleee");
+        
+        a = student("Nithin", 58, "CSE", 2019);
+        x = faculty("Amal", 7, "CSE");
+
+        if (a.branchname == x.dept) then
+            write("Same dept");
+        endif;
+
+        write(a);
+        write(x);
+
         return 1;
     end;
 }

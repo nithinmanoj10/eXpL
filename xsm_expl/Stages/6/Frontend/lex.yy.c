@@ -1039,7 +1039,7 @@ YY_RULE_SETUP
 case 38:
 YY_RULE_SETUP
 #line 90 "ast.l"
-{return EQUAL;}
+{return *yytext;}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP

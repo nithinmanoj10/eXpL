@@ -47,6 +47,7 @@
 #define FUNC_NODE 25
 
 #define FIELD_NODE 26
+#define TUPLE_NODE 27
 
 #define AND_NODE 30
 #define OR_NODE 31
@@ -62,7 +63,6 @@
 #define TYPE_STR 53
 #define TYPE_INT_PTR 54
 #define TYPE_STR_PTR 55
-#define TYPE_TUPLE 56
 
 #define LABEL_CONTROL 60
 #define LABEL_FUNCTION 61
@@ -70,6 +70,8 @@
 #define DECL_START 70
 #define DECL_END 71
 #define DECL_NULL 72
+
+#define TUPLE_CONSTRUCTOR_NODE 90
 
 #define NULL_NODE 100
 
@@ -101,6 +103,8 @@ int getVariableAddress(FILE *filePtr, struct ASTNode *root);
 
 int getStructVariableAddress(FILE *filePtr, struct ASTNode *root, int structAddrReg);
 
+int getTupleVariableAddress(FILE *filePtr, struct ASTNode *root, int tupleAddrReg);
+
 int getAddress(FILE *filePtr, struct ASTNode *root);
 
 int evalExprTree(FILE *filePtr, struct ASTNode *root);
@@ -131,5 +135,16 @@ struct ASTNode *insertToArgList(struct ASTNode *argListHead, struct ASTNode *arg
  * @return  int
  */
 int verifyFunctionArguments(char *funcName, struct ASTNode *argumentList);
+
+/**
+ *  @brief  Verifies whether all the fields and their types passed are
+ *          correct during intialisation of a tuple using tuple notation
+ *
+ *  @param  tupleType       Pointer to type table entry for the given tuple
+ *  @param  tupleFieldList  Pointer to head of the tuple field list
+ *
+ *  @return  1 if the fields are passed correctly, else 0
+ */
+int verifyTupleFields(struct TypeTable *tupleType, struct ASTNode *tupleFieldList);
 
 #endif

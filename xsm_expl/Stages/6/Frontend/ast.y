@@ -41,12 +41,12 @@
 %type <TTNode> TypeName TypeID GType TupleFieldType
 %type <FLNode> FieldDecl FieldDeclList TupleFieldDecl TupleFieldDeclList TupleDecl
 
-%token BEGIN_ END MAIN READ WRITE ID NUM STRING PLUS MINUS MUL DIV MOD AMPERSAND EQUAL BREAKPOINT TYPE ENDTYPE TUPLE
+%token BEGIN_ END MAIN READ WRITE ID NUM STRING PLUS MINUS MUL DIV MOD AMPERSAND BREAKPOINT TYPE ENDTYPE TUPLE
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE AND OR NOT
 %token DECL ENDDECL INT STR RETURN NULL_
-%token ALLOC FREE INITIALIZE
+%token ALLOC FREE INITIALIZE ',' ')'
 
-%left EQUAL
+%left '='
 %left OR
 %left AND
 %left EQ NEQ
@@ -55,6 +55,8 @@
 %left MUL DIV MOD
 %left AMPERSAND
 %left NOT
+%left ','
+
 
 %%
 
@@ -86,6 +88,7 @@ TypeDef			:	TypeID
 													}
 
 													FLPrint($1); 
+													$1->typeCategory = TYPE_USER_DEFINED;
 													$1->fields = $3;
 													$1->size = typeFieldCount;
 
@@ -142,28 +145,28 @@ inputStmt	: READ expr	 		{ $$ = TreeCreate(typeTableVOID, READ_NODE, NULL, INT_M
 outputStmt 	: WRITE expr 		{ $$ = TreeCreate(typeTableVOID, WRITE_NODE, NULL, INT_MAX, NULL, $2, NULL, NULL); }
 	   		;
 
-assignStmt 	: ID EQUAL expr					{ 
-												$1 = lookupID($1);
-												$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $3); 
-											}
-			| ID '[' expr ']' EQUAL expr	{	 
-												$1 = lookupID($1);	
-												$1->left = $3;
-												$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $6);
-			 								}
-			| MUL ID EQUAL expr				{
-												$2 = lookupID($2);	
-												struct ASTNode* mulNode;
-												if ($2->typeTablePtr == typeTableINTPtr)
-													mulNode = TreeCreate(typeTableINT, MUL_NODE, NULL, INT_MAX, NULL, NULL, $2, NULL);
+assignStmt 	: 	ID '=' expr						{ 
+													$1 = lookupID($1);
+													$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $3); 
+												}
+			| 	ID '[' expr ']' '=' expr		{	 
+													$1 = lookupID($1);	
+													$1->left = $3;
+													$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $6);
+												}
+			| 	MUL ID '=' expr					{
+													$2 = lookupID($2);	
+													struct ASTNode* mulNode;
+													if ($2->typeTablePtr == typeTableINTPtr)
+														mulNode = TreeCreate(typeTableINT, MUL_NODE, NULL, INT_MAX, NULL, NULL, $2, NULL);
 
-												if ($2->typeTablePtr == typeTableSTRPtr)
-													mulNode = TreeCreate(typeTableSTR, MUL_NODE, NULL, INT_MAX, NULL, NULL, $2, NULL);
-												$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, mulNode, NULL, $4);
-											}
-			| StructField EQUAL expr		{
-												$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $3);
-											}
+													if ($2->typeTablePtr == typeTableSTRPtr)
+														mulNode = TreeCreate(typeTableSTR, MUL_NODE, NULL, INT_MAX, NULL, NULL, $2, NULL);
+													$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, mulNode, NULL, $4);
+												}
+			| 	StructField '=' expr			{
+													$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $3);
+												}
 	   		;
 
 
@@ -212,8 +215,9 @@ GDeclList	:	GDeclList GDecl				{}
 
 GDecl		:	GType GIDList ';'			{}
 			|	GType TupleDecl GIDList ';'	{ 
-												currentGDeclType->fields = $2; 
-												currentGDeclType->size = tupleFieldCount;
+												$1->typeCategory = TYPE_TUPLE;				
+												$1->fields = $2; 
+												$1->size = tupleFieldCount;
 
 												FLPrint($1);
 
@@ -320,6 +324,7 @@ TupleFieldName		:	ID										{ $$ = $1; }
 
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
+
 	/* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
 ParamList	:	ParamList ',' Param		{}
@@ -345,17 +350,13 @@ ParamType	:	INT						{ currentParamType = TTLookUp("int"); }
 
 
  /* Function Arguments ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
-ArgList		:	ArgList ',' Arg		{ 
-											$$ = insertToArgList($1, $3);
-										}
+
+ArgList		:	ArgList ',' Arg			{ $$ = insertToArgList($1, $3); }
 			|	Arg						{ $$ = $1; }
-			|	/* empty */				{}
+			|							{}
 			;
 
-Arg			:	expr					{ 
-											$$ = $1; 
-											// ++argCount;
-										}
+Arg			:	expr					{ $$ = $1; }
 			;			
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
@@ -525,8 +526,8 @@ InitializeStmt	:	DynaMemID INITIALIZE '(' ')'	{
 														}
 				;
 
-DynaMemID		:	ID EQUAL							{ $$ = $1; }
-				|	ID '[' expr ']'	EQUAL				{
+DynaMemID		:	ID '='							{ $$ = $1; }
+				|	ID '[' expr ']'	'='				{
 															$$ = $1;
 															$$->left = $3;	
 														}
@@ -564,13 +565,16 @@ StructField		:	StructField '.' ID		{
 												$$->typeTablePtr = $3->typeTablePtr;
 											}
 				|	StructID '.' ID			{
-												$1->nodeType = FIELD_NODE;
-
 												// Checking if ID($1) exists in LST or GST
 												$1 = lookupID($1);
 
-												// Check if ID($1) is user-defined
-												if($1->typeTablePtr == typeTableINT || $1->typeTablePtr == typeTableSTR){
+												if ($1->typeTablePtr->typeCategory == TYPE_USER_DEFINED)
+													$1->nodeType = FIELD_NODE;
+
+												else if ($1->typeTablePtr->typeCategory == TYPE_TUPLE)
+													$1->nodeType = TUPLE_NODE;
+												
+												else {
 													printf("\n. operator cannot be used for non User Defined variable\n");
 													exit(1);
 												}
@@ -616,11 +620,24 @@ expr		: expr PLUS expr		{ $$ =  TreeCreate(typeTableINT, PLUS_NODE, NULL, INT_MA
 			| '(' expr ')'			{ $$ = $2; }
 			| StructField			{ $$ = $1; }
 			| ID '(' ArgList ')'	{ 
-										$1 = lookupID($1);	
-										verifyFunctionArguments($1->nodeName, $3);	
-										$$ = TreeCreate(getFunctionType($1->nodeName), FUNC_NODE, $1->nodeName, INT_MAX, NULL, NULL, NULL, NULL); 
-										$$->argListHead = $3;
-										$$->GSTEntry = $1->GSTEntry;
+										// check if ID is a type constructor
+										struct TypeTable* idTTEntry = TTLookUp($1->nodeName);
+
+										// if its a Tuple Constructor		
+										if (idTTEntry != NULL && idTTEntry->typeCategory == TYPE_TUPLE){
+											verifyTupleFields(idTTEntry, $3);
+											$$ = TreeCreate(idTTEntry, TUPLE_CONSTRUCTOR_NODE, $1->nodeName, INT_MAX, NULL, NULL, NULL, NULL);
+											$$->argListHead = $3;
+										}
+
+										// if its a function
+										if(idTTEntry == NULL){
+											$1 = lookupID($1);	
+											verifyFunctionArguments($1->nodeName, $3);	
+											$$ = TreeCreate(getFunctionType($1->nodeName), FUNC_NODE, $1->nodeName, INT_MAX, NULL, NULL, NULL, NULL); 
+											$$->argListHead = $3;
+											$$->GSTEntry = $1->GSTEntry;
+										}
 									}
 			| ID '[' expr ']' 		{	
 										$1 = lookupID($1);

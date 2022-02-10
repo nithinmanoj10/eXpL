@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "typeTable.h"
 #include "../Frontend/ast.h"
+#include "typeTable.h"
 
 int declarationType = TYPE_VOID;
 int paramType = TYPE_VOID;
@@ -73,21 +73,27 @@ void TypeTableCreate()
     // Type Table - int, str, bool and void
     typeTableINT = (struct TypeTable *)malloc(sizeof(struct TypeTable));
     typeTableINT->typeName = (char *)malloc(10 * sizeof(char *));
+    typeTableINT->typeCategory = TYPE_PRIMITIVE;
 
     typeTableINTPtr = (struct TypeTable *)malloc(sizeof(struct TypeTable));
     typeTableINTPtr->typeName = (char *)malloc(10 * sizeof(char *));
+    typeTableINTPtr->typeCategory = TYPE_POINTER;
 
     typeTableSTR = (struct TypeTable *)malloc(sizeof(struct TypeTable));
     typeTableSTR->typeName = (char *)malloc(10 * sizeof(char *));
+    typeTableSTR->typeCategory = TYPE_PRIMITIVE;
 
     typeTableSTRPtr = (struct TypeTable *)malloc(sizeof(struct TypeTable));
     typeTableSTRPtr->typeName = (char *)malloc(10 * sizeof(char *));
+    typeTableSTRPtr->typeCategory = TYPE_POINTER;
 
     typeTableBOOL = (struct TypeTable *)malloc(sizeof(struct TypeTable));
     typeTableBOOL->typeName = (char *)malloc(10 * sizeof(char *));
+    typeTableBOOL->typeCategory = TYPE_PRIMITIVE;
 
     typeTableVOID = (struct TypeTable *)malloc(sizeof(struct TypeTable));
     typeTableVOID->typeName = (char *)malloc(10 * sizeof(char *));
+    typeTableVOID->typeCategory = TYPE_PRIMITIVE;
 
     // Setting the typeName for each entry
     strcpy(typeTableINT->typeName, "int");
@@ -161,14 +167,41 @@ void printTypeTable()
 {
     struct TypeTable *traversalPtr = typeTableHead;
 
-    printf("\n\nType Table --------------------------------------------------\n\n");
-    printf("          typeName  size           fields         location\n\n");
+    printf("\n\n👔 Type Table\n");
+    printf("──────────────────────────────────────────────────────────────────────────────\n");
+    printf("          typeName       typeCategory  size           fields         location\n");
+    printf("──────────────────────────────────────────────────────────────────────────────\n\n");
     while (traversalPtr != NULL)
     {
-        printf("%18s%6d%17p%17p\n", traversalPtr->typeName, traversalPtr->size, traversalPtr->fields, traversalPtr);
+        printf("%18s%21s%6d%17p%17p\n", traversalPtr->typeName, getTypeCategory(traversalPtr->typeCategory), traversalPtr->size, traversalPtr->fields, traversalPtr);
         traversalPtr = traversalPtr->next;
     }
-    printf("\n-------------------------------------------------------------\n");
+    // printf("\n-------------------------------------------------------------\n");
+}
+
+char *getTypeCategory(int typeCategory)
+{
+    switch (typeCategory)
+    {
+    case TYPE_PRIMITIVE:
+        return "Primitive 🐉";
+        break;
+
+    case TYPE_POINTER:
+        return "Pointer 📌";
+        break;
+
+    case TYPE_USER_DEFINED:
+        return "User Defined 👤";
+        break;
+
+    case TYPE_TUPLE:
+        return "Tuple 🥡";
+        break;
+
+    default:
+        break;
+    }
 }
 
 int isPrimitiveType(struct TypeTable *typeTablePtr)
@@ -227,3 +260,4 @@ void FLPrint(struct TypeTable *typeNode)
 
     printf("\n───────────────────────────────────────────────────\n\n");
 }
+

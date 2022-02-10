@@ -80,4 +80,21 @@ int codeGenFuncCaller(FILE *filePtr, struct ASTNode *funcNode);
  */
 void initStackBP(FILE *filePtr);
 
+/**
+ *  @brief  Codegen function to be able to print an entire tuple
+ *
+ *  @param   filePtr     Pointer to target code file
+ *  @param   root        AST Node of the tuple variable
+ */
+void printTuple(FILE *filePtr, struct ASTNode *root);
+
+/**
+ *  @brief  Codegen function for construction of a tuple 
+ * 
+ *  @param  filePtr         Pointer to target code file      
+ *  @param  tupleID         AST Node of the tuple variables to be constructed
+ *  @param  tupleFields     List of tuple fields
+ */
+void constructTuple(FILE *filePtr, struct ASTNode *tupleID, struct ASTNode *tupleFields);
+
 #endif

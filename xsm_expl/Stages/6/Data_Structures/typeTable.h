@@ -51,6 +51,11 @@ int setCurrentFuncName(char *newFuncName);
 
 /* Stage 6 Onwards ------------------------------------------------------------------------- */
 
+#define TYPE_PRIMITIVE 1 // Type Categories
+#define TYPE_POINTER 2
+#define TYPE_USER_DEFINED 3
+#define TYPE_TUPLE 4
+
 /** Type Table - Linked List ------------------------------------------------------------------
  *
  *  @brief  Node of a Type Table entry. Type Table stores information regarding
@@ -59,6 +64,7 @@ int setCurrentFuncName(char *newFuncName);
 struct TypeTable
 {
     char *typeName;           // Data Type name
+    int typeCategory;         // Category of the data type
     int size;                 // Data Type size
     struct FieldList *fields; // Pointer to the head of fields list
     struct TypeTable *next;   // Pointer to the next type table entry
@@ -116,6 +122,8 @@ struct TypeTable *TTInstall(char *typeName, int size, struct FieldList *fields);
 int getTypeSize(struct TypeTable *typeTablePtr);
 
 void printTypeTable();
+
+char *getTypeCategory(int typeCategory);
 
 /**
  *  @brief  Checks whether the type is a primitve type or not.

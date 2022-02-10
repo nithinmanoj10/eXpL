@@ -212,6 +212,9 @@ char *getNodeName(int nodeType)
         return "Struct Field 📦";
         break;
 
+    case TUPLE_NODE:
+        return "Tuple 🥡";
+
     case RETURN_NODE:
         return "Return 🔙";
         break;
@@ -242,6 +245,10 @@ char *getNodeName(int nodeType)
 
     case NULL_NODE:
         return "NULL 🎃";
+        break;
+
+    case TUPLE_CONSTRUCTOR_NODE:
+        return "Tuple Constr. 👷";
         break;
 
     default:
@@ -279,6 +286,9 @@ int getVariableAddress(FILE *filePtr, struct ASTNode *root)
 
         if (root->nodeType == FIELD_NODE)
             getStructVariableAddress(filePtr, root, variableAddrReg);
+
+        if (root->nodeType == TUPLE_NODE)
+            getTupleVariableAddress(filePtr, root, variableAddrReg);
     }
     else
     {
@@ -299,6 +309,9 @@ int getVariableAddress(FILE *filePtr, struct ASTNode *root)
 
         if (root->nodeType == FIELD_NODE)
             getStructVariableAddress(filePtr, root, variableAddrReg);
+
+        if (root->nodeType == TUPLE_NODE)
+            getTupleVariableAddress(filePtr, root, variableAddrReg);
 
         freeReg();
     }
@@ -346,26 +359,32 @@ int getStructVariableAddress(FILE *filePtr, struct ASTNode *root, int structAddr
     return structAddrReg;
 }
 
-// int getVariableAddress(FILE *filePtr, struct ASTNode *root)
-// {
-//     int variableAddrReg = getReg();
-//     int variableAddr = root->GSTEntry->binding;
+int getTupleVariableAddress(FILE *filePtr, struct ASTNode *root, int tupleAddrReg)
+{
+    int fieldIndexReg = getReg();
+    struct FieldList *Field = NULL;
+    struct TypeTable *TupleType = NULL;
+    struct LSTNode *tupleLSTEntry = NULL;
 
-//     fprintf(filePtr, "MOV R%d, %d\n", variableAddrReg, variableAddr);
+    tupleLSTEntry = LSTLookup(root->nodeName);
 
-//     // for array variable
-//     if (root->left != NULL)
-//     {
+    if (tupleLSTEntry == NULL)
+    {
+        struct GSTNode *tupleGSTEntry = GSTLookup(root->nodeName);
+        TupleType = tupleGSTEntry->typeTablePtr;
+    }
+    else
+        TupleType = tupleLSTEntry->typeTablePtr;
 
-//         int offsetReg = getReg();
-//         fprintf(filePtr, "MOV R%d, R%d\n", offsetReg, evalExprTree(filePtr, root->left));
-//         fprintf(filePtr, "ADD R%d, R%d\n", variableAddrReg, offsetReg);
-//         freeReg();
-//         freeReg();
-//     }
+    Field = FLLookUp(TupleType, root->right->nodeName);
 
-//     return variableAddrReg;
-// }
+    fprintf(filePtr, "MOV R%d, %d\n", fieldIndexReg, Field->fieldIndex);
+    fprintf(filePtr, "ADD R%d, R%d\n", tupleAddrReg, fieldIndexReg);
+
+    freeReg(); // fieldIndexReg from getTupleVariableAddress
+
+    return tupleAddrReg;
+}
 
 int getAddress(FILE *filePtr, struct ASTNode *root)
 {
@@ -429,6 +448,18 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
         int structAddressReg = getVariableAddress(filePtr, root);
 
         fprintf(filePtr, "MOV R%d, [R%d]\n", exprTreeResultReg, structAddressReg);
+
+        freeReg(); // variableAddrReg from evalExprTree()
+
+        return exprTreeResultReg;
+    }
+
+    if (root->nodeType == TUPLE_NODE)
+    {
+        int exprTreeResultReg = getReg();
+        int tupleAddressReg = getVariableAddress(filePtr, root);
+
+        fprintf(filePtr, "MOV R%d, [R%d]\n", exprTreeResultReg, tupleAddressReg);
 
         freeReg(); // variableAddrReg from evalExprTree()
 
@@ -596,7 +627,6 @@ int verifyFunctionArguments(char *funcName, struct ASTNode *argumentList)
     {
         ++argCount;
 
-        // TODO: Change AST Node data type field
         if (funcParamList->typeTablePtr != argumentList->typeTablePtr)
         {
             printf("\n%s() expects data type %s for argument %d\n", funcName, (funcParamList->paramType == TYPE_INT) ? ("int") : ("str"), argCount);
@@ -613,4 +643,26 @@ int verifyFunctionArguments(char *funcName, struct ASTNode *argumentList)
     }
 
     return 1;
+}
+
+int verifyTupleFields(struct TypeTable *tupleType, struct ASTNode *tupleFieldList)
+{
+    struct FieldList *definedFieldList = tupleType->fields;
+
+    while (definedFieldList != NULL && tupleFieldList != NULL)
+    {
+        if (definedFieldList->type != tupleFieldList->typeTablePtr)
+        {
+            printf("\nTuple Error: Incorrect field passed during construction of tuple type %s\n", tupleType->typeName);
+            exit(1);
+        }
+        definedFieldList = definedFieldList->next;
+        tupleFieldList = tupleFieldList->argListNext;
+    }
+
+    if (definedFieldList == NULL && tupleFieldList == NULL)
+        return 1;
+
+    printf("\nTuple Error: Not enough tuple fields passed during construction of tuple type %s\n", tupleType->typeName);
+    exit(1);
 }
