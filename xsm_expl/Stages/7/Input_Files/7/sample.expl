@@ -1,0 +1,34 @@
+class
+    student {
+        decl
+            str name;
+            int roll_no;
+            str getName();
+        enddecl
+        str getName() {
+            decl
+                str name;
+            enddecl
+            begin
+                write("Hello");
+                return name;
+            end;
+        }
+    }
+endclass
+
+decl
+    int temp;
+    int fact(int n);   
+enddecl
+
+int main() {
+    decl
+        int num;
+    enddecl
+
+    begin
+        write("Classs");
+        return 1;
+    end;
+}

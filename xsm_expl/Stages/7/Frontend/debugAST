@@ -1,3 +1,0 @@
-watch regNum
-break ../Backend/codegen.c:codeGenWhile
-run bubble < ../Input_Files/bubblesort

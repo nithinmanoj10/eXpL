@@ -19,6 +19,8 @@
 "end" 				{ return END;}
 "decl"				{ setDeclarationStatus(DECL_START); return DECL;}
 "enddecl"			{ setDeclarationStatus(DECL_END); return ENDDECL;}
+"class"				{ return CLASS;}
+"endclass"			{ return ENDCLASS;}
 "int"				{ return INT;}
 "str"				{ return STR;}
 "breakpoint"		{ return BREAKPOINT;}

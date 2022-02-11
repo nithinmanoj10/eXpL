@@ -37,12 +37,14 @@
 #define INT 293
 #define STR 294
 #define RETURN 295
-#define EQ 296
-#define NEQ 297
-#define LT 298
-#define LTE 299
-#define GT 300
-#define GTE 301
+#define CLASS 296
+#define ENDCLASS 297
+#define EQ 298
+#define NEQ 299
+#define LT 300
+#define LTE 301
+#define GT 302
+#define GTE 303
 #ifdef YYSTYPE
 #undef  YYSTYPE_IS_DECLARED
 #define YYSTYPE_IS_DECLARED 1

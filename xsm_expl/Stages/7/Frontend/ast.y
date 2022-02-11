@@ -45,6 +45,7 @@
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE AND OR NOT
 %token DECL ENDDECL INT STR RETURN NULL_
 %token ALLOC FREE INITIALIZE ',' ')'
+%token CLASS ENDCLASS
 
 %left '='
 %left OR
@@ -61,12 +62,14 @@
 %%
 
  /* Program Block ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
-start 	: TypeDefBlock GDeclBlock FDefBlock MainBlock	{}
-		| TypeDefBlock GDeclBlock MainBlock 				{}
-		| TypeDefBlock GDeclBlock 						{	
-												printf("\n⛔ No Code Provided\n");
-												exit(1);
-											};
+start 	: TypeDefBlock ClassDefBlock GDeclBlock FDefBlock MainBlock	{}
+		| TypeDefBlock ClassDefBlock GDeclBlock MainBlock			{}	
+		| TypeDefBlock GDeclBlock MainBlock 						{}
+		| TypeDefBlock GDeclBlock FDefBlock MainBlock 				{}
+		| TypeDefBlock GDeclBlock 									{	
+																		printf("\n⛔ No Code Provided\n");
+																		exit(1);
+																	};
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
 
@@ -128,21 +131,54 @@ TypeName		:	INT							{ $$ = TTLookUp("int"); }
 
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
-Slist	: Slist Stmt ';' 	{ $$ = TreeCreate(typeTableVOID, SLIST_NODE, NULL, INT_MAX, NULL, $1, NULL, $2); }
-		| Stmt ';'		{}				
-		;
+ /* Class Definitions ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
-Stmt	: inputStmt | outputStmt | assignStmt 
-		| ifStmt | whileStmt | doWhileStmt
-   		| breakStmt | continueStmt	
-		| breakPointStmt
-		| DynamicMemStmt									{ ++statementCount; }
-		;
+ClassDefBlock	:	CLASS ClassDefList ENDCLASS		{}								
+				;	
 
-inputStmt	: READ expr	 		{ $$ = TreeCreate(typeTableVOID, READ_NODE, NULL, INT_MAX, NULL, $2, NULL, NULL); }
+ClassDefList	:	ClassDefList ClassDef			{}
+				|	ClassDef						{}
+				;
+
+ClassDef		:	ClassName '{'
+						DECL
+							FieldDeclList
+							MethodDeclList
+						ENDDECL
+						MethodDefns
+					'}'								{}
+				;
+
+ClassName		:	ID								{}
+				;
+
+MethodDeclList	:	MethodDeclList MethodDecl		{}
+				|	MethodDecl						{}
+				;
+
+MethodDecl		:	TypeName ID'('ParamList')'';'	{}
+				;
+
+MethodDefns		:	FDefBlock						{}
+				;
+
+ /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
+
+Slist		: 	Slist Stmt ';' 					{ $$ = TreeCreate(typeTableVOID, SLIST_NODE, NULL, INT_MAX, NULL, $1, NULL, $2); }
+			| 	Stmt ';'						{}				
+			;
+
+Stmt		: 	inputStmt | outputStmt | assignStmt 
+			| 	ifStmt | whileStmt | doWhileStmt
+   			| 	breakStmt | continueStmt	
+			| 	breakPointStmt
+			| 	DynamicMemStmt					{ ++statementCount; }
+			;
+
+inputStmt	: 	READ expr	 					{ $$ = TreeCreate(typeTableVOID, READ_NODE, NULL, INT_MAX, NULL, $2, NULL, NULL); }
 	  		;
 
-outputStmt 	: WRITE expr 		{ $$ = TreeCreate(typeTableVOID, WRITE_NODE, NULL, INT_MAX, NULL, $2, NULL, NULL); }
+outputStmt 	: 	WRITE expr 						{ $$ = TreeCreate(typeTableVOID, WRITE_NODE, NULL, INT_MAX, NULL, $2, NULL, NULL); }
 	   		;
 
 assignStmt 	: 	ID '=' expr						{ 
@@ -171,10 +207,10 @@ assignStmt 	: 	ID '=' expr						{
 
 
  /* Return Statement ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
-retVal		:	expr						{}
+retVal		:	expr				{}
 			;
 
-retStmt		: RETURN retVal ';'		{ $$ = TreeCreate(typeTableVOID, RETURN_NODE, NULL, INT_MAX, NULL, $2, NULL, NULL); }
+retStmt		: 	RETURN retVal ';'	{ $$ = TreeCreate(typeTableVOID, RETURN_NODE, NULL, INT_MAX, NULL, $2, NULL, NULL); }
 			;
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
@@ -375,38 +411,38 @@ FDefBlock	:	FDefBlock FDef							{}
 			;
 
 FID			:	ID										{ 
-															if(GSTLookup($1->nodeName) == NULL){
-																printf("\nFunction %s is not declared\n", $1->nodeName);
-																exit(1);
-															}
-															$$ = $1; 
-															setCurrentFuncName($1->nodeName);
+															// if(GSTLookup($1->nodeName) == NULL){
+															// 	printf("\nFunction %s is not declared\n", $1->nodeName);
+															// 	exit(1);
+															// }
+															// $$ = $1; 
+															// setCurrentFuncName($1->nodeName);
 														}
 			;
 
 FDef		:	FuncSign
 				'{' LDeclBlock FBody '}'				{
-															char* currentFuncName = getCurrentFuncName();
+															// char* currentFuncName = getCurrentFuncName();
 
-															// TODO: Pls check!!!
-															// addFunctionLST(currentFuncName, LSTHead);	
+															// // TODO: Pls check!!!
+															// // addFunctionLST(currentFuncName, LSTHead);	
 															
-															fprintf(filePtr, "F%d:\n", GSTLookup(currentFuncName)->fLabel);
-															initFuncCalle(filePtr, paramCount);
+															// fprintf(filePtr, "F%d:\n", GSTLookup(currentFuncName)->fLabel);
+															// initFuncCalle(filePtr, paramCount);
 
-															printASTTable($4, 0);
-															codeGen($4, filePtr);
+															// printASTTable($4, 0);
+															// codeGen($4, filePtr);
 
-															LSTPrint();
-															flushLST();
-															paramCount = 0;
+															// LSTPrint();
+															// flushLST();
+															// paramCount = 0;
 														}
 			;
 
 FuncSign	:	FuncType FID '(' ParamList ')'			{
-															verifyFunctionSignature($2->nodeName);
-															LSTAddParams();
-															flushParamList();
+															// verifyFunctionSignature($2->nodeName);
+															// LSTAddParams();
+															// flushParamList();
 														}
 
 FuncType	:	INT										{ currentFDefType = TTLookUp("int"); }
@@ -416,9 +452,9 @@ FuncType	:	INT										{ currentFDefType = TTLookUp("int"); }
 			|	ID										{ currentFDefType = TTLookUp($1->nodeName); }
 			;
 
-FBody		:	BEGIN_ Slist retStmt END ';'		{
-															struct ASTNode* funcBodyStmt = TreeCreate(typeTableVOID, SLIST_NODE, NULL, INT_MAX, NULL, $2, NULL, $3);
-															$$ = funcBodyStmt;
+FBody		:	BEGIN_ Slist retStmt END ';'			{
+															// struct ASTNode* funcBodyStmt = TreeCreate(typeTableVOID, SLIST_NODE, NULL, INT_MAX, NULL, $2, NULL, $3);
+															// $$ = funcBodyStmt;
 														}	
 			;
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
@@ -523,7 +559,7 @@ MainBlock	:	MainFunc '('')'
 MainFunc	:	INT MAIN							{ setCurrentFuncName("int main"); }
 			;
 
-MBody		:	BEGIN_ Slist retStmt END ';'	{
+MBody		:	BEGIN_ Slist retStmt END ';'		{
 														struct ASTNode* statementList = TreeCreate(typeTableVOID, SLIST_NODE, NULL, INT_MAX, NULL, $2, NULL, $3);
 														$$ = statementList;
 													}
@@ -714,7 +750,7 @@ void yyerror(char const *s){
 int main(int argc, char* argv[]){
 
 	if (argc > 1){
-		yydebug = 0;
+		yydebug = 1;
 		filePtr = fopen("../Target_Files/round1.xsm", "w");
 		writeXexeHeader(filePtr);
 		TypeTableCreate();
