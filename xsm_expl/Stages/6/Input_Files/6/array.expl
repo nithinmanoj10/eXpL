@@ -1,0 +1,16 @@
+decl
+    int a[10];  
+enddecl
+
+int main() {
+    decl
+        int *temp;
+    enddecl
+
+    begin
+        temp = &a;
+        a[0] = 99;
+        write(a);
+        return 1;
+    end;
+}

@@ -143,10 +143,11 @@ int isPrimitiveType(struct TypeTable *typeTablePtr);
  */
 struct FieldList
 {
-    char *fieldName;        // Name of user-defined type field
-    int fieldIndex;         // Position of the field in the field list
-    struct TypeTable *type; // Pointer to type table entry of the field's type
-    struct FieldList *next; // Pointer to the next field
+    char *fieldName;              // Name of user-defined type field
+    int fieldIndex;               // Position of the field in the field list
+    struct TypeTable *type;       // Pointer to type table entry of the field's type
+    struct ClassTable *classType; // Pointer to class table entry (if a class member field is of a class type)
+    struct FieldList *next;       // Pointer to the next field
 } fieldlist;
 
 extern struct FieldList *fieldListHead;
@@ -174,7 +175,7 @@ struct FieldList *FLCreateNode(char *fieldName, struct TypeTable *type);
 struct FieldList *FLLookUp(struct TypeTable *type, char *fieldName);
 
 // Print the current fieldList
-void FLPrint(struct TypeTable *typeNode);
+void FLPrint(char *fieldTableName);
 
 /* ----------------------------------------------------------------------------------------- */
 

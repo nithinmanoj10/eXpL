@@ -33,7 +33,7 @@ struct ParamStruct *paramListInstall(struct TypeTable *typeTablePtr, char *param
 
     if (paramListLookup(typeTablePtr, paramName) != NULL)
     {
-        printf("\nSame function parameters not allowed\n");
+        printf("\nSame function parameters (%s) not allowed\n", paramName);
         exit(1);
         return NULL;
     }

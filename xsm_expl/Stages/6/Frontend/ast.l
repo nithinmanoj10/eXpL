@@ -61,7 +61,7 @@
 "continue"	{ return CONTINUE;}
 
 
-[a-zA-Z][a-zA-Z0-9_]*	{	
+[a-zA-Z_][a-zA-Z0-9_]*	{	
 							// ECHO;
 							yylval.node = TreeCreate(typeTableVOID, ID_NODE, yytext, INT_MAX, NULL, NULL, NULL, NULL);
 							return ID;

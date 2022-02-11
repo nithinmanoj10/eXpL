@@ -322,9 +322,9 @@ state 9
 	ID  shift 23
 	.  error
 
-	ClassDefList  goto 24
-	ClassDef  goto 25
-	ClassName  goto 26
+	ClassName  goto 24
+	ClassDefList  goto 25
+	ClassDef  goto 26
 
 
 state 10
@@ -454,28 +454,28 @@ state 23
 
 
 state 24
+	ClassDef : ClassName . '{' DECL FieldDeclList MethodDeclList ENDDECL MethodDefns '}'  (21)
+
+	'{'  shift 53
+	.  error
+
+
+state 25
 	ClassDefBlock : CLASS ClassDefList . ENDCLASS  (18)
 	ClassDefList : ClassDefList . ClassDef  (19)
 
 	ID  shift 23
-	ENDCLASS  shift 53
+	ENDCLASS  shift 54
 	.  error
 
-	ClassDef  goto 54
-	ClassName  goto 26
-
-
-state 25
-	ClassDefList : ClassDef .  (20)
-
-	.  reduce 20
+	ClassName  goto 24
+	ClassDef  goto 55
 
 
 state 26
-	ClassDef : ClassName . '{' DECL FieldDeclList MethodDeclList ENDDECL MethodDefns '}'  (21)
+	ClassDefList : ClassDef .  (20)
 
-	'{'  shift 55
-	.  error
+	.  reduce 20
 
 
 state 27
@@ -700,22 +700,22 @@ state 52
 
 
 state 53
+	ClassDef : ClassName '{' . DECL FieldDeclList MethodDeclList ENDDECL MethodDefns '}'  (21)
+
+	DECL  shift 82
+	.  error
+
+
+state 54
 	ClassDefBlock : CLASS ClassDefList ENDCLASS .  (18)
 
 	.  reduce 18
 
 
-state 54
+state 55
 	ClassDefList : ClassDefList ClassDef .  (19)
 
 	.  reduce 19
-
-
-state 55
-	ClassDef : ClassName '{' . DECL FieldDeclList MethodDeclList ENDDECL MethodDefns '}'  (21)
-
-	DECL  shift 82
-	.  error
 
 
 state 56

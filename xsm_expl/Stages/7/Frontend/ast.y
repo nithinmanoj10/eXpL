@@ -13,6 +13,8 @@
 	#include "../Data_Structures/LSTable.h"
 	#include "../Data_Structures/typeTable.h"
 	#include "../Data_Structures/paramStruct.h"
+	#include "../Data_Structures/classTable.h"
+	#include "../Data_Structures/memberFuncList.h"
 	#include "../Functions/xsm_library.h"
 	#include "../Functions/xsm_syscalls.h"
 	#include "../Functions/stackMemory.h"
@@ -35,11 +37,13 @@
 	struct LSTNode* lstnode;
 	struct TypeTable* TTNode;
 	struct FieldList* FLNode;
+	struct ClassTable* CTNode;
 }
 
 %type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID StructField INITIALIZE InitializeStmt ALLOC AllocStmt FREE FreeStmt NULL_ DynaMemID StructID TupleFieldName
 %type <TTNode> TypeName TypeID GType LType TupleFieldType
 %type <FLNode> FieldDecl FieldDeclList TupleFieldDecl TupleFieldDeclList TupleDecl
+%type <CTNode> ClassName
 
 %token BEGIN_ END MAIN READ WRITE ID NUM STRING PLUS MINUS MUL DIV MOD AMPERSAND BREAKPOINT TYPE ENDTYPE TUPLE
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE AND OR NOT
@@ -90,7 +94,7 @@ TypeDef			:	TypeID
 														exit(1);
 													}
 
-													FLPrint($1); 
+													FLPrint($1->typeName); 
 													$1->typeCategory = TYPE_USER_DEFINED;
 													$1->fields = $3;
 													$1->size = typeFieldCount;
@@ -133,7 +137,7 @@ TypeName		:	INT							{ $$ = TTLookUp("int"); }
 
  /* Class Definitions ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
-ClassDefBlock	:	CLASS ClassDefList ENDCLASS		{}								
+ClassDefBlock	:	CLASS ClassDefList ENDCLASS		{ CTPrint(); }								
 				;	
 
 ClassDefList	:	ClassDefList ClassDef			{}
@@ -146,17 +150,32 @@ ClassDef		:	ClassName '{'
 							MethodDeclList
 						ENDDECL
 						MethodDefns
-					'}'								{}
+					'}'								{ 
+														$1->memberField = $4;
+														$1->virtualFunctionPtr = memFuncListHead;
+														$1->fieldCount = fieldListTail->fieldIndex + 1;
+														$1->methodCount = memFuncListTail->funcPosition;
+
+														FLPrint($1->className);
+														MFLPrint($1->className);
+
+														memFuncListHead = NULL;
+														memFuncListTail = NULL;
+					 								}
 				;
 
-ClassName		:	ID								{}
+ClassName		:	ID								{ $$ = CTInstall($1->nodeName, NULL); }
 				;
 
 MethodDeclList	:	MethodDeclList MethodDecl		{}
 				|	MethodDecl						{}
 				;
 
-MethodDecl		:	TypeName ID'('ParamList')'';'	{}
+MethodDecl		:	TypeName ID'('ParamList')'';'	{ 
+														MFLInstall($2->nodeName, $1, paramListHead);
+														//  printParamList(paramListHead); 
+														flushParamList();
+													}
 				;
 
 MethodDefns		:	FDefBlock						{}
@@ -255,7 +274,7 @@ GDecl		:	GType GIDList ';'			{}
 												$1->fields = $2; 
 												$1->size = tupleFieldCount;
 
-												FLPrint($1);
+												FLPrint($1->typeName);
 
 												fieldListTail = NULL;
 												fieldListHead = NULL;
@@ -442,7 +461,7 @@ FDef		:	FuncSign
 FuncSign	:	FuncType FID '(' ParamList ')'			{
 															// verifyFunctionSignature($2->nodeName);
 															// LSTAddParams();
-															// flushParamList();
+															flushParamList();
 														}
 
 FuncType	:	INT										{ currentFDefType = TTLookUp("int"); }
@@ -478,7 +497,7 @@ LDecl		:	LType LIDList ';'			{}
 												$1->fields = $2; 
 												$1->size = tupleFieldCount;
 
-												FLPrint($1);
+												FLPrint($1->typeName);
 
 												fieldListTail = NULL;
 												fieldListHead = NULL;
@@ -750,7 +769,7 @@ void yyerror(char const *s){
 int main(int argc, char* argv[]){
 
 	if (argc > 1){
-		yydebug = 1;
+		yydebug = 0;
 		filePtr = fopen("../Target_Files/round1.xsm", "w");
 		writeXexeHeader(filePtr);
 		TypeTableCreate();

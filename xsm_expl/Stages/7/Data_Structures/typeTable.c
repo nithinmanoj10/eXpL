@@ -244,11 +244,11 @@ struct FieldList *FLLookUp(struct TypeTable *type, char *fieldName)
     return traversalPtr;
 }
 
-void FLPrint(struct TypeTable *typeNode)
+void FLPrint(char *fieldTableName)
 {
     struct FieldList *traversalPtr = fieldListHead;
 
-    printf("\n\nField List for %s - %p\n", typeNode->typeName, fieldListHead);
+    printf("\n\nField List for %s - %p\n", fieldTableName, fieldListHead);
     printf("---------------------------------------------------\n\n");
     printf("fieldIndex              fieldName             type\n");
     printf("───────────────────────────────────────────────────\n\n");
@@ -260,4 +260,3 @@ void FLPrint(struct TypeTable *typeNode)
 
     printf("\n───────────────────────────────────────────────────\n\n");
 }
-

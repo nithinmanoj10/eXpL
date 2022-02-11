@@ -2,8 +2,6 @@
 
 #define PARAMSTRUCT_H
 
-#include "typeTable.h"
-
 // Node of a functions parameter list
 struct ParamStruct
 {

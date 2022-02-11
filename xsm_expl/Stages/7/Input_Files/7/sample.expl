@@ -3,15 +3,42 @@ class
         decl
             str name;
             int roll_no;
-            str getName();
+            str getName(int stu);
+            int getRollNo(str nam, int age);
         enddecl
-        str getName() {
+        str getName(int stu) {
             decl
                 str name;
             enddecl
             begin
                 write("Hello");
                 return name;
+            end;
+        }
+        int getRollNo(str nam, int age) {
+            decl
+                int roll;
+            enddecl
+            begin
+                write("Roll noo");
+                return roll;
+            end;
+        }
+    }
+
+    Person {
+        decl
+            str fame;
+            int doll_no;
+            str getLame(str who);
+        enddecl
+        str getLame(str who) {
+            decl
+                str pame;
+            enddecl
+            begin
+                write("Hello");
+                return pame;
             end;
         }
     }
