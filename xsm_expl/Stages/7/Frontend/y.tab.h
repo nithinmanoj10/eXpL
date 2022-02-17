@@ -57,6 +57,7 @@ typedef union {
 	struct TypeTable* TTNode;
 	struct FieldList* FLNode;
 	struct ClassTable* CTNode;
+	struct MemberFuncList* MFLNode;
 } YYSTYPE;
 #endif /* !YYSTYPE_IS_DECLARED */
 extern YYSTYPE yylval;

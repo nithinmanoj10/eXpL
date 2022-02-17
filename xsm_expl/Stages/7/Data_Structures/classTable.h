@@ -20,8 +20,9 @@ struct ClassTable
     struct ClassTable *next;                   // Pointer to next class table entry
 } classtable;
 
-extern struct ClassTable *classTableHead; // Pointer to Class Table head
-extern struct ClassTable *classTableTail; // Pointer to Class Table tail
+extern struct ClassTable *classTableHead;    // Pointer to Class Table head
+extern struct ClassTable *classTableTail;    // Pointer to Class Table tail
+extern struct ClassTable *currentClassTable; // Pointer to class table being currently defined
 
 /**
  *  @brief  Creates a ClassTable entry of given 'className' and

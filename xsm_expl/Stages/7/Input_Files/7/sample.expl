@@ -49,6 +49,16 @@ decl
     int fact(int n);   
 enddecl
 
+int fact(int n) {
+    decl
+        int wow;
+    enddecl
+    begin
+        write("Factttorial");
+        return 1;
+    end;
+}
+
 int main() {
     decl
         int num;

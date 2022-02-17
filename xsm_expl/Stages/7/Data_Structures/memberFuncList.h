@@ -22,7 +22,7 @@ extern struct MemberFuncList *memFuncListHead;
 extern struct MemberFuncList *memFuncListTail;
 
 /**
- *  @brief  Create a Member Function List entry with function name 'funcName', \
+ *  @brief  Create a Member Function List entry with function name 'funcName',
  *          function return type 'funcType' and parameter list 'paramList'
  *
  *  @param  funcName    Name of the function
@@ -32,6 +32,28 @@ extern struct MemberFuncList *memFuncListTail;
  *  @return struct MemberFuncList*
  */
 struct MemberFuncList *MFLInstall(char *funcName, struct TypeTable *funcType, struct ParamStruct *paramList);
+
+/**
+ *  @brief  Search for a Member Function List entry of name 'funcName'
+ *          in current Member Function List
+ *
+ *  @param  funcName    Name of the function to be searched for
+ *
+ *  @return struct MemberFuncList*
+ */
+struct MemberFuncList *MFLLookup(char *funcName);
+
+/**
+ *  @brief  Search for the Member Function List entry of name 'memberFuncName' for the
+ *          class 'classType'. Returns pointer to MemberFuncList entry, else returns
+ *          NULL if not found
+ *
+ *  @param  classType           Pointer to class table entry
+ *  @param  memberFuncName      Name of the member function name
+ *
+ *  @return struct MemberFuncList*
+ */
+struct MemberFuncList *MemberFuncLookUp(struct ClassTable *classType, char *memberFuncName);
 
 void MFLPrint(char *className);
 

@@ -38,12 +38,13 @@
 	struct TypeTable* TTNode;
 	struct FieldList* FLNode;
 	struct ClassTable* CTNode;
+	struct MemberFuncList* MFLNode;
 }
 
 %type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID StructField INITIALIZE InitializeStmt ALLOC AllocStmt FREE FreeStmt NULL_ DynaMemID StructID TupleFieldName
 %type <TTNode> TypeName TypeID GType LType TupleFieldType
 %type <FLNode> FieldDecl FieldDeclList TupleFieldDecl TupleFieldDeclList TupleDecl
-%type <CTNode> ClassName
+%type <CTNode> ClassName ClassMembers
 
 %token BEGIN_ END MAIN READ WRITE ID NUM STRING PLUS MINUS MUL DIV MOD AMPERSAND BREAKPOINT TYPE ENDTYPE TUPLE
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE AND OR NOT
@@ -145,26 +146,33 @@ ClassDefList	:	ClassDefList ClassDef			{}
 				;
 
 ClassDef		:	ClassName '{'
-						DECL
-							FieldDeclList
-							MethodDeclList
-						ENDDECL
+						ClassMembers
 						MethodDefns
 					'}'								{ 
-														$1->memberField = $4;
-														$1->virtualFunctionPtr = memFuncListHead;
-														$1->fieldCount = fieldListTail->fieldIndex + 1;
-														$1->methodCount = memFuncListTail->funcPosition;
-
 														FLPrint($1->className);
 														MFLPrint($1->className);
 
 														memFuncListHead = NULL;
 														memFuncListTail = NULL;
+														currentClassTable = NULL;
 					 								}
 				;
 
-ClassName		:	ID								{ $$ = CTInstall($1->nodeName, NULL); }
+ClassMembers	:	DECL
+						FieldDeclList
+						MethodDeclList
+					ENDDECL							{
+														currentClassTable->memberField = $2;
+														currentClassTable->virtualFunctionPtr = memFuncListHead;
+														currentClassTable->fieldCount = fieldListTail->fieldIndex + 1;
+														currentClassTable->methodCount = memFuncListTail->funcPosition;
+													}	
+				;
+
+ClassName		:	ID								{ 
+														$$ = CTInstall($1->nodeName, NULL); 
+														currentClassTable = $$;
+													}
 				;
 
 MethodDeclList	:	MethodDeclList MethodDecl		{}
@@ -430,12 +438,23 @@ FDefBlock	:	FDefBlock FDef							{}
 			;
 
 FID			:	ID										{ 
-															// if(GSTLookup($1->nodeName) == NULL){
-															// 	printf("\nFunction %s is not declared\n", $1->nodeName);
-															// 	exit(1);
-															// }
-															// $$ = $1; 
-															// setCurrentFuncName($1->nodeName);
+															// Check for function in GST		
+															if(GSTLookup($1->nodeName) == NULL){
+
+																if (currentClassTable == NULL) {
+																	printf("\nFunction %s() not declared globally\n", $1->nodeName);
+																	exit(1);
+																}
+															
+																// if not in GST, search in current Class Table
+																if (MemberFuncLookUp(currentClassTable, $1->nodeName) == NULL) {
+																	printf("\nFunction %s() not declared in class %s\n", $1->nodeName, currentClassTable->className);
+																	exit(1);
+																}
+
+															}
+															$$ = $1; 
+															setCurrentFuncName($1->nodeName);
 														}
 			;
 
@@ -459,7 +478,7 @@ FDef		:	FuncSign
 			;
 
 FuncSign	:	FuncType FID '(' ParamList ')'			{
-															// verifyFunctionSignature($2->nodeName);
+															verifyFunctionSignature($2->nodeName);
 															// LSTAddParams();
 															flushParamList();
 														}

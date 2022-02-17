@@ -6,6 +6,8 @@
 #include "GSTable.h"
 #include "paramStruct.h"
 #include "../Data_Structures/typeTable.h"
+#include "../Data_Structures/classTable.h"
+#include "../Data_Structures/memberFuncList.h"
 
 struct LSTNode *LSTHead = NULL;
 struct LSTNode *LSTTail = NULL;
@@ -121,33 +123,77 @@ int verifyFunctionSignature(char *funcName)
     // error and exit from the program.
 
     struct GSTNode *funcGSTEntry = GSTLookup(funcName);
+    struct MemberFuncList *memFuncListEntry = NULL;
 
-    if (funcGSTEntry->typeTablePtr != currentFDefType)
+    // if the function is not present in GST, it could be a
+    // function declared as a class method
+    if (funcGSTEntry == NULL)
+        memFuncListEntry = MFLLookup(funcName);
+
+    if (funcGSTEntry != NULL)
     {
-        printf("\n%s() function signature is invalid\n", funcName);
-        exit(1);
-    }
 
-    struct ParamStruct *declaredParamList = funcGSTEntry->paramList;
-    struct ParamStruct *formalParamList = getParamListHead();
+        if (funcGSTEntry->typeTablePtr != currentFDefType)
+        {
+            printf("\n%s() function signature is invalid\n", funcName);
+            exit(1);
+        }
 
-    // checking if the formal parameters and its types matches
-    while (declaredParamList != NULL && formalParamList != NULL)
-    {
-        if (strcmp(declaredParamList->paramName, formalParamList->paramName) != 0 || declaredParamList->typeTablePtr != formalParamList->typeTablePtr)
+        struct ParamStruct *declaredParamList = funcGSTEntry->paramList;
+        struct ParamStruct *formalParamList = getParamListHead();
+
+        // checking if the formal parameters and its types matches
+        while (declaredParamList != NULL && formalParamList != NULL)
+        {
+            if (strcmp(declaredParamList->paramName, formalParamList->paramName) != 0 || declaredParamList->typeTablePtr != formalParamList->typeTablePtr)
+            {
+                printf("\nFunction parameters for %s() doesn't match one given in declaration\n", funcName);
+                exit(1);
+            }
+            declaredParamList = declaredParamList->next;
+            formalParamList = formalParamList->next;
+        }
+
+        // if the number of parameters doesn't match
+        if (declaredParamList != NULL || formalParamList != NULL)
         {
             printf("\nFunction parameters for %s() doesn't match one given in declaration\n", funcName);
             exit(1);
         }
-        declaredParamList = declaredParamList->next;
-        formalParamList = formalParamList->next;
     }
-
-    // if the number of parameters doesn't match
-    if (declaredParamList != NULL || formalParamList != NULL)
+    else
     {
-        printf("\nFunction parameters for %s() doesn't match one given in declaration\n", funcName);
-        exit(1);
+        // checking the functions return type
+        if (memFuncListEntry->funcType != currentFDefType)
+        {
+            printf("\nClass %s : Function definition of %s() expects %s as return type\n", currentClassTable->className, funcName, memFuncListEntry->funcType->typeName);
+            exit(1);
+        }
+
+        struct ParamStruct *declaredParamList = getParamListHead();
+        struct ParamStruct *formalParamList = memFuncListEntry->paramList;
+        int paramCount = 0;
+
+        // checking if the declared and formal parameters match
+        while (declaredParamList != NULL && formalParamList != NULL)
+        {
+            ++paramCount;
+            if (strcmp(declaredParamList->paramName, formalParamList->paramName) != 0 || declaredParamList->typeTablePtr != formalParamList->typeTablePtr)
+            {
+                printf("\nClass %s : Function definition of %s() expects %s %s as parameter number %d\n", currentClassTable->className, funcName, formalParamList->typeTablePtr->typeName, formalParamList->paramName, paramCount);
+                exit(1);
+            }
+
+            declaredParamList = declaredParamList->next;
+            formalParamList = formalParamList->next;
+        }
+
+        // if number of parameter don't match
+        if (declaredParamList != NULL || formalParamList != NULL)
+        {
+            printf("\nClass %s : Function parameters for %s() doesn't match one given in declaration\n", currentClassTable->className, funcName);
+            exit(1);
+        }
     }
 
     return 0;
