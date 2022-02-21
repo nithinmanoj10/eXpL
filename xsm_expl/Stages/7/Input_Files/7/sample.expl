@@ -11,6 +11,8 @@ class
                 str name;
             enddecl
             begin
+                self.name = "Nithin";
+                name = self.getName(2);
                 write("Hello");
                 return name;
             end;

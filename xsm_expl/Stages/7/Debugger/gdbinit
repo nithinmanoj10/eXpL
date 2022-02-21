@@ -1,2 +1,1 @@
-break ../Data_Structures/memberFuncList.c:verifyClassFuncArgs
 run input < ../Input_Files/7/sample.expl

@@ -26,6 +26,7 @@
 	int statementCount = 0;
 	int typeFieldCount = 0;
 	int tupleFieldCount = 0;
+	int isFuncDef = 0;
 	char* fileName;
 	FILE* filePtr;
 %}
@@ -41,7 +42,7 @@
 	struct MemberFuncList* MFLNode;
 }
 
-%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID Field INITIALIZE InitializeStmt ALLOC AllocStmt FREE FreeStmt NULL_ DynaMemID FieldID TupleFieldName
+%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID Field INITIALIZE InitializeStmt ALLOC AllocStmt FREE FreeStmt NULL_ DynaMemID FieldID TupleFieldName  
 %type <TTNode> TypeName TypeID GType LType TupleFieldType ClassDef
 %type <FLNode> FieldDecl FieldDeclList TupleFieldDecl TupleFieldDeclList TupleDecl
 %type <CTNode> ClassName ClassMembers
@@ -241,7 +242,7 @@ assignStmt 	: 	ID '=' expr						{
 														mulNode = TreeCreate(typeTableSTR, MUL_NODE, NULL, INT_MAX, NULL, NULL, $2, NULL);
 													$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, mulNode, NULL, $4);
 												}
-			| 	Field '=' expr			{
+			| 	Field '=' expr					{
 													$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $3);
 												}
 	   		;
@@ -502,6 +503,7 @@ FDef		:	FuncSign
 															LSTPrint();
 															flushLST();
 															paramCount = 0;
+															
 														}
 			;
 
@@ -519,19 +521,21 @@ FuncType	:	INT										{ currentFDefType = TTLookUp("int"); }
 			;
 
 FBody		:	BEGIN_ Slist retStmt END ';'			{
-															// struct ASTNode* funcBodyStmt = TreeCreate(typeTableVOID, SLIST_NODE, NULL, INT_MAX, NULL, $2, NULL, $3);
-															// $$ = funcBodyStmt;
+															struct ASTNode* funcBodyStmt = TreeCreate(typeTableVOID, SLIST_NODE, NULL, INT_MAX, NULL, $2, NULL, $3);
+															$$ = funcBodyStmt;
+															isFuncDef = 0;
 														}	
 			;
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
 
  /* Local Declarations ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
-LDeclBlock	:	DECL LDeclList ENDDECL	
-			|							{  
+LDeclBlock	:	DECL LDeclList ENDDECL	{  
 											// printTupleList();
+											isFuncDef = 1;	
 										}
-			|	DECL ENDDECL			{}
+			|	DECL ENDDECL			{ isFuncDef = 1; }
+			|							{ isFuncDef = 1; }
 			;
 
 LDeclList	:	LDeclList LDecl			{}
@@ -670,19 +674,23 @@ DynaMemID		:	ID '='							{ $$ = $1; }
 
  /* Class Field Functions ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
-FieldFunction	:	SELF '.' ID '(' ArgList ')'		{}
-				|	Field '(' ArgList ')'			{
+FieldFunction	:	Field '(' ArgList ')'			{
 														// verify whether the user passed the right arguments for 
 														// a class member function
 														struct ASTNode* classVariablePtr = $1;
 														struct ASTNode* classFunctionPtr = $1->right;
 
-														while (classFunctionPtr->right != NULL) {
-															classVariablePtr = classVariablePtr->right;
-															classFunctionPtr = classFunctionPtr->right;
+														if (classVariablePtr->nodeType == SELF_NODE) {
+															verifyClassFuncArgs(classVariablePtr, $3);
 														}
+														else {
+															while (classFunctionPtr->right != NULL) {
+																classVariablePtr = classVariablePtr->right;
+																classFunctionPtr = classFunctionPtr->right;
+															}
 
-														verifyClassFuncArgs(classVariablePtr, $3);
+															verifyClassFuncArgs(classVariablePtr, $3);
+														}
 													}
 				;	
 
@@ -796,6 +804,36 @@ Field			:	Field '.' ID		{
 													}
 												}
 											}
+				|	SELF '.' ID				{
+												// can only be used inside a class method definiton
+												if (currentClassTable == NULL || isFuncDef == 0) {
+													printf("\nClass Error: 'self.%s'. Keyword 'self' can only be used in a class function definition\n", $3->nodeName);
+													exit(1);
+												}	
+
+												$$ = TreeCreate(typeTableVOID, SELF_NODE, NULL, INT_MAX, NULL, NULL, NULL, $3);
+
+												// check if the class field or class method exists
+												struct FieldList* fieldListEntry = FLLookUp(NULL, currentClassTable, $3->nodeName);
+												struct MemberFuncList* funcListEntry = MemberFuncLookUp(currentClassTable, $3->nodeName);
+
+												if (fieldListEntry != NULL) {
+													$3->typeTablePtr = fieldListEntry->type;
+													$3->classTablePtr = NULL;
+													$$->typeTablePtr = $3->typeTablePtr;
+													$$->classTablePtr = NULL;
+												}
+												else if (funcListEntry != NULL) {
+													$3->typeTablePtr = funcListEntry->funcType;
+													$3->classTablePtr = NULL;
+													$$->typeTablePtr = $3->typeTablePtr;
+													$$->classTablePtr = NULL;
+												}
+												else {
+													printf("\nClass Error: Unknown class member %s in self.%s\n", $3->nodeName, $3->nodeName);
+													exit(1);
+												}
+											}
 				;
 
 FieldID			:	ID						{ $$ = $1; }
@@ -873,6 +911,23 @@ expr		: expr PLUS expr		{ $$ =  TreeCreate(typeTableINT, PLUS_NODE, NULL, INT_MA
 									}
 			| ID					{
 										$1 = lookupID($1);
+
+										// checking if the identifier called is a class field called
+										// inside a class function definition
+										// if (currentClassTable != NULL && isFuncDef == 1) {
+										// 	struct FieldList* classField = FLLookUp(NULL, currentClassTable, $1->nodeName);
+										// 	struct MemberFuncList* classMemFunc = MemberFuncLookUp(currentClassTable, $1->nodeName);
+
+										// 	if (classField != NULL) {
+										// 		printf("\nClass Error: Class member field %s can only be accessed using the self keyword\n", $1->nodeName);
+										// 		exit(1);
+										// 	}
+										// 	else if (classMemFunc != NULL) {
+										// 		printf("\nClass Error: Class member function %s() can only be accessed using the self keyword\n", $1->nodeName);
+										// 		exit(1);
+										// 	}
+										// }
+
 										$$ = $1;
 									}
 			| NUM					{$$ = $1;}

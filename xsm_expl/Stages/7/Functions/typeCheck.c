@@ -191,7 +191,7 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
         break;
 
     case ASGN_NODE:
-        if (leftTree->nodeType != ID_NODE && leftTree->nodeType != MUL_NODE && leftTree->nodeType != FIELD_NODE && leftTree->nodeType != TUPLE_NODE)
+        if (leftTree->nodeType != ID_NODE && leftTree->nodeType != MUL_NODE && leftTree->nodeType != FIELD_NODE && leftTree->nodeType != TUPLE_NODE && leftTree->nodeType != SELF_NODE)
         {
             printf("\nType Error: Assignment Operator expects an Identifier in LHS\n");
             exit(1);

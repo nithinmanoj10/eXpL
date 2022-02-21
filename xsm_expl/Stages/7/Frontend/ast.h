@@ -48,6 +48,7 @@
 
 #define FIELD_NODE 26
 #define TUPLE_NODE 27
+#define SELF_NODE 28
 
 #define AND_NODE 30
 #define OR_NODE 31
