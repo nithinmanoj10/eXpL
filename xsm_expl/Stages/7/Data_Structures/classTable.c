@@ -9,6 +9,7 @@
 struct ClassTable *classTableHead = NULL;
 struct ClassTable *classTableTail = NULL;
 struct ClassTable *currentClassTable = NULL;
+struct ClassTable *currentCDeclType = NULL;
 
 struct ClassTable *CTInstall(char *className, char *parentClassName)
 {

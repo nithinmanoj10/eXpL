@@ -21,6 +21,7 @@
 "enddecl"			{ setDeclarationStatus(DECL_END); return ENDDECL;}
 "class"				{ return CLASS;}
 "endclass"			{ return ENDCLASS;}
+"self"				{ return SELF;}
 "int"				{ return INT;}
 "str"				{ return STR;}
 "breakpoint"		{ return BREAKPOINT;}

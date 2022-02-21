@@ -22,6 +22,7 @@ struct ASTNode *TreeCreate(struct TypeTable *typeTablePtr, int nodeType, char *n
 
     newASTNode->sno = 0;
     newASTNode->typeTablePtr = typeTablePtr;
+    newASTNode->classTablePtr = NULL;
     newASTNode->nodeType = nodeType;
     newASTNode->nodeName = NULL;
     newASTNode->intConstVal = intConstVal;
@@ -343,7 +344,7 @@ int getStructVariableAddress(FILE *filePtr, struct ASTNode *root, int structAddr
         else
             currentStructType = structLSTEntry->typeTablePtr;
 
-        currentField = FLLookUp(currentStructType, root->right->nodeName);
+        currentField = FLLookUp(currentStructType, NULL, root->right->nodeName);
 
         fprintf(filePtr, "MOV R%d, [R%d]\n", heapAddrReg, structAddrReg);
         fprintf(filePtr, "MOV R%d, %d\n", fieldIndexReg, currentField->fieldIndex);
@@ -376,7 +377,7 @@ int getTupleVariableAddress(FILE *filePtr, struct ASTNode *root, int tupleAddrRe
     else
         TupleType = tupleLSTEntry->typeTablePtr;
 
-    Field = FLLookUp(TupleType, root->right->nodeName);
+    Field = FLLookUp(TupleType, NULL, root->right->nodeName);
 
     fprintf(filePtr, "MOV R%d, %d\n", fieldIndexReg, Field->fieldIndex);
     fprintf(filePtr, "ADD R%d, R%d\n", tupleAddrReg, fieldIndexReg);
@@ -592,7 +593,19 @@ struct ASTNode *lookupID(struct ASTNode *IDNode)
         }
         else
         {
-            IDNode->typeTablePtr = IDNode->GSTEntry->typeTablePtr;
+            // if the ID is not a class variable
+            if (IDNode->GSTEntry->classTablePtr == NULL)
+            {
+                IDNode->typeTablePtr = IDNode->GSTEntry->typeTablePtr;
+                IDNode->classTablePtr = NULL;
+            }
+
+            // if the ID is a class variable
+            if (IDNode->GSTEntry->classTablePtr != NULL)
+            {
+                IDNode->classTablePtr = IDNode->GSTEntry->classTablePtr;
+                IDNode->typeTablePtr = NULL;
+            }
         }
     }
     else

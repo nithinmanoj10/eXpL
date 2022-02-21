@@ -28,17 +28,17 @@ class
 
     Person {
         decl
-            str fame;
+            str name;
             int doll_no;
-            str getLame(str who);
+            str getName(str who);
         enddecl
-        str getLame(str who) {
+        str getName(str who) {
             decl
-                str pame;
+                str name;
             enddecl
             begin
                 write("Hello");
-                return pame;
+                return name;
             end;
         }
     }
@@ -46,7 +46,9 @@ endclass
 
 decl
     int temp;
-    int fact(int n);   
+    int fact(int n);
+    student S, sone, stwo, sthree; 
+    Person p, pone, ptwo, pthree;  
 enddecl
 
 int fact(int n) {
@@ -57,15 +59,18 @@ int fact(int n) {
         write("Factttorial");
         return 1;
     end;
+
 }
 
 int main() {
     decl
-        int num;
+        int num, temp;
+        str name;
     enddecl
 
     begin
         write("Classs");
+        num = S.getRollNo(name, num);
         return 1;
     end;
 }

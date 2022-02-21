@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "typeCheck.h"
 #include "../Frontend/ast.h"
+#include "../Data_Structures/typeTable.h"
 
 int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree, struct ASTNode *middleTree)
 {
@@ -11,6 +12,9 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
     case PLUS_NODE:
         if (leftTree->typeTablePtr != typeTableINT || rightTree->typeTablePtr != typeTableINT)
         {
+            if (leftTree->typeTablePtr->typeCategory == TYPE_POINTER || rightTree->typeTablePtr->typeCategory == TYPE_POINTER)
+                return 1;
+
             printf("\nType Error: Addition Operator requires data type INT\n");
             exit(1);
         }
@@ -215,6 +219,17 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
 
         if (rightTree->typeTablePtr != leftTree->typeTablePtr)
         {
+
+            if (!((leftTree->typeTablePtr == typeTableINTPtr && rightTree->typeTablePtr == typeTableINT) || (leftTree->typeTablePtr == typeTableSTRPtr && rightTree->typeTablePtr == typeTableINT)))
+            {
+                printf("\nType Error: Assignment Operator expects same data type on both sides\n");
+                exit(1);
+            }
+            else
+            {
+                return 1;
+            }
+
             if (rightTree->nodeType != NULL_NODE)
             {
                 printf("\nType Error: Assignment Operator expects same data type on both sides\n");

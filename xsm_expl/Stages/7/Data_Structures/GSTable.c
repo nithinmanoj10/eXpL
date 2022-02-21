@@ -6,6 +6,7 @@
 #include "../Frontend/ast.h"
 #include "../Functions/label.h"
 #include "../Data_Structures/paramStruct.h"
+#include "../Data_Structures/classTable.h"
 #include "typeTable.h"
 
 struct GSTNode *GSTHead = NULL;
@@ -59,6 +60,7 @@ struct GSTNode *GSTInstall(char *name, struct TypeTable *typeTablePtr, int size,
 
     strcpy(newGSTNode->name, name);
     newGSTNode->typeTablePtr = typeTablePtr;
+    newGSTNode->classTablePtr = currentCDeclType;
     newGSTNode->size = size;
     newGSTNode->binding = binding;
     newGSTNode->paramList = paramList;
@@ -122,12 +124,37 @@ int GSTPrint()
 
     printf("\n🌍 Global Symbol Table ---------------------------------------------------------------------\n\n");
 
-    printf("      Location             Type             Name  Size  Binding        paramList  fLabel\n");
+    printf("      Location             Type            Class             Name  Size  Binding        paramList  fLabel\n");
 
     printf("─────────────────────────────────────────────────────────────────────────────────────────\n\n");
     while (traversalPtr != NULL)
     {
-        printf("%p%17s%17s%6d%9d%17p%8d\n", traversalPtr, traversalPtr->typeTablePtr->typeName, traversalPtr->name, traversalPtr->size, traversalPtr->binding, traversalPtr->paramList, traversalPtr->fLabel);
+        printf("%p", traversalPtr);
+
+        if (traversalPtr->typeTablePtr != NULL)
+            printf("%17s", traversalPtr->typeTablePtr->typeName);
+        else
+            printf("%17s", "-");
+
+        if (traversalPtr->classTablePtr != NULL)
+            printf("%17s", traversalPtr->classTablePtr->className);
+        else
+            printf("%17s", "-");
+
+        printf("%17s", traversalPtr->name);
+        printf("%6d", traversalPtr->size);
+        printf("%9d", traversalPtr->binding);
+
+        if (traversalPtr->paramList != NULL)
+            printf("%17p", traversalPtr->paramList);
+        else
+            printf("%17s", "-");
+
+        if (traversalPtr->fLabel != -1)
+            printf("%8d\n", traversalPtr->fLabel);
+        else
+            printf("%8s\n", "-");
+
         traversalPtr = traversalPtr->next;
     }
 

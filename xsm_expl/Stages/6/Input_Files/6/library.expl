@@ -1,0 +1,78 @@
+decl
+    int library(str funcCode, int argOne, int argTwo, int argThree);
+enddecl
+
+int library(str funcCode, int argOne, int argTwo, int argThree) {
+    decl
+        int *heapStart, *heapEnd, counter;
+        int retVal;
+        int v, *vAddr;
+    enddecl
+    begin
+        if (funcCode == "alloc") then
+            heapStart = 1024;
+            v = *heapStart;
+
+            if (v == 1-2) then
+                retVal = 1-2;
+            else
+                vAddr = v;
+                *heapStart = *vAddr;
+                retVal = v;
+            endif;
+
+        endif;
+
+        if (funcCode == "free") then
+
+            heapStart = 1024;
+            *argOne = *heapStart;
+            *heapStart = argOne;
+
+            retVal = 0;
+
+        endif;
+
+        if (funcCode == "heapset") then
+            heapStart = 1024;
+            heapEnd = 2040;
+
+            counter = 8;
+            while (heapStart < heapEnd) do
+                *heapStart = counter + 1024;
+                counter = counter + 8;
+                heapStart = heapStart + 8;
+            endwhile;
+
+            *heapEnd = 1-2;
+            retVal = 0;
+            breakpoint;
+        endif;
+
+        return retVal;
+    end;
+}
+
+int main() {
+    decl
+        int temp;
+    enddecl
+
+    begin
+        temp = library("heapset", 0, 0, 0);
+        temp = library("alloc", 8, 0, 0);
+        write(temp);
+        temp = library("alloc", 8, 0, 0);
+        write(temp);
+        temp = library("alloc", 8, 0, 0);
+        write(temp);
+
+        temp = library("free", 1040, 0, 0);
+        write(temp);
+
+        temp = library("alloc", 8, 0, 0);
+        write(temp);
+
+        return 1;
+    end;
+}

@@ -75,13 +75,13 @@
 
 #define NULL_NODE 100
 
-// TODO: Add typetable field
 struct ASTNode
 {
     int sno;
     int dataType;                          // Data type of the node
     int nodeType;                          // Type of the node
     struct TypeTable *typeTablePtr;        // Pointer to type table entry
+    struct ClassTable *classTablePtr;      // Pointer to class table entry
     char *nodeName;                        // Name of variable
     int intConstVal;                       // Value of int const
     char *strConstVal;                     // Value of str const

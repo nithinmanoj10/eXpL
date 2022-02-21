@@ -55,6 +55,17 @@ struct MemberFuncList *MFLLookup(char *funcName);
  */
 struct MemberFuncList *MemberFuncLookUp(struct ClassTable *classType, char *memberFuncName);
 
+/**
+ *  @brief  Verify whether the right arguments are passed for a class
+ *          member function
+ *
+ *  @param  classVar    Pointer to AST node for the class variable
+ *  @param  argList     Pointer to AST node for head of argument list
+ *
+ *  @return int
+ */
+int verifyClassFuncArgs(struct ASTNode *classVar, struct ASTNode *argList);
+
 void MFLPrint(char *className);
 
 #endif

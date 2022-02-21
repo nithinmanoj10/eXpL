@@ -55,6 +55,7 @@ int setCurrentFuncName(char *newFuncName);
 #define TYPE_POINTER 2
 #define TYPE_USER_DEFINED 3
 #define TYPE_TUPLE 4
+#define TYPE_CLASS 5
 
 /** Type Table - Linked List ------------------------------------------------------------------
  *
@@ -165,14 +166,15 @@ struct FieldList *FLCreateNode(char *fieldName, struct TypeTable *type);
 
 /**
  *  @brief  Searches for a field of given 'fieldName' in the 'fieldList' of the
- *          given user-defined type.
+ *          given user-defined type or class type.
  *
  *  @param  type        Pointer to Type Table entry of given type
+ *  @param  classType   Pointer to Class Table entry
  *  @param  fieldName   Name of field
  *
  *  @return Pointer to fieldList entry
  */
-struct FieldList *FLLookUp(struct TypeTable *type, char *fieldName);
+struct FieldList *FLLookUp(struct TypeTable *type, struct ClassTable *classType, char *fieldName);
 
 // Print the current fieldList
 void FLPrint(char *fieldTableName);

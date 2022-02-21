@@ -3,6 +3,7 @@
 #include <string.h>
 #include "../Frontend/ast.h"
 #include "typeTable.h"
+#include "classTable.h"
 
 int declarationType = TYPE_VOID;
 int paramType = TYPE_VOID;
@@ -199,6 +200,10 @@ char *getTypeCategory(int typeCategory)
         return "Tuple 🥡";
         break;
 
+    case TYPE_CLASS:
+        return "Class 📚";
+        break;
+
     default:
         break;
     }
@@ -230,9 +235,9 @@ struct FieldList *FLCreateNode(char *fieldName, struct TypeTable *type)
     return newFLNode;
 }
 
-struct FieldList *FLLookUp(struct TypeTable *type, char *fieldName)
+struct FieldList *FLLookUp(struct TypeTable *type, struct ClassTable *classType, char *fieldName)
 {
-    struct FieldList *traversalPtr = type->fields;
+    struct FieldList *traversalPtr = (type == NULL) ? (classType->memberField) : (type->fields);
 
     while (traversalPtr != NULL)
     {

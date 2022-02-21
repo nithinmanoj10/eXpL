@@ -72,7 +72,9 @@ start 	: TypeDefBlock GDeclBlock FDefBlock MainBlock	{}
 
  /* Type Definition Block ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
-TypeDefBlock	:	TYPE TypeDefList ENDTYPE	{ printTypeTable(); }
+TypeDefBlock	:	TYPE TypeDefList ENDTYPE	{ 
+													// printTypeTable(); 
+												}
 				|
 				;
 
@@ -87,7 +89,7 @@ TypeDef			:	TypeID
 														exit(1);
 													}
 
-													FLPrint($1); 
+													// FLPrint($1); 
 													$1->typeCategory = TYPE_USER_DEFINED;
 													$1->fields = $3;
 													$1->size = typeFieldCount;
@@ -201,10 +203,10 @@ breakPointStmt	:	BREAKPOINT { $$ = TreeCreate(typeTableVOID, BREAKPOINT_NODE, NU
  /* Global Declaration ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
 GDeclBlock	:	DECL GDeclList ENDDECL		{
-												GSTPrint(); 
-												printTypeTable();					
+												// GSTPrint(); 
+												// printTypeTable();					
 												initStackBP(filePtr);
-												printGlobalParamList();
+												// printGlobalParamList();
 											}
 			|	DECL ENDDECL				{}
 			;
@@ -219,7 +221,7 @@ GDecl		:	GType GIDList ';'			{}
 												$1->fields = $2; 
 												$1->size = tupleFieldCount;
 
-												FLPrint($1);
+												// FLPrint($1);
 
 												fieldListTail = NULL;
 												fieldListHead = NULL;
@@ -394,10 +396,10 @@ FDef		:	FuncSign
 															fprintf(filePtr, "F%d:\n", GSTLookup(currentFuncName)->fLabel);
 															initFuncCalle(filePtr, paramCount);
 
-															printASTTable($4, 0);
+															// printASTTable($4, 0);
 															codeGen($4, filePtr);
 
-															LSTPrint();
+															// LSTPrint();
 															flushLST();
 															paramCount = 0;
 														}
@@ -442,7 +444,7 @@ LDecl		:	LType LIDList ';'			{}
 												$1->fields = $2; 
 												$1->size = tupleFieldCount;
 
-												FLPrint($1);
+												// FLPrint($1);
 
 												fieldListTail = NULL;
 												fieldListHead = NULL;
@@ -510,9 +512,9 @@ MainBlock	:	MainFunc '('')'
 														fprintf(filePtr, "F0:\n");
 														initFuncCalle(filePtr, paramCount);
 
-														printASTTable($6, 0);
+														// printASTTable($6, 0);
 														codeGen($6, filePtr);
-														LSTPrint();
+														// LSTPrint();
 														flushLST();
 														paramCount = 0;
 												
@@ -714,7 +716,7 @@ void yyerror(char const *s){
 int main(int argc, char* argv[]){
 
 	if (argc > 1){
-		yydebug = 1;
+		yydebug = 0;
 		filePtr = fopen("../Target_Files/round1.xsm", "w");
 		writeXexeHeader(filePtr);
 		TypeTableCreate();

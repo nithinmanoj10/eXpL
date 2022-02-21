@@ -41,18 +41,20 @@
 	struct MemberFuncList* MFLNode;
 }
 
-%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID StructField INITIALIZE InitializeStmt ALLOC AllocStmt FREE FreeStmt NULL_ DynaMemID StructID TupleFieldName
-%type <TTNode> TypeName TypeID GType LType TupleFieldType
+%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID Field INITIALIZE InitializeStmt ALLOC AllocStmt FREE FreeStmt NULL_ DynaMemID FieldID TupleFieldName
+%type <TTNode> TypeName TypeID GType LType TupleFieldType ClassDef
 %type <FLNode> FieldDecl FieldDeclList TupleFieldDecl TupleFieldDeclList TupleDecl
 %type <CTNode> ClassName ClassMembers
 
 %token BEGIN_ END MAIN READ WRITE ID NUM STRING PLUS MINUS MUL DIV MOD AMPERSAND BREAKPOINT TYPE ENDTYPE TUPLE
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE AND OR NOT
 %token DECL ENDDECL INT STR RETURN NULL_
-%token ALLOC FREE INITIALIZE ',' ')'
+%token ALLOC FREE INITIALIZE ',' ')' SELF
 %token CLASS ENDCLASS
 
 %left '='
+%left '.'
+%left '('
 %left OR
 %left AND
 %left EQ NEQ
@@ -152,6 +154,18 @@ ClassDef		:	ClassName '{'
 														FLPrint($1->className);
 														MFLPrint($1->className);
 
+														// adding the class to the Type Table
+														if (typeFieldCount > 8) {
+															printf("\nError: Class %s has more than 8 fields\n", $1->className);
+															exit(1);	
+														}
+														// $$ = TTInstall($1->className, typeFieldCount, $1->memberField);
+														// $$->typeCategory = TYPE_CLASS;
+
+														fieldListTail = NULL;
+														fieldListHead = NULL;
+														typeFieldCount = 0;
+
 														memFuncListHead = NULL;
 														memFuncListTail = NULL;
 														currentClassTable = NULL;
@@ -170,7 +184,7 @@ ClassMembers	:	DECL
 				;
 
 ClassName		:	ID								{ 
-														$$ = CTInstall($1->nodeName, NULL); 
+														$$ = CTInstall($1->nodeName, NULL);
 														currentClassTable = $$;
 													}
 				;
@@ -227,7 +241,7 @@ assignStmt 	: 	ID '=' expr						{
 														mulNode = TreeCreate(typeTableSTR, MUL_NODE, NULL, INT_MAX, NULL, NULL, $2, NULL);
 													$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, mulNode, NULL, $4);
 												}
-			| 	StructField '=' expr			{
+			| 	Field '=' expr			{
 													$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $3);
 												}
 	   		;
@@ -287,6 +301,7 @@ GDecl		:	GType GIDList ';'			{}
 												fieldListTail = NULL;
 												fieldListHead = NULL;
 												currentGDeclType = NULL;
+												currentCDeclType = NULL;
 												tupleFieldCount = 0;
 											}
 			;
@@ -294,10 +309,17 @@ GDecl		:	GType GIDList ';'			{}
 GType		:	INT							{ currentGDeclType = TTLookUp("int"); }
 			|	STR							{ currentGDeclType = TTLookUp("str"); }
 			|	ID							{ 
+												// for user-defined types						
 												currentGDeclType = TTLookUp($1->nodeName);
 												if(currentGDeclType == NULL) {
-													printf("\nType %s undeclared before use\n", $1->nodeName);
-													exit(1);
+
+													// for class types
+													currentCDeclType = CTLookUp($1->nodeName);
+
+													if (currentCDeclType == NULL) {
+														printf("\nType %s undeclared before use\n", $1->nodeName);
+														exit(1);
+													}
 												}
 			 								}
 			|	TUPLE ID					{ 
@@ -315,7 +337,13 @@ GIDList		:	GIDList ',' GID				{}
 			;
 
 GID			:	ID							{ 
-												int varSize = (currentGDeclType->typeCategory == TYPE_USER_DEFINED) ? (1) : (currentGDeclType->size);
+												int varSize;
+
+												if (currentGDeclType != NULL)
+													varSize = (currentGDeclType->typeCategory == TYPE_USER_DEFINED) ? (1) : (currentGDeclType->size);
+												if (currentCDeclType != NULL)
+													varSize = currentCDeclType->fieldCount;	
+
 												GSTInstall($1->nodeName, currentGDeclType, varSize, NULL); 
 											}
 			|	ID '[' NUM ']'				{
@@ -460,7 +488,7 @@ FID			:	ID										{
 
 FDef		:	FuncSign
 				'{' LDeclBlock FBody '}'				{
-															// char* currentFuncName = getCurrentFuncName();
+															char* currentFuncName = getCurrentFuncName();
 
 															// // TODO: Pls check!!!
 															// // addFunctionLST(currentFuncName, LSTHead);	
@@ -471,9 +499,9 @@ FDef		:	FuncSign
 															// printASTTable($4, 0);
 															// codeGen($4, filePtr);
 
-															// LSTPrint();
-															// flushLST();
-															// paramCount = 0;
+															LSTPrint();
+															flushLST();
+															paramCount = 0;
 														}
 			;
 
@@ -640,9 +668,28 @@ DynaMemID		:	ID '='							{ $$ = $1; }
 
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
+ /* Class Field Functions ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
+
+FieldFunction	:	SELF '.' ID '(' ArgList ')'		{}
+				|	Field '(' ArgList ')'			{
+														// verify whether the user passed the right arguments for 
+														// a class member function
+														struct ASTNode* classVariablePtr = $1;
+														struct ASTNode* classFunctionPtr = $1->right;
+
+														while (classFunctionPtr->right != NULL) {
+															classVariablePtr = classVariablePtr->right;
+															classFunctionPtr = classFunctionPtr->right;
+														}
+
+														verifyClassFuncArgs(classVariablePtr, $3);
+													}
+				;	
+
+ /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
  /* Struct Fields ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
-StructField		:	StructField '.' ID		{
+Field			:	Field '.' ID		{
 												struct ASTNode* traversalPtr = $1;
 												while (traversalPtr->right != NULL){
 													traversalPtr = traversalPtr->right;
@@ -656,7 +703,7 @@ StructField		:	StructField '.' ID		{
 													exit(1);
 												}
 												
-												struct FieldList* fieldListEntry = FLLookUp(lastFieldType, $3->nodeName);
+												struct FieldList* fieldListEntry = FLLookUp(lastFieldType, NULL,$3->nodeName);
 
 												// if field is not present in the field list
 												if(fieldListEntry == NULL){
@@ -669,41 +716,95 @@ StructField		:	StructField '.' ID		{
 												$$ = $1;
 												$$->typeTablePtr = $3->typeTablePtr;
 											}
-				|	StructID '.' ID			{
+				|	FieldID '.' ID			{
 												// Checking if ID($1) exists in LST or GST
 												$1 = lookupID($1);
 
-												if ($1->typeTablePtr->typeCategory == TYPE_USER_DEFINED)
-													$1->nodeType = FIELD_NODE;
+												int isClassVariable = ($1->classTablePtr == NULL) ? (0) : (1);
 
-												else if ($1->typeTablePtr->typeCategory == TYPE_TUPLE)
-													$1->nodeType = TUPLE_NODE;
-												
+												// for non-class variables
+												if ($1->typeTablePtr != NULL) {
+													if ($1->typeTablePtr->typeCategory == TYPE_USER_DEFINED)
+														$1->nodeType = FIELD_NODE;
+
+													else if ($1->typeTablePtr->typeCategory == TYPE_TUPLE)
+														$1->nodeType = TUPLE_NODE;
+													
+													else {
+														printf("\n. operator can only be used for User-Defined and class variables\n");
+														exit(1);
+													}
+												}
+
+												// if it is not a class variable
+												if ($1->classTablePtr == NULL) {
+													printf("\n. operator can only be used for User-Defined and class variables\n");
+													exit(1);
+												}
 												else {
-													printf("\n. operator cannot be used for non User Defined variable\n");
-													exit(1);
+													$1->nodeType = FIELD_NODE;
 												}
 
-												struct FieldList* fieldListEntry = FLLookUp($1->typeTablePtr, $3->nodeName);
+												// for non-class variables
+												if (!isClassVariable){
+													struct FieldList* fieldListEntry = FLLookUp($1->typeTablePtr, NULL,$3->nodeName);
 
-												// if field is not present in the field list
-												if(fieldListEntry == NULL){
-													printf("\nUndeclared field \"%s\" used in variable %s\n", $3->nodeName, $1->nodeName);
-													exit(1);
+													// if field is not present in the field list
+													if(fieldListEntry == NULL){
+														printf("\nUndeclared field \"%s\" used in variable %s\n", $3->nodeName, $1->nodeName);
+														exit(1);
+													}
+
+													$3->typeTablePtr = fieldListEntry->type;
+													$3->classTablePtr = NULL;
+													$1->right = $3;
+													$$ = $1;
+													$$->typeTablePtr = $3->typeTablePtr;
+													$$->classTablePtr = NULL;
+												}								
+
+												// for class variable
+												if (isClassVariable) {
+
+													// check if the field belongs to the class
+													struct FieldList* fieldListEntry = FLLookUp(NULL, $1->classTablePtr, $3->nodeName);
+													struct MemberFuncList* funcListEntry = MemberFuncLookUp($1->classTablePtr, $3->nodeName); 
+
+													if (fieldListEntry != NULL){
+														printf("\nIt is a class field member\n");
+
+														$3->typeTablePtr = fieldListEntry->type;
+														$3->classTablePtr = NULL;
+														$1->right = $3;
+														$$ = $1;
+														$$->typeTablePtr = $3->typeTablePtr;
+														$$->classTablePtr = NULL;
+													}
+													else if (funcListEntry != NULL){
+														printf("\nIt is a class function member\n");
+
+														$3->typeTablePtr = funcListEntry->funcType;
+														$3->classTablePtr = NULL;
+														$1->right = $3;
+														$$ = $1;
+														$$->typeTablePtr = $3->typeTablePtr;
+														$$->classTablePtr = NULL;
+													}
+													else {
+														printf("\nClass Error: Unknown class member %s in %s.%s\n", $3->nodeName, $1->nodeName, $3->nodeName);
+														exit(1);
+													}
 												}
-
-												$3->typeTablePtr = fieldListEntry->type;
-												$1->right = $3;
-												$$ = $1;
-												$$->typeTablePtr = $3->typeTablePtr;
 											}
 				;
 
-StructID		:	ID						{ $$ = $1; }
+FieldID			:	ID						{ $$ = $1; }
 				|	ID '[' expr ']'			{
 												$$ = $1;
 												$$->left = $3;
 											}				
+
+
 
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
@@ -723,7 +824,8 @@ expr		: expr PLUS expr		{ $$ =  TreeCreate(typeTableINT, PLUS_NODE, NULL, INT_MA
 			| expr OR expr			{ $$ =  TreeCreate(typeTableBOOL, OR_NODE, NULL, INT_MAX, NULL, $1, NULL, $3); }
 			| NOT expr				{ $$ =  TreeCreate(typeTableBOOL, NOT_NODE, NULL, INT_MAX, NULL, $2, NULL, NULL); }
 			| '(' expr ')'			{ $$ = $2; }
-			| StructField			{ $$ = $1; }
+			| Field					{ $$ = $1; }
+			| FieldFunction			{  }
 			| ID '(' ArgList ')'	{ 
 										// check if ID is a type constructor
 										struct TypeTable* idTTEntry = TTLookUp($1->nodeName);

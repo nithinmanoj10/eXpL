@@ -2,10 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../Frontend/ast.h"
 #include "paramStruct.h"
 #include "typeTable.h"
 #include "classTable.h"
 #include "memberFuncList.h"
+#include "GSTable.h"
 #include "../Functions/label.h"
 
 struct MemberFuncList *memFuncListHead = NULL;
@@ -70,6 +72,49 @@ struct MemberFuncList *MemberFuncLookUp(struct ClassTable *classType, char *memb
     }
 
     return traversalPtr;
+}
+
+int verifyClassFuncArgs(struct ASTNode *classVar, struct ASTNode *argList)
+{
+    struct ASTNode *classMemFuncNode = classVar->right;
+    struct ClassTable *classVarType = GSTLookup(classVar->nodeName)->classTablePtr;
+    struct MemberFuncList *classMemFunc = MemberFuncLookUp(classVarType, classMemFuncNode->nodeName);
+
+    // if its not a member function and a member field
+    if (classMemFunc == NULL)
+    {
+        printf("\nClass Method Error: %s class member field '%s' called as a function\n", classVarType->className, classMemFuncNode->nodeName);
+        exit(1);
+    }
+
+    struct ParamStruct *formalParams = classMemFunc->paramList;
+    struct ASTNode *actualParams = argList;
+    int paramCount = 1;
+
+    while (formalParams != NULL && actualParams != NULL)
+    {
+        if (formalParams->typeTablePtr != actualParams->typeTablePtr)
+        {
+            printf("Class Method Error: Expected data type %s for argument no. %d of function %s() belonging to class %s\n", formalParams->typeTablePtr->typeName, paramCount, classMemFunc->funcName, classVarType->className);
+            exit(1);
+        }
+        ++paramCount;
+        formalParams = formalParams->next;
+        actualParams = actualParams->argListNext;
+    }
+
+    if (formalParams == NULL && actualParams != NULL)
+    {
+        printf("Class Method Error: Too many arguments passed for function %s() belonging to class %s\n", classMemFunc->funcName, classVarType->className);
+        exit(1);
+    }
+    if (formalParams != NULL && actualParams == NULL)
+    {
+        printf("Class Method Error: Not enough arguments passed for function %s() belonging to class %s\n", classMemFunc->funcName, classVarType->className);
+        exit(1);
+    }
+
+    return 0;
 }
 
 void MFLPrint(char *className)

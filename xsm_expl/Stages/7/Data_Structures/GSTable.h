@@ -6,14 +6,15 @@
 
 struct GSTNode
 {
-    char *name;                     // Name of the variable or function
-    int type;                       // Data type of the variable: int or str
-    struct TypeTable *typeTablePtr; // Pointer to the type table entry of the Global Variable
-    int size;                       // Size of the variable
-    int binding;                    // Static binding of global variables
-    struct ParamStruct *paramList;  // Pointer to Formal Parameter List, for a function
-    int fLabel;                     // Lablel identifying a function uniquely
-    struct GSTNode *next;           // Pointer to next node
+    char *name;                       // Name of the variable or function
+    int type;                         // Data type of the variable: int or str
+    struct TypeTable *typeTablePtr;   // Pointer to the type table entry of the Global Variable
+    struct ClassTable *classTablePtr; // Pointer to class table entry for class variables
+    int size;                         // Size of the variable
+    int binding;                      // Static binding of global variables
+    struct ParamStruct *paramList;    // Pointer to Formal Parameter List, for a function
+    int fLabel;                       // Lablel identifying a function uniquely
+    struct GSTNode *next;             // Pointer to next node
 } gstnode;
 
 extern struct GSTNode *GSTHead;

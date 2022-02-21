@@ -23,6 +23,7 @@ struct ClassTable
 extern struct ClassTable *classTableHead;    // Pointer to Class Table head
 extern struct ClassTable *classTableTail;    // Pointer to Class Table tail
 extern struct ClassTable *currentClassTable; // Pointer to class table being currently defined
+extern struct ClassTable *currentCDeclType;  // Pointer to current class table entry for varaible declaration
 
 /**
  *  @brief  Creates a ClassTable entry of given 'className' and
