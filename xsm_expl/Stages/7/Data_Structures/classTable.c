@@ -10,6 +10,7 @@ struct ClassTable *classTableHead = NULL;
 struct ClassTable *classTableTail = NULL;
 struct ClassTable *currentClassTable = NULL;
 struct ClassTable *currentCDeclType = NULL;
+struct ClassTable *currentFieldCType = NULL;
 
 struct ClassTable *CTInstall(char *className, char *parentClassName)
 {
@@ -54,6 +55,21 @@ struct ClassTable *CTLookUp(char *className)
     }
 
     return traversalPtr;
+}
+
+int verifyClassField(struct ClassTable *classTablePtr, char *fieldName)
+{
+
+    struct FieldList *classFieldList = classTablePtr->memberField;
+
+    while (classFieldList != NULL)
+    {
+        if (strcmp(classFieldList->fieldName, fieldName) == 0)
+            return 1;
+        classFieldList = classFieldList->next;
+    }
+
+    return 0;
 }
 
 void CTPrint()

@@ -63,34 +63,53 @@ int printAST(struct ASTNode *root, int sno)
     ++ASTTableSno;
     root->sno = ASTTableSno;
 
-    if (root->intConstVal == INT_MAX)
-        printf("%3d%19s%15s%20s%13s%21s%6d%8d%7d%19p%19p\n", ASTTableSno, getNodeName(root->nodeType), (root->typeTablePtr == typeTableVOID) ? ("-") : (root->typeTablePtr->typeName), (root->nodeName == NULL) ? ("-") : (root->nodeName), "-", (root->strConstVal == NULL) ? ("-") : (root->strConstVal), (root->left == NULL) ? (0) : (root->left->sno), (root->middle == NULL) ? (0) : (root->middle->sno), (root->right == NULL) ? (0) : (root->right->sno), root->GSTEntry, root->LSTEntry);
+    printf("%3d", ASTTableSno);
+    printf("%19s", getNodeName(root->nodeType));
+
+    if (root->typeTablePtr != NULL)
+        printf("%15s", root->typeTablePtr->typeName);
     else
-        printf("%3d%19s%15s%20s%13d%21s%6d%8d%7d%19p%19p\n", ASTTableSno, getNodeName(root->nodeType), (root->typeTablePtr == typeTableVOID) ? ("-") : (root->typeTablePtr->typeName), (root->nodeName == NULL) ? ("-") : (root->nodeName), root->intConstVal, (root->strConstVal == NULL) ? ("-") : (root->strConstVal), (root->left == NULL) ? (0) : (root->left->sno), (root->middle == NULL) ? (0) : (root->middle->sno), (root->right == NULL) ? (0) : (root->right->sno), root->GSTEntry, root->LSTEntry);
+        printf("%15s", "-");
 
-    // printf("\n-----------------------------------------------------\n");
-    // printf("🌳 nodeName: %s\n", root->nodeName);
-    // printf("➡ Data Type: %d\n", root->dataType);
-    // printf("➡ nodeType: %d\n", root->nodeType);
-    // printf("➡ intConstVal: %d\n", root->intConstVal);
-    // printf("➡ strConstVal: %s\n", root->strConstVal);
-    // printf("➡ left: %p\n", root->left);
-    // printf("➡ middle: %p\n", root->middle);
-    // printf("➡ right: %p\n", root->right);
-    // printf("➡ GST: %p\n", root->GSTEntry);
-    // printf("➡ LST: %p\n\n", root->LSTEntry);
+    if (root->nodeName != NULL)
+        printf("%20s", root->nodeName);
+    else
+        printf("%20s", "-");
 
-    // if (root->argList != NULL)
-    // {
-    //     printf("➡ Arg List Start:\n");
-    //     struct ASTNode *traversalPtr = root->argList;
-    //     while (traversalPtr != NULL)
-    //     {
-    //         printAST(traversalPtr);
-    //         traversalPtr = traversalPtr->argList;
-    //     }
-    //     printf("➡ Arg List End:\n");
-    // }
+    if (root->intConstVal == INT_MAX)
+        printf("%13s", "-");
+    else
+        printf("%13d", root->intConstVal);
+
+    if (root->strConstVal != NULL)
+        printf("%21s", root->strConstVal);
+    else
+        printf("%21s", "-");
+
+    if (root->left != 0)
+        printf("%6d", root->left->sno);
+    else
+        printf("%6s", "-");
+
+    if (root->middle != 0)
+        printf("%8d", root->middle->sno);
+    else
+        printf("%8s", "-");
+
+    if (root->right != 0)
+        printf("%7d", root->right->sno);
+    else
+        printf("%7s", "-");
+
+    if (root->GSTEntry != NULL)
+        printf("%19p", root->GSTEntry);
+    else
+        printf("%19s", "-");
+
+    if (root->LSTEntry != NULL)
+        printf("%19p\n", root->LSTEntry);
+    else
+        printf("%19s\n", "-");
 
     return 0;
 }

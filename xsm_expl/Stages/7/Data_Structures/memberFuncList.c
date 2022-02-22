@@ -77,7 +77,18 @@ struct MemberFuncList *MemberFuncLookUp(struct ClassTable *classType, char *memb
 int verifyClassFuncArgs(struct ASTNode *classVar, struct ASTNode *argList)
 {
     struct ASTNode *classMemFuncNode = classVar->right;
-    struct ClassTable *classVarType = (classVar->nodeType == SELF_NODE) ? (currentClassTable) : (GSTLookup(classVar->nodeName)->classTablePtr);
+    struct ClassTable *classVarType = NULL;
+
+    if (classVar->nodeType == SELF_NODE)
+    {
+        classVarType = currentClassTable;
+    }
+    else
+    {
+        struct GSTNode *GSTEntry = GSTLookup(classVar->nodeName);
+        classVarType = (GSTEntry == NULL) ? (classVar->classTablePtr) : (GSTEntry->classTablePtr);
+    }
+
     struct MemberFuncList *classMemFunc = MemberFuncLookUp(classVarType, classMemFuncNode->nodeName);
 
     // if its not a member function and a member field

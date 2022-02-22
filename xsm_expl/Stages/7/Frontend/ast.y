@@ -127,14 +127,27 @@ FieldDeclList	:	FieldDeclList FieldDecl		{
 				;
 
 FieldDecl		:	TypeName ID ';'				{ 
-													$$ = FLCreateNode($2->nodeName, $1); 
+													$$ = FLCreateNode($2->nodeName, $1, currentFieldCType); 
 													++typeFieldCount;
+													currentFieldCType = NULL;
 												}
 				;
 
 TypeName		:	INT							{ $$ = TTLookUp("int"); }
 				|	STR							{ $$ = TTLookUp("str"); }
-				|	ID							{ $$ = TTLookUp($1->nodeName); }
+				|	ID							{ 
+													$$ = TTLookUp($1->nodeName); 
+
+													// if it's a class type
+													if ($$ == NULL) {
+														currentFieldCType = CTLookUp($1->nodeName);
+
+														if (currentFieldCType == NULL) {
+															printf("\nType Error: Unknown type %s\n", $1->nodeName);
+															exit(1);
+														}
+													}
+												}
 				;	
 
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
@@ -243,6 +256,20 @@ assignStmt 	: 	ID '=' expr						{
 													$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, mulNode, NULL, $4);
 												}
 			| 	Field '=' expr					{
+													if (currentClassTable == NULL) {
+
+														struct ClassTable* classType = GSTLookup($1->nodeName)->classTablePtr;
+														struct ASTNode* fieldNode = $1;
+
+														while (fieldNode->right != NULL)
+															fieldNode = fieldNode->right;	
+
+														if (isFuncDef && verifyClassField(classType, fieldNode->nodeName)) {
+															printf("Class Error: Can't access class field '%s' outside of class '%s'\n", fieldNode->nodeName, classType->className);
+															exit(1);
+														}	
+													}
+
 													$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $3);
 												}
 	   		;
@@ -410,7 +437,7 @@ TupleFieldDeclList	:	TupleFieldDeclList ',' TupleFieldDecl	{
 					;
 
 TupleFieldDecl		:	TupleFieldType TupleFieldName			{
-																	$$ = FLCreateNode($2->nodeName, $1);
+																	$$ = FLCreateNode($2->nodeName, $1, NULL);
 																	++tupleFieldCount;
 																}
 					;
@@ -680,17 +707,17 @@ FieldFunction	:	Field '(' ArgList ')'			{
 														struct ASTNode* classVariablePtr = $1;
 														struct ASTNode* classFunctionPtr = $1->right;
 
-														if (classVariablePtr->nodeType == SELF_NODE) {
-															verifyClassFuncArgs(classVariablePtr, $3);
-														}
-														else {
+														// if (classVariablePtr->nodeType == SELF_NODE) {
+														// 	verifyClassFuncArgs(classVariablePtr, $3);
+														// }
+														// else {
 															while (classFunctionPtr->right != NULL) {
 																classVariablePtr = classVariablePtr->right;
 																classFunctionPtr = classFunctionPtr->right;
 															}
 
 															verifyClassFuncArgs(classVariablePtr, $3);
-														}
+														// }
 													}
 				;	
 
@@ -703,7 +730,11 @@ Field			:	Field '.' ID		{
 													traversalPtr = traversalPtr->right;
 												}
 
+												printf("\nLast field: %s\n", traversalPtr->nodeName);
+
 												struct TypeTable* lastFieldType = traversalPtr->typeTablePtr;
+												struct ClassTable* lastFieldClassType = traversalPtr->classTablePtr;
+
 												traversalPtr->nodeType = FIELD_NODE;
 
 												if(lastFieldType == typeTableINTPtr || lastFieldType == typeTableSTRPtr){
@@ -711,18 +742,53 @@ Field			:	Field '.' ID		{
 													exit(1);
 												}
 												
-												struct FieldList* fieldListEntry = FLLookUp(lastFieldType, NULL,$3->nodeName);
+												// for non-Class fields
+												if (lastFieldClassType == NULL) {
 
-												// if field is not present in the field list
-												if(fieldListEntry == NULL){
-													printf("\nUndeclared field \"%s\" used in variable %s\n", $3->nodeName, traversalPtr->nodeName);
-													exit(1);
+													struct FieldList* fieldListEntry = FLLookUp(lastFieldType, NULL,$3->nodeName);
+
+													// if field is not present in the field list
+													if(fieldListEntry == NULL){
+														printf("\nUndeclared field \"%s\" used in variable %s\n", $3->nodeName, traversalPtr->nodeName);
+														exit(1);
+													}
+
+													$3->typeTablePtr = fieldListEntry->type;
+													traversalPtr->right = $3;
+													$$ = $1;
+													$$->typeTablePtr = $3->typeTablePtr;
 												}
+												else if (lastFieldClassType != NULL) {
 
-												$3->typeTablePtr = fieldListEntry->type;
-												traversalPtr->right = $3;
-												$$ = $1;
-												$$->typeTablePtr = $3->typeTablePtr;
+													// check if the field belongs to the class
+													struct FieldList* fieldListEntry = FLLookUp(NULL, lastFieldClassType, $3->nodeName);
+													struct MemberFuncList* funcListEntry = MemberFuncLookUp(lastFieldClassType, $3->nodeName); 
+
+													if (fieldListEntry != NULL){
+														printf("\nIt is a class field member\n");
+
+														$3->typeTablePtr = fieldListEntry->type;
+														$3->classTablePtr = fieldListEntry->classType;
+														traversalPtr->right = $3;
+														$$ = $1;
+														$$->typeTablePtr = $3->typeTablePtr;
+														$$->classTablePtr = $3->classTablePtr;
+													}
+													else if (funcListEntry != NULL){
+														printf("\nIt is a class function member\n");
+
+														$3->typeTablePtr = funcListEntry->funcType;
+														$3->classTablePtr = NULL;
+														traversalPtr->right = $3;
+														$$ = $1;
+														$$->typeTablePtr = $3->typeTablePtr;
+														$$->classTablePtr = $3->classTablePtr;
+													}
+													else {
+														printf("\nClass Error: Unknown class member %s in %s.%s\n", $3->nodeName, $1->nodeName, $3->nodeName);
+														exit(1);
+													}
+												}
 											}
 				|	FieldID '.' ID			{
 												// Checking if ID($1) exists in LST or GST
@@ -744,16 +810,16 @@ Field			:	Field '.' ID		{
 													}
 												}
 
-												// if it is not a class variable
-												if ($1->classTablePtr == NULL) {
-													printf("\n. operator can only be used for User-Defined and class variables\n");
-													exit(1);
-												}
-												else {
-													$1->nodeType = FIELD_NODE;
-												}
+												// // if it is not a class variable
+												// if ($1->classTablePtr == NULL || ) {
+												// 	printf("\n. operator can only be used for User-Defined and class variables 1\n");
+												// 	exit(1);
+												// }
+												// else {
+												// 	$1->nodeType = FIELD_NODE;
+												// }
 
-												// for non-class variables
+												// for non-class variables i.e tuples and user-defined
 												if (!isClassVariable){
 													struct FieldList* fieldListEntry = FLLookUp($1->typeTablePtr, NULL,$3->nodeName);
 
@@ -777,16 +843,17 @@ Field			:	Field '.' ID		{
 													// check if the field belongs to the class
 													struct FieldList* fieldListEntry = FLLookUp(NULL, $1->classTablePtr, $3->nodeName);
 													struct MemberFuncList* funcListEntry = MemberFuncLookUp($1->classTablePtr, $3->nodeName); 
+													$1->nodeType = FIELD_NODE;
 
 													if (fieldListEntry != NULL){
 														printf("\nIt is a class field member\n");
 
 														$3->typeTablePtr = fieldListEntry->type;
-														$3->classTablePtr = NULL;
+														$3->classTablePtr = fieldListEntry->classType;
 														$1->right = $3;
 														$$ = $1;
 														$$->typeTablePtr = $3->typeTablePtr;
-														$$->classTablePtr = NULL;
+														$$->classTablePtr = $3->classTablePtr;
 													}
 													else if (funcListEntry != NULL){
 														printf("\nIt is a class function member\n");
@@ -796,7 +863,7 @@ Field			:	Field '.' ID		{
 														$1->right = $3;
 														$$ = $1;
 														$$->typeTablePtr = $3->typeTablePtr;
-														$$->classTablePtr = NULL;
+														$$->classTablePtr = $3->classTablePtr;
 													}
 													else {
 														printf("\nClass Error: Unknown class member %s in %s.%s\n", $3->nodeName, $1->nodeName, $3->nodeName);
@@ -819,15 +886,15 @@ Field			:	Field '.' ID		{
 
 												if (fieldListEntry != NULL) {
 													$3->typeTablePtr = fieldListEntry->type;
-													$3->classTablePtr = NULL;
+													$3->classTablePtr = fieldListEntry->classType;
 													$$->typeTablePtr = $3->typeTablePtr;
-													$$->classTablePtr = NULL;
+													$$->classTablePtr = $3->classTablePtr;
 												}
 												else if (funcListEntry != NULL) {
 													$3->typeTablePtr = funcListEntry->funcType;
 													$3->classTablePtr = NULL;
 													$$->typeTablePtr = $3->typeTablePtr;
-													$$->classTablePtr = NULL;
+													$$->classTablePtr = $3->classTablePtr;
 												}
 												else {
 													printf("\nClass Error: Unknown class member %s in self.%s\n", $3->nodeName, $3->nodeName);
@@ -862,7 +929,25 @@ expr		: expr PLUS expr		{ $$ =  TreeCreate(typeTableINT, PLUS_NODE, NULL, INT_MA
 			| expr OR expr			{ $$ =  TreeCreate(typeTableBOOL, OR_NODE, NULL, INT_MAX, NULL, $1, NULL, $3); }
 			| NOT expr				{ $$ =  TreeCreate(typeTableBOOL, NOT_NODE, NULL, INT_MAX, NULL, $2, NULL, NULL); }
 			| '(' expr ')'			{ $$ = $2; }
-			| Field					{ $$ = $1; }
+			| Field					{ 
+										// struct ASTNode* fieldHead = lookupID($1);
+
+										if (currentClassTable == NULL && $1->classTablePtr != NULL) {
+
+											struct ClassTable* classType = GSTLookup($1->nodeName)->classTablePtr;
+											struct ASTNode* fieldNode = $1;
+
+											while (fieldNode->right != NULL)
+												fieldNode = fieldNode->right;	
+
+											if (isFuncDef && verifyClassField(classType, fieldNode->nodeName)) {
+												printf("Class Error: Can't access class field '%s' outside of class '%s'\n", fieldNode->nodeName, classType->className);
+												exit(1);
+											}	
+										}
+
+										$$ = $1; 
+									}
 			| FieldFunction			{  }
 			| ID '(' ArgList ')'	{ 
 										// check if ID is a type constructor

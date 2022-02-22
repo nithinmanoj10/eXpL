@@ -24,6 +24,7 @@ extern struct ClassTable *classTableHead;    // Pointer to Class Table head
 extern struct ClassTable *classTableTail;    // Pointer to Class Table tail
 extern struct ClassTable *currentClassTable; // Pointer to class table being currently defined
 extern struct ClassTable *currentCDeclType;  // Pointer to current class table entry for varaible declaration
+extern struct ClassTable *currentFieldCType; // Pointer to class table entry for field class type
 
 /**
  *  @brief  Creates a ClassTable entry of given 'className' and
@@ -67,6 +68,17 @@ void CTMemberInstall(struct ClassTable *classTablePtr, char *memberTypeName, cha
  *  @param  methodParamList     Pointer to head of parameter list of the method
  */
 void CTMethodInstall(struct ClassTable *classTablePtr, char *methodName, struct TypeTable *methodType, struct ParamStruct *methodParamList);
+
+/**
+ *  @brief  Verify whether a field belongs to a class. Returns 1 if it
+ *          does, else returns 0
+ *
+ *  @param  classTablePtr   Pointer to class table entry
+ *  @param  fieldName       Name of the field
+ *
+ *  @return int
+ */
+int verifyClassField(struct ClassTable *classTablePtr, char *fieldName);
 
 /**
  *  @brief  Pretty-print the Class Table

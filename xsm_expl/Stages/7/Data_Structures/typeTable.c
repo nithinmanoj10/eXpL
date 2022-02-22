@@ -222,7 +222,7 @@ int isPrimitiveType(struct TypeTable *typeTablePtr)
 struct FieldList *fieldListHead = NULL;
 struct FieldList *fieldListTail = NULL;
 
-struct FieldList *FLCreateNode(char *fieldName, struct TypeTable *type)
+struct FieldList *FLCreateNode(char *fieldName, struct TypeTable *type, struct ClassTable *classType)
 {
     struct FieldList *newFLNode = (struct FieldList *)malloc(sizeof(struct FieldList));
     newFLNode->fieldName = (char *)malloc(sizeof(fieldName));
@@ -230,6 +230,7 @@ struct FieldList *FLCreateNode(char *fieldName, struct TypeTable *type)
     strcpy(newFLNode->fieldName, fieldName);
     newFLNode->fieldIndex = 0;
     newFLNode->type = type;
+    newFLNode->classType = classType;
     newFLNode->next = NULL;
 
     return newFLNode;
@@ -255,13 +256,26 @@ void FLPrint(char *fieldTableName)
 
     printf("\n\nField List for %s - %p\n", fieldTableName, fieldListHead);
     printf("---------------------------------------------------\n\n");
-    printf("fieldIndex              fieldName             type\n");
-    printf("───────────────────────────────────────────────────\n\n");
+    printf("fieldIndex              fieldName             type        classType\n");
+    printf("────────────────────────────────────────────────────────────────────\n\n");
     while (traversalPtr != NULL)
     {
-        printf("%10d%23s%17p\n", traversalPtr->fieldIndex, traversalPtr->fieldName, traversalPtr->type);
+
+        printf("%10d", traversalPtr->fieldIndex);
+        printf("%23s", traversalPtr->fieldName);
+
+        if (traversalPtr->type != NULL)
+            printf("%17p", traversalPtr->type);
+        else
+            printf("%17s", "-");
+
+        if (traversalPtr->classType != NULL)
+            printf("%17p\n", traversalPtr->classType);
+        else
+            printf("%17s\n", "-");
+
         traversalPtr = traversalPtr->next;
     }
 
-    printf("\n───────────────────────────────────────────────────\n\n");
+    printf("\n────────────────────────────────────────────────────────────────────\n\n");
 }

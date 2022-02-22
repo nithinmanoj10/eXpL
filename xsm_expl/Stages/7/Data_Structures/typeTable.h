@@ -159,10 +159,11 @@ extern struct FieldList *fieldListTail;
  *
  *  @param  fieldName   Name of the field
  *  @param  type        Pointer to type table entry for the field
+ *  @param  classType   Pointer to class table entry for the field
  *
  *  @return Newly created FieldList node
  */
-struct FieldList *FLCreateNode(char *fieldName, struct TypeTable *type);
+struct FieldList *FLCreateNode(char *fieldName, struct TypeTable *type, struct ClassTable *classType);
 
 /**
  *  @brief  Searches for a field of given 'fieldName' in the 'fieldList' of the
