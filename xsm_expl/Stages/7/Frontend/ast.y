@@ -27,6 +27,7 @@
 	int typeFieldCount = 0;
 	int tupleFieldCount = 0;
 	int isFuncDef = 0;
+	int globalDeclStartLabel = 0;
 	char* fileName;
 	FILE* filePtr;
 %}
@@ -42,7 +43,7 @@
 	struct MemberFuncList* MFLNode;
 }
 
-%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID Field INITIALIZE InitializeStmt ALLOC AllocStmt FREE FreeStmt NULL_ DynaMemID FieldID TupleFieldName  
+%type <node> start Slist Stmt inputStmt outputStmt assignStmt ifStmt ID FID expr NUM STRING whileStmt doWhileStmt breakStmt continueStmt breakPointStmt retStmt retVal MBody FBody Arg ArgList GPtrID Field INITIALIZE InitializeStmt ALLOC AllocStmt FREE FreeStmt NULL_ DynaMemID FieldID TupleFieldName NEW NewStmt 
 %type <TTNode> TypeName TypeID GType LType TupleFieldType ClassDef
 %type <FLNode> FieldDecl FieldDeclList TupleFieldDecl TupleFieldDeclList TupleDecl
 %type <CTNode> ClassName ClassMembers
@@ -50,7 +51,7 @@
 %token BEGIN_ END MAIN READ WRITE ID NUM STRING PLUS MINUS MUL DIV MOD AMPERSAND BREAKPOINT TYPE ENDTYPE TUPLE
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE AND OR NOT
 %token DECL ENDDECL INT STR RETURN NULL_
-%token ALLOC FREE INITIALIZE ',' ')' SELF
+%token ALLOC FREE INITIALIZE ',' ')' SELF NEW
 %token CLASS ENDCLASS
 
 %left '='
@@ -211,6 +212,7 @@ MethodDecl		:	TypeName ID'('ParamList')'';'	{
 														MFLInstall($2->nodeName, $1, paramListHead);
 														//  printParamList(paramListHead); 
 														flushParamList();
+														paramCount = 0;
 													}
 				;
 
@@ -307,7 +309,8 @@ breakPointStmt	:	BREAKPOINT { $$ = TreeCreate(typeTableVOID, BREAKPOINT_NODE, NU
 
 GDeclBlock	:	DECL GDeclList ENDDECL		{
 												GSTPrint(); 
-												printTypeTable();					
+												printTypeTable();
+												fprintf(filePtr, "L%d:\n", globalDeclStartLabel);					
 												initStackBP(filePtr);
 												printGlobalParamList();
 											}
@@ -518,14 +521,16 @@ FDef		:	FuncSign
 				'{' LDeclBlock FBody '}'				{
 															char* currentFuncName = getCurrentFuncName();
 
-															// // TODO: Pls check!!!
-															// // addFunctionLST(currentFuncName, LSTHead);	
-															
-															// fprintf(filePtr, "F%d:\n", GSTLookup(currentFuncName)->fLabel);
-															// initFuncCalle(filePtr, paramCount);
+															struct GSTNode* funcGSTEntry = GSTLookup(currentFuncName);
+															struct MemberFuncList* MFLEntry = MemberFuncLookUp(currentClassTable, currentFuncName);
 
-															// printASTTable($4, 0);
-															// codeGen($4, filePtr);
+															int funcLabel = (funcGSTEntry == NULL) ? (MFLEntry->funcLabel) : (funcGSTEntry->fLabel);
+
+															fprintf(filePtr, "F%d:\n", funcLabel);
+															initFuncCalle(filePtr, paramCount);
+
+															printASTTable($4, 0);
+															codeGen($4, filePtr);
 
 															LSTPrint();
 															flushLST();
@@ -536,7 +541,7 @@ FDef		:	FuncSign
 
 FuncSign	:	FuncType FID '(' ParamList ')'			{
 															verifyFunctionSignature($2->nodeName);
-															// LSTAddParams();
+															LSTAddParams();
 															flushParamList();
 														}
 
@@ -669,6 +674,7 @@ MBody		:	BEGIN_ Slist retStmt END ';'		{
 DynamicMemStmt	:	AllocStmt
 				|	FreeStmt
 				|	InitializeStmt
+				|	NewStmt	
 				;	
 
 AllocStmt		:	DynaMemID ALLOC '(' ')'		{
@@ -690,6 +696,13 @@ InitializeStmt	:	DynaMemID INITIALIZE '(' ')'	{
 														}
 				;
 
+NewStmt			:	DynaMemID NEW '(' expr ')'		{
+															$1 = lookupID($1);
+															$2->left = $4;
+															$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $2);
+													}
+				;
+
 DynaMemID		:	ID '='							{ $$ = $1; }
 				|	ID '[' expr ']'	'='				{
 															$$ = $1;
@@ -706,18 +719,21 @@ FieldFunction	:	Field '(' ArgList ')'			{
 														// a class member function
 														struct ASTNode* classVariablePtr = $1;
 														struct ASTNode* classFunctionPtr = $1->right;
+														// classVariablePtr->nodeType = MEM_FUNC_NODE;
 
-														// if (classVariablePtr->nodeType == SELF_NODE) {
-														// 	verifyClassFuncArgs(classVariablePtr, $3);
-														// }
-														// else {
-															while (classFunctionPtr->right != NULL) {
-																classVariablePtr = classVariablePtr->right;
-																classFunctionPtr = classFunctionPtr->right;
-															}
+														while (classFunctionPtr->right != NULL) {
+															classVariablePtr = classVariablePtr->right;
+															classFunctionPtr = classFunctionPtr->right;
+														}
 
-															verifyClassFuncArgs(classVariablePtr, $3);
-														// }
+														verifyClassFuncArgs(classVariablePtr, $3);
+
+														classFunctionPtr->argListHead = $3;
+
+														if (classVariablePtr->nodeType == SELF_NODE)
+															classVariablePtr->nodeType = SELF_FUNC_NODE;
+														else
+															classVariablePtr->nodeType = MEM_FUNC_NODE;
 													}
 				;	
 
@@ -1033,6 +1049,8 @@ int main(int argc, char* argv[]){
 		yydebug = 0;
 		filePtr = fopen("../Target_Files/round1.xsm", "w");
 		writeXexeHeader(filePtr);
+		globalDeclStartLabel = getLabel();
+		fprintf(filePtr, "JMP L%d\n", globalDeclStartLabel);
 		TypeTableCreate();
 		yyparse();
 	}

@@ -20,8 +20,8 @@ int getLabel();
 
 /**
  * @brief Get the funcLabelNum
- * 
- * @return int 
+ *
+ * @return int
  */
 int getFuncLabel();
 
@@ -41,9 +41,9 @@ int calcLabelAddress(int lineNumber);
  */
 struct labelAddressNode
 {
-	int labelNum;	// Label Number
-	int address;	// Label Address
-	int labelType;	// Label Type - Control or Function
+	int labelNum;  // Label Number
+	int address;   // Label Address
+	int labelType; // Label Type - Control or Function
 	struct labelAddressNode *next;
 } lanode;
 
@@ -62,7 +62,7 @@ struct labelAddressNode *createLabelAddressNode(int labelNum, int address, int l
  * Function to insert a node to labelAddressLL
  *
  * @param	head:		Head of the Linked List
- *		
+ *
  *  		newNode:	New node to be inserted
  *
  * @return	head:		Head of the Linked List

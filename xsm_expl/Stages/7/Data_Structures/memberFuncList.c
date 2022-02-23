@@ -62,6 +62,9 @@ struct MemberFuncList *MFLLookup(char *funcName)
 struct MemberFuncList *MemberFuncLookUp(struct ClassTable *classType, char *memberFuncName)
 {
 
+    if (classType == NULL)
+        return NULL;
+
     struct MemberFuncList *traversalPtr = classType->virtualFunctionPtr;
 
     while (traversalPtr != NULL)
@@ -126,6 +129,20 @@ int verifyClassFuncArgs(struct ASTNode *classVar, struct ASTNode *argList)
     }
 
     return 0;
+}
+
+int getMemFuncLabel(char *classVarName, char *memFuncName)
+{
+
+    // get the class table entry for the class variable
+    // 'classVarName' from the GST
+    struct ClassTable *classTableEntry = GSTLookup(classVarName)->classTablePtr;
+
+    // get the Member Function List entry for the function
+    // named 'memFuncName'
+    struct MemberFuncList *memFuncListEntry = MemberFuncLookUp(classTableEntry, memFuncName);
+
+    return memFuncListEntry->funcLabel;
 }
 
 void MFLPrint(char *className)

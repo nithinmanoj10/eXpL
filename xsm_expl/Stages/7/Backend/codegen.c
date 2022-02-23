@@ -217,6 +217,26 @@ int codeGen(struct ASTNode *root, FILE *filePtr)
 			return 1;
 		}
 
+		if (root->right->nodeType == NEW_NODE)
+		{
+			multipush(filePtr);
+
+			struct ASTNode *newNode = root->right;
+			struct ASTNode *classVarNode = newNode->left;
+
+			int newHeapAddrReg = Alloc(filePtr);
+			fprintf(filePtr, "MOV [R%d], R%d\n", getVariableAddress(filePtr, classVarNode), newHeapAddrReg);
+			fprintf(filePtr, "MOV [R%d], R%d\n", getVariableAddress(filePtr, root->left), newHeapAddrReg);
+
+			freeReg(); // variableAddrReg from getVariableAddress();
+			freeReg(); // variableAddrReg from getVariableAddress();
+			freeReg(); // tempReg from Alloc()
+			freeReg(); // returnReg from Alloc()
+
+			multipop(filePtr);
+			return 1;
+		}
+
 		struct ASTNode *LHS = root->left;
 		struct ASTNode *RHS = root->right;
 
@@ -265,13 +285,26 @@ int codeGen(struct ASTNode *root, FILE *filePtr)
 
 		struct ASTNode *writeArgument = root->left;
 
-		// for printing an entire tuple
-		if (writeArgument->nodeType == ID_NODE && writeArgument->typeTablePtr->typeCategory == TYPE_TUPLE)
+		// for non-class variables
+		if (writeArgument->classTablePtr == NULL)
 		{
-			printTuple(filePtr, writeArgument);
+			// for printing an entire tuple
+			if (writeArgument->nodeType == ID_NODE && writeArgument->typeTablePtr->typeCategory == TYPE_TUPLE)
+			{
+				printTuple(filePtr, writeArgument);
+			}
+			else
+			{
+				int resultRegNo = evalExprTree(filePtr, writeArgument);
+				INT_7(filePtr, -2, resultRegNo);
+				freeReg();
+			}
 		}
-		else
+
+		// for class variables
+		if (writeArgument->classTablePtr != NULL)
 		{
+
 			int resultRegNo = evalExprTree(filePtr, writeArgument);
 			INT_7(filePtr, -2, resultRegNo);
 			freeReg();
@@ -327,6 +360,7 @@ int initFuncCalle(FILE *filePtr, int paramCount)
 
 	int relativeBinding = 1;
 
+	// Pushing local variables of the function from LST to stack
 	while (traversalPtr != NULL)
 	{
 		for (int i = 0; i < traversalPtr->size; ++i)

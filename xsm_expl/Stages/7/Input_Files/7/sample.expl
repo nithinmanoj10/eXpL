@@ -11,7 +11,6 @@ class
         decl
             str name;
             int roll_no;
-            student stud;
             str getName(int stu);
             int getRollNo(str nam, int age);
         enddecl
@@ -20,10 +19,13 @@ class
                 str name;
             enddecl
             begin
-                self.name = "Nithin";
-                name = self.getName(2);
+                breakpoint;
+                // self.name = "Nithin";
+                // write(self.name);
+                // name = self.getName(2);
+                read(self.name);
                 write("Hello");
-                return name;
+                return self.name;
             end;
         }
         int getRollNo(str nam, int age) {
@@ -32,7 +34,7 @@ class
             enddecl
             begin
                 write("Roll noo");
-                return roll;
+                return 23;
             end;
         }
     }
@@ -84,13 +86,22 @@ int main() {
 
     begin
         write("Classs");
+
+        temp = initialize();
+
+        temp = new(S);
+        write(S);
+        name = S.getName(2);
+
+        write(name);
+
+        temp = fact(45);
+
         // num = S.getRollNo(name, num);
-        // name = S.getName(3);
 
-        // num = S.stud.getRollNo(name, num);
-
-        read(tree.left.a);
-        write(tree.left.a);
+        tree = alloc();
+        // read(tree.left.a);
+        write(tree);
 
         return 1;
     end;

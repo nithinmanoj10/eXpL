@@ -169,7 +169,7 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
         break;
 
     case READ_NODE:
-        if (leftTree->nodeType != ID_NODE && leftTree->nodeType != FIELD_NODE && leftTree->nodeType != TUPLE_NODE)
+        if (leftTree->nodeType != ID_NODE && leftTree->nodeType != FIELD_NODE && leftTree->nodeType != TUPLE_NODE && leftTree->nodeType != SELF_NODE)
         {
             printf("\nType Error: read() expects an identifier as an argument\n");
             exit(1);

@@ -66,6 +66,17 @@ struct MemberFuncList *MemberFuncLookUp(struct ClassTable *classType, char *memb
  */
 int verifyClassFuncArgs(struct ASTNode *classVar, struct ASTNode *argList);
 
+/**
+ *  @brief  Returns the label number of the function 'memFuncName' of the
+ *          class variable 'classVarName'
+ *
+ *  @param  classVarName    Name of the class variable
+ *  @param  memFuncName     Name of the member function
+ *
+ *  @return int
+ */
+int getMemFuncLabel(char *classVarName, char *memFuncName);
+
 void MFLPrint(char *className);
 
 #endif

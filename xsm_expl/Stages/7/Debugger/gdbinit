@@ -1,1 +1,2 @@
+break ast.c:getSelfVariableAddress
 run input < ../Input_Files/7/sample.expl

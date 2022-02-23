@@ -57,6 +57,7 @@
 #define INITIALIZE_NODE 40
 #define ALLOC_NODE 41
 #define FREE_NODE 42
+#define NEW_NODE 43
 
 #define TYPE_INT 50
 #define TYPE_BOOL 51
@@ -73,6 +74,9 @@
 #define DECL_NULL 72
 
 #define TUPLE_CONSTRUCTOR_NODE 90
+
+#define MEM_FUNC_NODE 95
+#define SELF_FUNC_NODE 96
 
 #define NULL_NODE 100
 
@@ -105,6 +109,8 @@ int getVariableAddress(FILE *filePtr, struct ASTNode *root);
 int getStructVariableAddress(FILE *filePtr, struct ASTNode *root, int structAddrReg);
 
 int getTupleVariableAddress(FILE *filePtr, struct ASTNode *root, int tupleAddrReg);
+
+int getSelfVariableAddress(FILE *filePtr, struct ASTNode *root, int variableAddrReg);
 
 int getAddress(FILE *filePtr, struct ASTNode *root);
 

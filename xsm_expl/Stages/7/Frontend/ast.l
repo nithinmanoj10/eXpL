@@ -51,6 +51,11 @@
 						return INITIALIZE;
 					}
 
+"new"				{
+						yylval.node = TreeCreate(typeTableINT, NEW_NODE, NULL, INT_MAX, NULL, NULL, NULL, NULL);
+						return NEW;
+					}
+
 "tuple"				{ return TUPLE;}
 
 "if"		{ return IF;}		/* Control Flow */
