@@ -557,6 +557,11 @@ FBody		:	BEGIN_ Slist retStmt END ';'			{
 															$$ = funcBodyStmt;
 															isFuncDef = 0;
 														}	
+			|	BEGIN_ retStmt END ';'					{
+															struct ASTNode* funcBodyStmt = TreeCreate(typeTableVOID, SLIST_NODE, NULL, INT_MAX, NULL, NULL, NULL, $2);
+															$$ = funcBodyStmt;
+															isFuncDef = 0;
+														}
 			;
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
@@ -730,8 +735,8 @@ FieldFunction	:	Field '(' ArgList ')'			{
 
 														classFunctionPtr->argListHead = $3;
 
-														if (classVariablePtr->nodeType == SELF_NODE)
-															classVariablePtr->nodeType = SELF_FUNC_NODE;
+														if ($1->nodeType == SELF_NODE)
+															$1->nodeType = SELF_FUNC_NODE;
 														else
 															classVariablePtr->nodeType = MEM_FUNC_NODE;
 													}

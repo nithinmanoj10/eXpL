@@ -17,14 +17,18 @@ class
         str getName(int stu) {
             decl
                 str name;
+                int temp;
             enddecl
             begin
-                breakpoint;
+                // breakpoint;
                 // self.name = "Nithin";
                 // write(self.name);
                 // name = self.getName(2);
                 read(self.name);
                 write("Hello");
+
+                temp = self.getRollNo(self.name, 20);
+
                 return self.name;
             end;
         }
@@ -34,7 +38,9 @@ class
             enddecl
             begin
                 write("Roll noo");
-                return 23;
+                write(nam);
+                self.roll_no = age;
+                return self.roll_no;
             end;
         }
     }
@@ -49,10 +55,14 @@ class
         str getName(str who) {
             decl
                 str name;
+                int temp;
             enddecl
             begin
-                write("Hello");
-                self.doll_no = self.S.getRollNo(name, 19);
+                write("Whyyyyy");
+                breakpoint;
+                temp = new(self.S);
+                self.doll_no = self.S.getRollNo("Nithin", 19);
+                write(self.doll_no);
                 return name;
             end;
         }
@@ -90,6 +100,7 @@ int main() {
         temp = initialize();
 
         temp = new(S);
+        temp = new(p);
         write(S);
         name = S.getName(2);
 
@@ -97,6 +108,8 @@ int main() {
 
         temp = fact(45);
 
+        name = p.getName(name);
+        write("Hello World");
         // num = S.getRollNo(name, num);
 
         tree = alloc();

@@ -433,16 +433,35 @@ int getSelfVariableAddress(FILE *filePtr, struct ASTNode *root, int variableAddr
 {
     int selfHeapAddrReg = getReg();
     struct LSTNode *LSTFirstEntry = LSTHead;
-    int selfBinding = LSTFirstEntry->binding - 1; // Binding of self
+    int selfBinding = (LSTFirstEntry == NULL || LSTFirstEntry->binding > 0) ? (-3) : (LSTFirstEntry->binding - 1); // Binding of self
+    int fieldIndex = 0;
+    struct ASTNode *selfField = NULL;
 
     fprintf(filePtr, "MOV R%d, BP\n", selfHeapAddrReg);
     fprintf(filePtr, "ADD R%d, %d\n", selfHeapAddrReg, selfBinding);
-
-    struct ASTNode *selfField = root->right;
-    int fieldIndex = FLLookUp(NULL, currentClassTable, selfField->nodeName)->fieldIndex;
-
     fprintf(filePtr, "MOV R%d, [R%d]\n", variableAddrReg, selfHeapAddrReg);
-    fprintf(filePtr, "ADD R%d, %d\n", variableAddrReg, fieldIndex);
+
+    while (root->right != NULL)
+    {
+        selfField = root->right;
+
+        if (root->nodeType == FIELD_NODE)
+        {
+            fieldIndex = FLLookUp(root->typeTablePtr, NULL, selfField->nodeName)->fieldIndex;
+        }
+
+        if (root->nodeType == SELF_NODE)
+        {
+            fieldIndex = FLLookUp(NULL, currentClassTable, selfField->nodeName)->fieldIndex;
+        }
+
+        fprintf(filePtr, "ADD R%d, %d\n", variableAddrReg, fieldIndex);
+
+        if (selfField->right != NULL)
+            fprintf(filePtr, "MOV R%d, [R%d]\n", variableAddrReg, variableAddrReg);
+
+        root = root->right;
+    }
 
     freeReg(); // selfHeapAddrReg from getSelfVariableAddress
 
@@ -542,13 +561,8 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
         return exprTreeResultReg;
     }
 
-    if (root->nodeType == SELF_FUNC_NODE)
-    {
-        return 1;
-    }
-
-    // for a FUNCTION Node or a Member Function Node
-    if (root->nodeType == FUNC_NODE || root->nodeType == MEM_FUNC_NODE)
+    // for a FUNCTION Node or a Member Function Node or Self Function Node
+    if (root->nodeType == FUNC_NODE || root->nodeType == MEM_FUNC_NODE || root->nodeType == SELF_FUNC_NODE)
     {
 
         // save the context of all register in use by
@@ -559,6 +573,7 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
 
         int memFuncLabel; // function label of class member function
         int isMemFuncNode = (root->nodeType == MEM_FUNC_NODE) ? (1) : (0);
+        int isSelfFuncNode = (root->nodeType == SELF_FUNC_NODE) ? (1) : (0);
 
         if (isMemFuncNode)
         {
@@ -578,6 +593,53 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
                 root = root->right;
 
             memFuncLabel = getMemFuncLabel(classVarNode->nodeName, root->nodeName);
+        }
+
+        if (isSelfFuncNode)
+        {
+            // Heap address of self has to be pushed to the stack initially
+            int selfHeapAddrReg = getReg();
+            struct LSTNode *LSTFirstEntry = LSTHead;
+            int selfBinding = (LSTFirstEntry == NULL) ? (-3) : (LSTFirstEntry->binding - 1); // Binding of self
+            int fieldIndex = 0;
+
+            fprintf(filePtr, "MOV R%d, BP\n", selfHeapAddrReg);
+            fprintf(filePtr, "ADD R%d, %d\n", selfHeapAddrReg, selfBinding);
+            fprintf(filePtr, "MOV R%d, [R%d]\n", selfHeapAddrReg, selfHeapAddrReg);
+
+            while (root->right->nodeType == FIELD_NODE)
+            {
+
+                if (root->nodeType == SELF_FUNC_NODE)
+                {
+                    fieldIndex = FLLookUp(NULL, currentClassTable, root->right->nodeName)->fieldIndex;
+                }
+                else
+                {
+                    fieldIndex = FLLookUp(NULL, root->classTablePtr, root->right->nodeName)->fieldIndex;
+                }
+
+                fprintf(filePtr, "ADD R%d, %d\n", selfHeapAddrReg, fieldIndex);
+                fprintf(filePtr, "MOV R%d, [R%d]\n", selfHeapAddrReg, selfHeapAddrReg);
+
+                root = root->right;
+            }
+
+            fprintf(filePtr, "PUSH R%d\n", selfHeapAddrReg);
+
+            freeReg(); // selfHeapAddrReg from evalExprTree
+
+            struct ASTNode *classVarNode = root;
+
+            // root is currently pointing to the class variable, we need to
+            // make it point to the member function node
+            while (root->right != NULL)
+                root = root->right;
+
+            if (classVarNode->classTablePtr != NULL)
+                memFuncLabel = MemberFuncLookUp(classVarNode->classTablePtr, root->nodeName)->funcLabel;
+            else
+                memFuncLabel = MemberFuncLookUp(currentClassTable, root->nodeName)->funcLabel;
         }
 
         // Evaluate each argList node and push it in the stack (in the same order)
@@ -621,7 +683,7 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
 
         // incase its a member function node, we pop out the
         // heap address of the class variable that was pushed initially
-        if (isMemFuncNode)
+        if (isMemFuncNode || isSelfFuncNode)
             fprintf(filePtr, "POP R10\n");
 
         // restore the saved context of all registers
