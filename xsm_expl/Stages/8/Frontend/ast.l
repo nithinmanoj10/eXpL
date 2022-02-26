@@ -22,6 +22,7 @@
 "class"				{ return CLASS;}
 "endclass"			{ return ENDCLASS;}
 "self"				{ return SELF;}
+"extends"			{ return EXTENDS;}
 "int"				{ return INT;}
 "str"				{ return STR;}
 "breakpoint"		{ return BREAKPOINT;}

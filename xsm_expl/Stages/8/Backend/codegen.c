@@ -225,7 +225,6 @@ int codeGen(struct ASTNode *root, FILE *filePtr)
 			struct ASTNode *classVarNode = newNode->left;
 
 			int newHeapAddrReg = Alloc(filePtr);
-			fprintf(filePtr, "MOV [R%d], R%d\n", getVariableAddress(filePtr, classVarNode), newHeapAddrReg);
 			fprintf(filePtr, "MOV [R%d], R%d\n", getVariableAddress(filePtr, root->left), newHeapAddrReg);
 
 			freeReg(); // variableAddrReg from getVariableAddress();
@@ -241,17 +240,20 @@ int codeGen(struct ASTNode *root, FILE *filePtr)
 		struct ASTNode *RHS = root->right;
 
 		// For tuple constructors
-		if (LHS->typeTablePtr->typeCategory == TYPE_TUPLE && RHS->nodeType == TUPLE_CONSTRUCTOR_NODE)
+		if (LHS->typeTablePtr)
 		{
-			constructTuple(filePtr, LHS, RHS->argListHead);
-			return 1;
-		}
+			if (LHS->typeTablePtr->typeCategory == TYPE_TUPLE && RHS->nodeType == TUPLE_CONSTRUCTOR_NODE)
+			{
+				constructTuple(filePtr, LHS, RHS->argListHead);
+				return 1;
+			}
 
-		// For tuple assignments
-		if (LHS->typeTablePtr->typeCategory == TYPE_TUPLE && RHS->typeTablePtr->typeCategory == TYPE_TUPLE)
-		{
-			assignTuple(filePtr, LHS, RHS);
-			return 1;
+			// For tuple assignments
+			if (LHS->typeTablePtr->typeCategory == TYPE_TUPLE && RHS->typeTablePtr->typeCategory == TYPE_TUPLE)
+			{
+				assignTuple(filePtr, LHS, RHS);
+				return 1;
+			}
 		}
 
 		int resultRegNo = evalExprTree(filePtr, root->right);

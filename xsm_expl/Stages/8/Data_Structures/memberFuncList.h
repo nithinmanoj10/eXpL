@@ -77,6 +77,16 @@ int verifyClassFuncArgs(struct ASTNode *classVar, struct ASTNode *argList);
  */
 int getMemFuncLabel(char *classVarName, char *memFuncName);
 
+/**
+ *  @brief  Returns 1 if the function signature of the parent function
+ *          matches with the child functions signature, else returns 0
+ *
+ *  @param  parentFunc  Pointer to Member Function List entry of parent function
+ *
+ *  @return int
+ */
+int verifyChildParentFunction(struct MemberFuncList *parentFunc);
+
 void MFLPrint(char *className);
 
 #endif

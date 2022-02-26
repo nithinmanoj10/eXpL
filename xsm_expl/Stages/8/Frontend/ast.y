@@ -51,7 +51,7 @@
 %token BEGIN_ END MAIN READ WRITE ID NUM STRING PLUS MINUS MUL DIV MOD AMPERSAND BREAKPOINT TYPE ENDTYPE TUPLE
 %token IF THEN ELSE ENDIF WHILE DO ENDWHILE BREAK CONTINUE AND OR NOT
 %token DECL ENDDECL INT STR RETURN NULL_
-%token ALLOC FREE INITIALIZE ',' ')' SELF NEW
+%token ALLOC FREE INITIALIZE ',' ')' SELF NEW EXTENDS
 %token CLASS ENDCLASS
 
 %left '='
@@ -99,7 +99,7 @@ TypeDef			:	TypeID
 														exit(1);
 													}
 
-													FLPrint($1->typeName); 
+													FLPrint($1->typeName, NULL); 
 													$1->typeCategory = TYPE_USER_DEFINED;
 													$1->fields = $3;
 													$1->size = typeFieldCount;
@@ -166,12 +166,17 @@ ClassDef		:	ClassName '{'
 						ClassMembers
 						MethodDefns
 					'}'								{ 
-														FLPrint($1->className);
+														FLPrint($1->className, currentClassTable->memberField);
 														MFLPrint($1->className);
 
 														// adding the class to the Type Table
 														if (typeFieldCount > 8) {
 															printf("\nError: Class %s has more than 8 fields\n", $1->className);
+															exit(1);	
+														}
+
+														if (currentClassTable->methodCount > 8) {
+															printf("\nError: Class %s has more than 8 member functions\n", $1->className);
 															exit(1);	
 														}
 														// $$ = TTInstall($1->className, typeFieldCount, $1->memberField);
@@ -184,6 +189,7 @@ ClassDef		:	ClassName '{'
 														memFuncListHead = NULL;
 														memFuncListTail = NULL;
 														currentClassTable = NULL;
+														currentParentClassTable = NULL;
 					 								}
 				;
 
@@ -191,7 +197,47 @@ ClassMembers	:	DECL
 						FieldDeclList
 						MethodDeclList
 					ENDDECL							{
-														currentClassTable->memberField = $2;
+
+														// if the current class is inheriting from a parent class
+														if (currentClassTable->parentPtr != NULL) {
+															struct FieldList* fieldTraversalPtr = currentClassTable->memberField;
+															while (fieldTraversalPtr->next != NULL)
+																fieldTraversalPtr = fieldTraversalPtr->next;
+															fieldTraversalPtr->next = $2;
+
+															// update fieldIndex for newly appended fields
+															int fieldOffset = fieldTraversalPtr->fieldIndex + 1;
+															fieldTraversalPtr = fieldTraversalPtr->next;	
+
+															while (fieldTraversalPtr != NULL) {
+																fieldTraversalPtr->fieldIndex += fieldOffset;
+																fieldTraversalPtr = fieldTraversalPtr->next;
+															}	
+														}
+														else
+															currentClassTable->memberField = $2;
+
+														// setting member functions of child class if inheriting from 
+														// parent class
+														if (currentClassTable->parentPtr != NULL) {
+															struct MemberFuncList* parentMemberFuncList = currentClassTable->parentPtr->virtualFunctionPtr;
+															
+															while (parentMemberFuncList != NULL) {
+																
+																// the parent function doesn't exists in the child class
+																if (MFLLookup(parentMemberFuncList->funcName) == NULL) {
+																	MFLInstall(parentMemberFuncList->funcName, parentMemberFuncList->funcType, parentMemberFuncList->paramList);
+																}
+																else {	// if parent function does exists in the child class
+
+																	// verifying if the function signatures are the same
+																	verifyChildParentFunction(parentMemberFuncList);
+																}
+																parentMemberFuncList = parentMemberFuncList->next;
+															}
+
+														}
+
 														currentClassTable->virtualFunctionPtr = memFuncListHead;
 														currentClassTable->fieldCount = fieldListTail->fieldIndex + 1;
 														currentClassTable->methodCount = memFuncListTail->funcPosition;
@@ -202,6 +248,11 @@ ClassName		:	ID								{
 														$$ = CTInstall($1->nodeName, NULL);
 														currentClassTable = $$;
 													}
+				|	ID EXTENDS ID					{ 
+														$$ = CTInstall($1->nodeName, $3->nodeName);
+														currentClassTable = $$;
+														currentParentClassTable = CTLookUp($3->nodeName);
+					 								}
 				;
 
 MethodDeclList	:	MethodDeclList MethodDecl		{}
@@ -327,7 +378,7 @@ GDecl		:	GType GIDList ';'			{}
 												$1->fields = $2; 
 												$1->size = tupleFieldCount;
 
-												FLPrint($1->typeName);
+												FLPrint($1->typeName, NULL);
 
 												fieldListTail = NULL;
 												fieldListHead = NULL;
@@ -585,7 +636,7 @@ LDecl		:	LType LIDList ';'			{}
 												$1->fields = $2; 
 												$1->size = tupleFieldCount;
 
-												FLPrint($1->typeName);
+												FLPrint($1->typeName, NULL);
 
 												fieldListTail = NULL;
 												fieldListHead = NULL;
@@ -701,9 +752,23 @@ InitializeStmt	:	DynaMemID INITIALIZE '(' ')'	{
 														}
 				;
 
-NewStmt			:	DynaMemID NEW '(' expr ')'		{
-															$1 = lookupID($1);
-															$2->left = $4;
+NewStmt			:	DynaMemID NEW '(' ID ')'		{
+															if (CTLookUp($4->nodeName) == NULL) {
+																printf("\nError: Undefined class type %s used in new() function\n", $4->nodeName);
+																exit(1);
+															}
+
+															if ($1->nodeType != SELF_NODE)
+																$1 = lookupID($1);
+
+																struct ASTNode* debugTemp = $1;
+															if ($1->classTablePtr != CTLookUp($4->nodeName) && CTLookUp($4->nodeName)->parentPtr != $1->classTablePtr) {
+																printf("\nError: Class type '%s' expected in new() function\n", $1->classTablePtr->className);
+																exit(1);
+															}
+
+
+															// $2->left = $4;
 															$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $2);
 													}
 				;
@@ -713,6 +778,7 @@ DynaMemID		:	ID '='							{ $$ = $1; }
 															$$ = $1;
 															$$->left = $3;	
 														}
+				|	Field '='						{ $$ = $1; }
 				;
 
  /* ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */

@@ -12,11 +12,11 @@ echo "⏳ Compiling $1.expl"
 printf '%.s─' $(seq 1 $(tput cols))
 printf "\n"
 
-cat -n ../Input_Files/7/$1.expl
+cat -n ../Input_Files/8/$1.expl
 printf "\n"
 printf '%.s─' $(seq 1 $(tput cols))
 
-./ast $1 < ../Input_Files/7/$1.expl
+./ast $1 < ../Input_Files/8/$1.expl
 
 # echo "Program returned: $?"
 
@@ -32,5 +32,5 @@ then
 	echo "\n🚀 Running target.xsm\n"
 
 	cd ../../..
-	./xsm -l library.lib -e Stages/7/Target_Files/target.xsm $2
+	./xsm -l library.lib -e Stages/8/Target_Files/target.xsm $2
 fi

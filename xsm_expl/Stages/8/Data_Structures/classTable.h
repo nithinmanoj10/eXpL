@@ -20,11 +20,12 @@ struct ClassTable
     struct ClassTable *next;                   // Pointer to next class table entry
 } classtable;
 
-extern struct ClassTable *classTableHead;    // Pointer to Class Table head
-extern struct ClassTable *classTableTail;    // Pointer to Class Table tail
-extern struct ClassTable *currentClassTable; // Pointer to class table being currently defined
-extern struct ClassTable *currentCDeclType;  // Pointer to current class table entry for varaible declaration
-extern struct ClassTable *currentFieldCType; // Pointer to class table entry for field class type
+extern struct ClassTable *classTableHead;          // Pointer to Class Table head
+extern struct ClassTable *classTableTail;          // Pointer to Class Table tail
+extern struct ClassTable *currentClassTable;       // Pointer to class table being currently defined
+extern struct ClassTable *currentParentClassTable; // Pointer to class table entry of parent class
+extern struct ClassTable *currentCDeclType;        // Pointer to current class table entry for varaible declaration
+extern struct ClassTable *currentFieldCType;       // Pointer to class table entry for field class type
 
 /**
  *  @brief  Creates a ClassTable entry of given 'className' and

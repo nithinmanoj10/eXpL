@@ -250,9 +250,9 @@ struct FieldList *FLLookUp(struct TypeTable *type, struct ClassTable *classType,
     return traversalPtr;
 }
 
-void FLPrint(char *fieldTableName)
+void FLPrint(char *fieldTableName, struct FieldList *headPtr)
 {
-    struct FieldList *traversalPtr = fieldListHead;
+    struct FieldList *traversalPtr = (headPtr == NULL) ? (fieldListHead) : (headPtr);
 
     printf("\n\nField List for %s - %p\n", fieldTableName, fieldListHead);
     printf("---------------------------------------------------\n\n");

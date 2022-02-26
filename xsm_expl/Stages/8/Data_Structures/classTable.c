@@ -9,6 +9,7 @@
 struct ClassTable *classTableHead = NULL;
 struct ClassTable *classTableTail = NULL;
 struct ClassTable *currentClassTable = NULL;
+struct ClassTable *currentParentClassTable = NULL;
 struct ClassTable *currentCDeclType = NULL;
 struct ClassTable *currentFieldCType = NULL;
 
@@ -21,11 +22,18 @@ struct ClassTable *CTInstall(char *className, char *parentClassName)
     strcpy(newCTNode->className, className);
     newCTNode->memberField = NULL;
     newCTNode->virtualFunctionPtr = NULL;
-    newCTNode->parentPtr = NULL; // Just for stage 7
+    newCTNode->parentPtr = (parentClassName == NULL) ? (NULL) : (CTLookUp(parentClassName));
     newCTNode->classIndex = (classTableTail == NULL) ? (0) : (classTableTail->classIndex + 1);
     newCTNode->fieldCount = 0;
     newCTNode->methodCount = 0;
     newCTNode->next = NULL;
+
+    // for a descented class, inherit all the fields of the parent class
+    if (parentClassName != NULL)
+    {
+        newCTNode->memberField = newCTNode->parentPtr->memberField;
+        newCTNode->virtualFunctionPtr = newCTNode->parentPtr->virtualFunctionPtr;
+    }
 
     if (classTableHead == NULL && classTableTail == NULL)
     {

@@ -73,6 +73,11 @@ int printAST(struct ASTNode *root, int sno)
     else
         printf("%15s", "-");
 
+    if (root->classTablePtr != NULL)
+        printf("%15s", root->classTablePtr->className);
+    else
+        printf("%15s", "-");
+
     if (root->nodeName != NULL)
         printf("%20s", root->nodeName);
     else
@@ -99,19 +104,19 @@ int printAST(struct ASTNode *root, int sno)
         printf("%8s", "-");
 
     if (root->right != 0)
-        printf("%7d", root->right->sno);
+        printf("%7d\n", root->right->sno);
     else
-        printf("%7s", "-");
+        printf("%7s\n", "-");
 
-    if (root->GSTEntry != NULL)
-        printf("%19p", root->GSTEntry);
-    else
-        printf("%19s", "-");
+    // if (root->GSTEntry != NULL)
+    //     printf("%19p", root->GSTEntry);
+    // else
+    //     printf("%19s", "-");
 
-    if (root->LSTEntry != NULL)
-        printf("%19p\n", root->LSTEntry);
-    else
-        printf("%19s\n", "-");
+    // if (root->LSTEntry != NULL)
+    //     printf("%19p\n", root->LSTEntry);
+    // else
+    //     printf("%19s\n", "-");
 
     return 0;
 }
@@ -121,8 +126,8 @@ void printASTTable(struct ASTNode *root, int sno)
     ASTTableSno = 0;
     printf("\n\nAbstract Syntax Tree\n\n");
 
-    printf("SNo         NodeType       DataType            NodeName  intConstVal          strConstVal  Left  Middle  Right           GSTEntry           LSTEntry\n");
-    printf("─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n\n");
+    printf("SNo         NodeType       DataType      ClassType            NodeName  intConstVal          strConstVal  Left  Middle  Right\n");
+    printf("─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────\n\n");
     printAST(root, sno);
 }
 

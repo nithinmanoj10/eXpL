@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "typeCheck.h"
 #include "../Frontend/ast.h"
+#include "../Data_Structures/classTable.h"
 
 int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree, struct ASTNode *middleTree)
 {
@@ -191,6 +192,10 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
         break;
 
     case ASGN_NODE:
+
+        printf("\nLeft Node: %s", leftTree->nodeName);
+        printf("\nRight Node: %s\n", rightTree->nodeName);
+
         if (leftTree->nodeType != ID_NODE && leftTree->nodeType != MUL_NODE && leftTree->nodeType != FIELD_NODE && leftTree->nodeType != TUPLE_NODE && leftTree->nodeType != SELF_NODE)
         {
             printf("\nType Error: Assignment Operator expects an Identifier in LHS\n");
@@ -203,22 +208,45 @@ int typeCheck(int nodeType, struct ASTNode *leftTree, struct ASTNode *rightTree,
         //     exit(1);
         // }
 
-        if (rightTree->nodeType == ALLOC_NODE)
+        if (rightTree->nodeType == ALLOC_NODE || rightTree->nodeType == NEW_NODE)
         {
-            if (isPrimitiveType(leftTree->typeTablePtr))
+            if (isPrimitiveType(leftTree->typeTablePtr) && leftTree->classTablePtr == NULL)
             {
-                printf("\nType Error: Dynamic Memory Allocation function expects a user defined type on LHS of assignment operator\n");
+                printf("%s %s\n", getNodeName(leftTree->nodeType), leftTree->nodeName);
+                printf("\nType Error: Dynamic Memory new Allocation function expects a user defined type on LHS of assignment operator\n");
                 exit(1);
             }
             return 1;
         }
 
-        if (rightTree->typeTablePtr != leftTree->typeTablePtr)
+        // for non-class variables
+        if (rightTree->typeTablePtr != NULL && leftTree->typeTablePtr != NULL)
         {
-            if (rightTree->nodeType != NULL_NODE)
+            if (rightTree->typeTablePtr != leftTree->typeTablePtr)
             {
-                printf("\nType Error: Assignment Operator expects same data type on both sides\n");
-                exit(1);
+                if (rightTree->nodeType != NULL_NODE)
+                {
+                    printf("\nType Error: Assignment Operator expects same data type on both sides\n");
+                    exit(1);
+                }
+            }
+        }
+
+        if (rightTree->classTablePtr != NULL && leftTree->classTablePtr != NULL)
+        {
+            struct ClassTable *LHSClassEntry = leftTree->classTablePtr;
+            struct ClassTable *RHSClassEntry = rightTree->classTablePtr;
+
+            // if they are not variables of the same class type
+            if (LHSClassEntry != RHSClassEntry)
+            {
+
+                // if RHS variable is part of child class of LHS
+                if (RHSClassEntry->parentPtr != LHSClassEntry)
+                {
+                    printf("\nType Error: Assignment Operator expects class variables of same type or inherited type\n");
+                    exit(1);
+                }
             }
         }
 

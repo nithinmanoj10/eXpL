@@ -39,14 +39,15 @@
 #define STR 295
 #define RETURN 296
 #define SELF 297
-#define CLASS 298
-#define ENDCLASS 299
-#define EQ 300
-#define NEQ 301
-#define LT 302
-#define LTE 303
-#define GT 304
-#define GTE 305
+#define EXTENDS 298
+#define CLASS 299
+#define ENDCLASS 300
+#define EQ 301
+#define NEQ 302
+#define LT 303
+#define LTE 304
+#define GT 305
+#define GTE 306
 #ifdef YYSTYPE
 #undef  YYSTYPE_IS_DECLARED
 #define YYSTYPE_IS_DECLARED 1

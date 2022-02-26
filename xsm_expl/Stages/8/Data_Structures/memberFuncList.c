@@ -145,6 +145,38 @@ int getMemFuncLabel(char *classVarName, char *memFuncName)
     return memFuncListEntry->funcLabel;
 }
 
+int verifyChildParentFunction(struct MemberFuncList *parentFunc)
+{
+    struct MemberFuncList *childFunc = MFLLookup(parentFunc->funcName);
+    struct ParamStruct *parentParamList = parentFunc->paramList;
+    struct ParamStruct *childParamList = childFunc->paramList;
+
+    if (childFunc->funcType != parentFunc->funcType)
+    {
+        printf("\nClass Error: Overiding function %s() in child class %s does't match function return type of parent class %s\n", childFunc->funcName, currentClassTable->className, currentParentClassTable->className);
+        exit(1);
+    }
+
+    while (parentParamList != NULL && childParamList != NULL)
+    {
+        if (parentParamList->paramType != childParamList->paramType || parentParamList->paramName != childParamList->paramName)
+        {
+            printf("\nClass Error: Overiding function %s() in child class %s does't match function signature of parent class %s\n", childFunc->funcName, currentClassTable->className, currentParentClassTable->className);
+            exit(1);
+        }
+        parentParamList = parentParamList->next;
+        childParamList = childParamList->next;
+    }
+
+    if (parentParamList != NULL || childParamList != NULL)
+    {
+        printf("\nClass Error: Overiding function %s() in child class %s does't match function signature of parent class %s\n", childFunc->funcName, currentClassTable->className, currentParentClassTable->className);
+        exit(1);
+    }
+
+    return 1;
+}
+
 void MFLPrint(char *className)
 {
     if (memFuncListHead == NULL && memFuncListTail == NULL)

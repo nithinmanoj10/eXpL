@@ -178,7 +178,7 @@ struct FieldList *FLCreateNode(char *fieldName, struct TypeTable *type, struct C
 struct FieldList *FLLookUp(struct TypeTable *type, struct ClassTable *classType, char *fieldName);
 
 // Print the current fieldList
-void FLPrint(char *fieldTableName);
+void FLPrint(char *fieldTableName, struct FieldList *headPtr);
 
 /* ----------------------------------------------------------------------------------------- */
 
