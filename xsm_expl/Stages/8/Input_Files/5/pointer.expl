@@ -1,0 +1,17 @@
+decl
+    int *aptr;
+    int a;
+enddecl
+
+int main() {
+    decl
+        int b;
+        int c;
+    enddecl
+
+    begin
+        aptr = &c;
+        write(aptr);
+        return 1;
+    end;
+}
