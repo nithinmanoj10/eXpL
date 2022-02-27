@@ -73,21 +73,53 @@ class
 }                  
 endclass
 
+// decl
+//     A a;
+//     B b;
+//     C c;
+// enddecl
+
 decl
-    A a;
-    B b;
-    C c;
+    A obj;
 enddecl
 
 int main() {
-    decl
-        int temp;
-    enddecl
-
-    begin
-        breakpoint;
-        temp = initialize();
-        write("Virtualll");
-        return 1;
-    end;
+  decl
+    int temp,n;
+  enddecl
+  begin
+    temp= initialize();
+    read(n);
+    if(n < 0)then
+        obj = new(A);
+    else
+        if(n == 0)then
+            obj = new(B);
+        else
+            if(n > 0)then
+                obj = new(C);
+            endif;
+       endif;
+    endif;
+   write(obj.f0());   
+   breakpoint;          
+    return 1;
+  end;
 }
+
+// int main() {
+//     decl
+//         int temp;
+//     enddecl
+
+//     begin
+//         breakpoint;
+//         temp = initialize();
+//         a = new(A);
+//         write("Virtualll");
+//         write(a);
+
+//         breakpoint;
+//         return 1;
+//     end;
+// }

@@ -227,9 +227,12 @@ int codeGen(struct ASTNode *root, FILE *filePtr)
 			struct ASTNode *classVarNode = newNode->left;
 
 			int newHeapAddrReg = Alloc(filePtr);
-			fprintf(filePtr, "MOV [R%d], R%d\n", getVariableAddress(filePtr, root->left), newHeapAddrReg);
+			int varAddressReg = getVariableAddress(filePtr, root->left);
 
-			freeReg(); // variableAddrReg from getVariableAddress();
+			fprintf(filePtr, "MOV [R%d], R%d\n", varAddressReg, newHeapAddrReg);
+			fprintf(filePtr, "ADD R%d, 1\n", varAddressReg);
+			fprintf(filePtr, "MOV [R%d], %d\n", varAddressReg, getClassVirtFuncAddress(newNode->left->nodeName));
+
 			freeReg(); // variableAddrReg from getVariableAddress();
 			freeReg(); // tempReg from Alloc()
 			freeReg(); // returnReg from Alloc()

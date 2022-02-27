@@ -73,7 +73,7 @@ enddecl
 
 int main() {
     decl
-        int a;
+        int a, b;
     enddecl
 
     begin
@@ -83,6 +83,8 @@ int main() {
         write(S);
 
         write("Inheritenncee");
+
+		breakpoint;
         return 1;
     end;
 }

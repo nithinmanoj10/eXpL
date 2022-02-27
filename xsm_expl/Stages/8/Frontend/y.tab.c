@@ -1398,7 +1398,7 @@ case 68:
 												if (currentGDeclType != NULL)
 													varSize = (currentGDeclType->typeCategory == TYPE_USER_DEFINED) ? (1) : (currentGDeclType->size);
 												if (currentCDeclType != NULL)
-													varSize = currentCDeclType->fieldCount;	
+													varSize = 2;	/* class variable will only have size of 2 */
 
 												GSTInstall(yystack.l_mark[0].node->nodeName, currentGDeclType, varSize, NULL); 
 											}
@@ -1820,13 +1820,13 @@ case 132:
 																yystack.l_mark[-4].node = lookupID(yystack.l_mark[-4].node);
 
 																struct ASTNode* debugTemp = yystack.l_mark[-4].node;
-															if (yystack.l_mark[-4].node->classTablePtr != CTLookUp(yystack.l_mark[-1].node->nodeName) && CTLookUp(yystack.l_mark[-1].node->nodeName)->parentPtr != yystack.l_mark[-4].node->classTablePtr) {
+															if (yystack.l_mark[-4].node->classTablePtr != CTLookUp(yystack.l_mark[-1].node->nodeName) && !isDescentedClass(yystack.l_mark[-1].node->nodeName, yystack.l_mark[-4].node->classTablePtr->className)) {
 																printf("\nError: Class type '%s' expected in new() function\n", yystack.l_mark[-4].node->classTablePtr->className);
 																exit(1);
 															}
 
 
-															/* $2->left = $4;*/
+															yystack.l_mark[-3].node->left = yystack.l_mark[-1].node;
 															yyval.node = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, yystack.l_mark[-4].node, NULL, yystack.l_mark[-3].node);
 													}
 break;

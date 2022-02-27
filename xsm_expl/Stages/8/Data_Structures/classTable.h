@@ -82,6 +82,27 @@ void CTMethodInstall(struct ClassTable *classTablePtr, char *methodName, struct 
 int verifyClassField(struct ClassTable *classTablePtr, char *fieldName);
 
 /**
+ *  @brief  Returns the Virtual Function Table entry address of the class
+ *          named 'className'
+ *
+ *  @param  className   Name of the class
+ *
+ *  @return int
+ */
+int getClassVirtFuncAddress(char *className);
+
+/**
+ *  @brief  Returns 1 if the class named 'childClassName' is a descented
+ *          of the class named 'parentClassName', else returns 0
+ *
+ *  @param  childClassName      Name of the child class
+ *  @param  parentClassName     Name of the parent class
+ *
+ *  @return int
+ */
+int isDescentedClass(char *childClassName, char *parentClassName);
+
+/**
  *  @brief  Pretty-print the Class Table
  */
 void CTPrint();

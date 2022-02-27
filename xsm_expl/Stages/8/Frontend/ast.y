@@ -452,7 +452,7 @@ GID			:	ID							{
 												if (currentGDeclType != NULL)
 													varSize = (currentGDeclType->typeCategory == TYPE_USER_DEFINED) ? (1) : (currentGDeclType->size);
 												if (currentCDeclType != NULL)
-													varSize = currentCDeclType->fieldCount;	
+													varSize = 2;	// class variable will only have size of 2 
 
 												GSTInstall($1->nodeName, currentGDeclType, varSize, NULL); 
 											}
@@ -790,13 +790,13 @@ NewStmt			:	DynaMemID NEW '(' ID ')'		{
 																$1 = lookupID($1);
 
 																struct ASTNode* debugTemp = $1;
-															if ($1->classTablePtr != CTLookUp($4->nodeName) && CTLookUp($4->nodeName)->parentPtr != $1->classTablePtr) {
+															if ($1->classTablePtr != CTLookUp($4->nodeName) && !isDescentedClass($4->nodeName, $1->classTablePtr->className)) {
 																printf("\nError: Class type '%s' expected in new() function\n", $1->classTablePtr->className);
 																exit(1);
 															}
 
 
-															// $2->left = $4;
+															$2->left = $4;
 															$$ = TreeCreate(typeTableVOID, ASGN_NODE, NULL, INT_MAX, NULL, $1, NULL, $2);
 													}
 				;

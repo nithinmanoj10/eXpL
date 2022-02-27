@@ -60,6 +60,7 @@ int main(){
         
 		read(n);
 		write(obj.testfun(n));
+        breakpoint;
 		return 1;
 	end;
 }

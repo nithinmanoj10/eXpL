@@ -80,6 +80,30 @@ int verifyClassField(struct ClassTable *classTablePtr, char *fieldName)
     return 0;
 }
 
+int getClassVirtFuncAddress(char *className)
+{
+    struct ClassTable *classTableEntry = CTLookUp(className);
+    int virtFuncAddress = 4096 + (8 * classTableEntry->classIndex);
+
+    return virtFuncAddress;
+}
+
+int isDescentedClass(char *childClassName, char *parentClassName)
+{
+    struct ClassTable *childClassTable = CTLookUp(childClassName);
+    struct ClassTable *parentClassTable = CTLookUp(parentClassName);
+    struct ClassTable *traversalPtr = childClassTable;
+
+    while (traversalPtr != NULL)
+    {
+        if (traversalPtr == parentClassTable)
+            return 1;
+        traversalPtr = traversalPtr->parentPtr;
+    }
+
+    return 0;
+}
+
 void CTPrint()
 {
     struct ClassTable *traversalPtr = classTableHead;
