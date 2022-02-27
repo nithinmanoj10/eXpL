@@ -29,7 +29,7 @@ struct MemberFuncList *MFLInstall(char *funcName, struct TypeTable *funcType, st
     newMFLNode->funcType = funcType;
     newMFLNode->paramList = paramList;
     newMFLNode->funcPosition = (memFuncListTail == NULL) ? (1) : (memFuncListTail->funcPosition + 1);
-    newMFLNode->funcLabel = getFuncLabel();
+    newMFLNode->funcLabel = -1;
     newMFLNode->next = NULL;
 
     if (memFuncListHead == NULL && memFuncListTail == NULL)
@@ -176,6 +176,105 @@ int verifyChildParentFunction(struct MemberFuncList *parentFunc)
 
     return 1;
 }
+struct MemberFuncList *copyFuncNode(struct MemberFuncList *ogFuncNode)
+{
+    struct MemberFuncList *newFuncNode = (struct MemberFuncList *)malloc(sizeof(struct MemberFuncList));
+    newFuncNode->funcName = (char *)malloc(sizeof(ogFuncNode->funcName));
+
+    strcpy(newFuncNode->funcName, ogFuncNode->funcName);
+    newFuncNode->funcType = ogFuncNode->funcType;
+    newFuncNode->paramList = ogFuncNode->paramList;
+    newFuncNode->funcPosition = ogFuncNode->funcPosition;
+    newFuncNode->funcLabel = ogFuncNode->funcLabel;
+    newFuncNode->next = NULL;
+
+    return newFuncNode;
+}
+
+int copyParentFunctions(struct ClassTable *childClass)
+{
+    struct MemberFuncList *parentClassFuncs = childClass->parentPtr->virtualFunctionPtr;
+    struct MemberFuncList *childFuncListHead, *childFuncListTail;
+    struct MemberFuncList *copyNode;
+
+    childFuncListHead = NULL;
+    childFuncListTail = NULL;
+    copyNode = NULL;
+
+    while (parentClassFuncs != NULL)
+    {
+
+        copyNode = copyFuncNode(parentClassFuncs);
+
+        if (childFuncListHead == NULL && childFuncListTail == NULL)
+        {
+            childFuncListHead = copyNode;
+            childFuncListTail = copyNode;
+        }
+        else
+        {
+            childFuncListTail->next = copyNode;
+            childFuncListTail = copyNode;
+        }
+
+        parentClassFuncs = parentClassFuncs->next;
+    }
+
+    childClass->virtualFunctionPtr = childFuncListHead;
+
+    return 1;
+}
+
+int addChildFunctions(struct ClassTable *childClass)
+{
+
+    struct MemberFuncList *traversalPtr = memFuncListHead;
+    struct MemberFuncList *memFuncNode = NULL;
+    struct MemberFuncList *childMemListTail = childClass->virtualFunctionPtr;
+
+    while (childMemListTail->next != NULL)
+        childMemListTail = childMemListTail->next;
+
+    while (traversalPtr != NULL)
+    {
+
+        // check if the member function already exists
+        memFuncNode = searchMemFunction(childClass->virtualFunctionPtr, traversalPtr->funcName);
+
+        if (memFuncNode != NULL)
+        {
+            memFuncNode->funcLabel = getLabel();
+        }
+        else
+        {
+            // if the function doesnt already exists, add a new node to the virtualFunctionList
+            // of the child class
+            struct MemberFuncList *newMemNode = copyFuncNode(traversalPtr);
+            newMemNode->funcLabel = getLabel();
+
+            newMemNode->funcPosition = childMemListTail->funcPosition + 1;
+            childMemListTail->next = newMemNode;
+            childMemListTail = newMemNode;
+        }
+
+        traversalPtr = traversalPtr->next;
+    }
+
+    return 1;
+}
+
+struct MemberFuncList *searchMemFunction(struct MemberFuncList *memFunc, char *funcName)
+{
+
+    while (memFunc != NULL)
+    {
+        if (strcmp(memFunc->funcName, funcName) == 0)
+            return memFunc;
+        memFunc = memFunc->next;
+    }
+
+    return NULL;
+}
 
 void MFLPrint(char *className)
 {
@@ -187,7 +286,7 @@ void MFLPrint(char *className)
     printf("funcPosition            funcName  funcType       paramList  funcLabel\n");
     printf("──────────────────────────────────────────────────────────────────────\n\n");
 
-    struct MemberFuncList *traversalPtr = memFuncListHead;
+    struct MemberFuncList *traversalPtr = currentClassTable->virtualFunctionPtr;
 
     while (traversalPtr != NULL)
     {

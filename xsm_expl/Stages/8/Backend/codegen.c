@@ -6,6 +6,8 @@
 #include "../Data_Structures/loopStack.h"
 #include "../Data_Structures/LSTable.h"
 #include "../Data_Structures/paramStruct.h"
+#include "../Data_Structures/classTable.h"
+#include "../Data_Structures/memberFuncList.h"
 #include "../Functions/reg.h"
 #include "../Functions/xsm_syscalls.h"
 #include "../Functions/label.h"
@@ -488,4 +490,35 @@ void assignTuple(FILE *filePtr, struct ASTNode *LHSTuple, struct ASTNode *RHSTup
 
 	freeReg(); // LHSTupleAddrReg from assignTuple
 	freeReg(); // RHSTupleAddrReg from assignTuple
+}
+
+void initVirtualFuncTable(FILE *filePtr)
+{
+
+	struct ClassTable *classTableEntry = classTableHead;
+	struct MemberFuncList *classMemFunc = NULL;
+	int funcLabelReg = getReg();
+
+	while (classTableEntry != NULL)
+	{
+
+		classMemFunc = classTableEntry->virtualFunctionPtr;
+
+		for (int i = 0; i < 8; ++i)
+		{
+			if (classMemFunc != NULL)
+			{
+				fprintf(filePtr, "MOV R%d, F%d\n", funcLabelReg, classMemFunc->funcLabel);
+				fprintf(filePtr, "MOV [%d], R%d\n", getFreeStackMemory(1), funcLabelReg);
+				classMemFunc = classMemFunc->next;
+			}
+			else
+			{
+				fprintf(filePtr, "MOV R%d, -1\n", funcLabelReg);
+				fprintf(filePtr, "MOV [%d], R%d\n", getFreeStackMemory(1), funcLabelReg);
+			}
+		}
+
+		classTableEntry = classTableEntry->next;
+	}
 }

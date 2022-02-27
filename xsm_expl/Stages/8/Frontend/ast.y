@@ -155,7 +155,11 @@ TypeName		:	INT							{ $$ = TTLookUp("int"); }
 
  /* Class Definitions ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
-ClassDefBlock	:	CLASS ClassDefList ENDCLASS		{ CTPrint(); }								
+ClassDefBlock	:	CLASS ClassDefList ENDCLASS		{ 
+														CTPrint(); 
+														fprintf(filePtr, "L%d:\n", globalDeclStartLabel);	
+														initVirtualFuncTable(filePtr);
+													}								
 				;	
 
 ClassDefList	:	ClassDefList ClassDef			{}
@@ -198,6 +202,18 @@ ClassMembers	:	DECL
 						MethodDeclList
 					ENDDECL							{
 
+														// if the class is not inheriting from any other function
+														// set the funcLabel for each member function
+														if (currentClassTable->parentPtr == NULL) {
+															struct MemberFuncList* traversalPtr = memFuncListHead;
+															while (traversalPtr != NULL) {
+																traversalPtr->funcLabel = getLabel();
+																traversalPtr = traversalPtr->next;
+															}
+															currentClassTable->virtualFunctionPtr = memFuncListHead;
+															// currentClassTable->methodCount = memFuncListTail->funcPosition;
+														}
+
 														// if the current class is inheriting from a parent class
 														if (currentClassTable->parentPtr != NULL) {
 															struct FieldList* fieldTraversalPtr = currentClassTable->memberField;
@@ -220,27 +236,39 @@ ClassMembers	:	DECL
 														// setting member functions of child class if inheriting from 
 														// parent class
 														if (currentClassTable->parentPtr != NULL) {
+
+															copyParentFunctions(currentClassTable);
+															addChildFunctions(currentClassTable);
+
+															printf("\nWhyyyyy\n");
+
 															struct MemberFuncList* parentMemberFuncList = currentClassTable->parentPtr->virtualFunctionPtr;
 															
-															while (parentMemberFuncList != NULL) {
+															// while (parentMemberFuncList != NULL) {
 																
-																// the parent function doesn't exists in the child class
-																if (MFLLookup(parentMemberFuncList->funcName) == NULL) {
-																	MFLInstall(parentMemberFuncList->funcName, parentMemberFuncList->funcType, parentMemberFuncList->paramList);
-																}
-																else {	// if parent function does exists in the child class
+															// 	// the parent function doesn't exists in the child class
+															// 	if (MFLLookup(parentMemberFuncList->funcName) == NULL) {
+															// 		MFLInstall(parentMemberFuncList->funcName, parentMemberFuncList->funcType, parentMemberFuncList->paramList);
+															// 	}
+															// 	else {	// if parent function does exists in the child class
 
-																	// verifying if the function signatures are the same
-																	verifyChildParentFunction(parentMemberFuncList);
-																}
-																parentMemberFuncList = parentMemberFuncList->next;
-															}
+															// 		// verifying if the function signatures are the same
+															// 		verifyChildParentFunction(parentMemberFuncList);
+															// 	}
+															// 	parentMemberFuncList = parentMemberFuncList->next;
+															// }
 
 														}
 
-														currentClassTable->virtualFunctionPtr = memFuncListHead;
+
+														struct MemberFuncList* traversalPtr = currentClassTable->virtualFunctionPtr;
+														while (traversalPtr != NULL) {
+															++currentClassTable->methodCount;
+															traversalPtr = traversalPtr->next;
+														}
+
+
 														currentClassTable->fieldCount = fieldListTail->fieldIndex + 1;
-														currentClassTable->methodCount = memFuncListTail->funcPosition;
 													}	
 				;
 
@@ -361,7 +389,7 @@ breakPointStmt	:	BREAKPOINT { $$ = TreeCreate(typeTableVOID, BREAKPOINT_NODE, NU
 GDeclBlock	:	DECL GDeclList ENDDECL		{
 												GSTPrint(); 
 												printTypeTable();
-												fprintf(filePtr, "L%d:\n", globalDeclStartLabel);					
+																
 												initStackBP(filePtr);
 												printGlobalParamList();
 											}

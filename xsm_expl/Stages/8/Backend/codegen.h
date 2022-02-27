@@ -106,4 +106,12 @@ void constructTuple(FILE *filePtr, struct ASTNode *tupleID, struct ASTNode *tupl
  */
 void assignTuple(FILE *filePtr, struct ASTNode *LHSTuple, struct ASTNode *RHSTuple);
 
+/**
+ *  @brief  Initialises the Virtual Function Table in the stack memory
+ *          using the information in the class table
+ *
+ *  @param  filePtr     Pointer to target file
+ */
+void initVirtualFuncTable(FILE *filePtr);
+
 #endif
