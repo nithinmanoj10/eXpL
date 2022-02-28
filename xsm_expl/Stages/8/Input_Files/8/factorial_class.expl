@@ -31,7 +31,8 @@ class
             begin
                 self.o1=new(fact);
                 sum=0;
-                while(n!=0)do
+                while(n!=0)do 
+                    breakpoint;
                     sum=sum+self.o1.findfactorial(n);
                     n=n-1;
                 endwhile;
@@ -52,11 +53,11 @@ int main(){
 	begin
 		x=initialize();
 		obj=new(testfactsum);
-        rdj=new(testfactsum);
+        // rdj=new(testfactsum);
 
-        rdj = obj;
-        write(obj);
-        write(rdj);
+        // rdj = obj;
+        // write(obj);
+        // write(rdj);
         
 		read(n);
 		write(obj.testfun(n));

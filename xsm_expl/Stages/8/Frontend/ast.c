@@ -438,7 +438,7 @@ int getSelfVariableAddress(FILE *filePtr, struct ASTNode *root, int variableAddr
 {
     int selfHeapAddrReg = getReg();
     struct LSTNode *LSTFirstEntry = LSTHead;
-    int selfBinding = (LSTFirstEntry == NULL || LSTFirstEntry->binding > 0) ? (-3) : (LSTFirstEntry->binding - 1); // Binding of self
+    int selfBinding = (LSTFirstEntry == NULL || LSTFirstEntry->binding > 0) ? (-4) : (LSTFirstEntry->binding - 2); // Binding of self
     int fieldIndex = 0;
     struct ASTNode *selfField = NULL;
 
@@ -582,35 +582,66 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
 
         if (isMemFuncNode)
         {
-            // Pushing the heap address of the class variable that
-            // is calling the function into the stack
+
+            // find the index of the function being called from the class table entry
+            // for that variable
+            int functionIndex = MemberFuncLookUp(GSTLookup(root->nodeName)->classTablePtr, root->right->nodeName)->funcPosition - 1;
+
+            // get the calling address of the function from the VFT
+            int VFTAddrReg = getReg();
+            int funcCallAddrReg = getReg();
+            int classVarBinding = GSTLookup(root->nodeName)->binding;
+
+            // Base address of VFT is stored in VFTAddrReg
+            fprintf(filePtr, "MOV R%d, %d\n", VFTAddrReg, classVarBinding);
+            fprintf(filePtr, "ADD R%d, 1\n", VFTAddrReg);
+            fprintf(filePtr, "MOV R%d, [R%d]\n", VFTAddrReg, VFTAddrReg);
+
+            // calling address of the function is stored in funcCallAddrReg
+            fprintf(filePtr, "MOV R%d, R%d\n", funcCallAddrReg, VFTAddrReg);
+            fprintf(filePtr, "ADD R%d, %d\n", funcCallAddrReg, functionIndex);
+            fprintf(filePtr, "MOV R%d, [R%d]\n", funcCallAddrReg, funcCallAddrReg);
+
+            // Pushing the heap address and the pointer
+            // to the VFT of the class variable  that is calling the function into the stack
             int classVarHeapAddrReg = getReg();
             fprintf(filePtr, "MOV R%d, [%d]\n", classVarHeapAddrReg, root->GSTEntry->binding);
             fprintf(filePtr, "PUSH R%d\n", classVarHeapAddrReg);
+            fprintf(filePtr, "PUSH R%d\n", VFTAddrReg);
 
             freeReg(); // For classVarHeapAddrReg
 
-            struct ASTNode *classVarNode = root;
+            // struct ASTNode *classVarNode = root;
 
-            // root is currently pointing to the class variable, we need to
-            // make it point to the member function node
-            while (root->right != NULL)
-                root = root->right;
+            // // root is currently pointing to the class variable, we need to
+            // // make it point to the member function node
+            // while (root->right != NULL)
+            //     root = root->right;
 
-            memFuncLabel = getMemFuncLabel(classVarNode->nodeName, root->nodeName);
+            // memFuncLabel = getMemFuncLabel(classVarNode->nodeName, root->nodeName);
+            memFuncLabel = funcCallAddrReg;
         }
 
         if (isSelfFuncNode)
         {
             // Heap address of self has to be pushed to the stack initially
+            int VFTAddrReg = getReg();
+            int funcCallAddrReg = getReg();
             int selfHeapAddrReg = getReg();
+
             struct LSTNode *LSTFirstEntry = LSTHead;
-            int selfBinding = (LSTFirstEntry == NULL) ? (-3) : (LSTFirstEntry->binding - 1); // Binding of self
+            int selfBinding = (LSTFirstEntry == NULL) ? (-4) : (LSTFirstEntry->binding); // Binding of self
+            selfBinding = (selfBinding > 0) ? (selfBinding - 5) : (selfBinding - 2);
             int fieldIndex = 0;
+            struct ASTNode *classVarNode = NULL;
 
             fprintf(filePtr, "MOV R%d, BP\n", selfHeapAddrReg);
             fprintf(filePtr, "ADD R%d, %d\n", selfHeapAddrReg, selfBinding);
             fprintf(filePtr, "MOV R%d, [R%d]\n", selfHeapAddrReg, selfHeapAddrReg);
+
+            fprintf(filePtr, "MOV R%d, BP\n", VFTAddrReg);
+            fprintf(filePtr, "ADD R%d, %d\n", VFTAddrReg, selfBinding + 1);
+            fprintf(filePtr, "MOV R%d, [R%d]\n", VFTAddrReg, VFTAddrReg);
 
             while (root->right->nodeType == FIELD_NODE)
             {
@@ -627,28 +658,40 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
                 fprintf(filePtr, "ADD R%d, %d\n", selfHeapAddrReg, fieldIndex);
                 fprintf(filePtr, "MOV R%d, [R%d]\n", selfHeapAddrReg, selfHeapAddrReg);
 
+                classVarNode = root->right;
+                fprintf(filePtr, "MOV R%d, %d\n", VFTAddrReg, getClassVirtFuncAddress(classVarNode->classTablePtr->className));
+
                 root = root->right;
             }
 
             fprintf(filePtr, "PUSH R%d\n", selfHeapAddrReg);
+            fprintf(filePtr, "PUSH R%d\n", VFTAddrReg);
+
+            int functionIndex = MemberFuncLookUp(currentClassTable, root->right->nodeName)->funcPosition - 1;
+
+            fprintf(filePtr, "MOV R%d, R%d\n", funcCallAddrReg, VFTAddrReg);
+            fprintf(filePtr, "ADD R%d, %d\n", funcCallAddrReg, functionIndex);
+            fprintf(filePtr, "MOV R%d, [R%d]\n", funcCallAddrReg, funcCallAddrReg);
 
             freeReg(); // selfHeapAddrReg from evalExprTree
 
-            struct ASTNode *classVarNode = root;
+            // struct ASTNode *classVarNode = root;
 
-            // root is currently pointing to the class variable, we need to
-            // make it point to the member function node
-            while (root->right != NULL)
-                root = root->right;
+            // // root is currently pointing to the class variable, we need to
+            // // make it point to the member function node
+            // while (root->right != NULL)
+            //     root = root->right;
 
-            if (classVarNode->classTablePtr != NULL)
-                memFuncLabel = MemberFuncLookUp(classVarNode->classTablePtr, root->nodeName)->funcLabel;
-            else
-                memFuncLabel = MemberFuncLookUp(currentClassTable, root->nodeName)->funcLabel;
+            // if (classVarNode->classTablePtr != NULL)
+            //     memFuncLabel = MemberFuncLookUp(classVarNode->classTablePtr, root->nodeName)->funcLabel;
+            // else
+            //     memFuncLabel = MemberFuncLookUp(currentClassTable, root->nodeName)->funcLabel;
+
+            memFuncLabel = funcCallAddrReg;
         }
 
         // Evaluate each argList node and push it in the stack (in the same order)
-        struct ASTNode *argListHead = root->argListHead;
+        struct ASTNode *argListHead = root->right->argListHead;
         int argValueReg;  // Register where each argument value is stored
         int argCount = 0; // Number of arguments pushed into the stack
 
@@ -673,9 +716,17 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
             struct GSTNode *funcGSTEntry = GSTLookup(root->nodeName);
             fprintf(filePtr, "CALL F%d\n", funcGSTEntry->fLabel);
         }
-        else
+        else if (isMemFuncNode)
         {
-            fprintf(filePtr, "CALL F%d\n", memFuncLabel);
+            fprintf(filePtr, "CALL R%d\n", memFuncLabel);
+            freeReg(); // funcCallAddrReg
+            freeReg(); // VFTAddrReg
+        }
+        else if (isSelfFuncNode)
+        {
+            fprintf(filePtr, "CALL R%d\n", memFuncLabel);
+            freeReg(); // funcCallAddrReg
+            freeReg(); // VFTAddReg from evalExprTree
         }
 
         // Store the return value in a register
@@ -687,9 +738,12 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
             fprintf(filePtr, "POP R10\n");
 
         // incase its a member function node, we pop out the
-        // heap address of the class variable that was pushed initially
+        // heap address and VFT pointer of the class variable that was pushed initially
         if (isMemFuncNode || isSelfFuncNode)
+        {
             fprintf(filePtr, "POP R10\n");
+            fprintf(filePtr, "POP R10\n");
+        }
 
         // restore the saved context of all registers
         // by popping them all from the stack

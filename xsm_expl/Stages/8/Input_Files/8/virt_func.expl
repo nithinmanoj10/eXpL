@@ -81,6 +81,7 @@ endclass
 
 decl
     A obj;
+    B objb;
 enddecl
 
 int main() {
@@ -89,6 +90,12 @@ int main() {
   enddecl
   begin
     temp= initialize();
+    // obj = new(A);
+    // objb = new(B);
+
+    // breakpoint;
+
+    // obj = objb;
     read(n);
     if(n < 0)then
         obj = new(A);
@@ -101,6 +108,7 @@ int main() {
             endif;
        endif;
     endif;
+    
    write(obj.f0());   
    breakpoint;          
     return 1;

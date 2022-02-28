@@ -74,6 +74,7 @@ int main(){
 	begin
 		x=initialize();
 		obj=new(linkedlist);
+		write(obj);
 		x=obj.init();
 		read(x);
 		while(x!=0)do

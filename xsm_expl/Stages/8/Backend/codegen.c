@@ -261,6 +261,31 @@ int codeGen(struct ASTNode *root, FILE *filePtr)
 			}
 		}
 
+		// class assignment
+		if (LHS->classTablePtr != NULL && RHS->classTablePtr != NULL)
+		{
+			int LHSVarAddrReg = getVariableAddress(filePtr, root->left);
+			int RHSVarAddrReg = getVariableAddress(filePtr, root->right);
+			int classValReg = getReg();
+
+			// saving the heap address
+			fprintf(filePtr, "MOV R%d, [R%d]\n", classValReg, RHSVarAddrReg);
+			fprintf(filePtr, "MOV [R%d], R%d\n", LHSVarAddrReg, classValReg);
+
+			fprintf(filePtr, "ADD R%d, 1\n", LHSVarAddrReg);
+			fprintf(filePtr, "ADD R%d, 1\n", RHSVarAddrReg);
+
+			// saving the VFT Address
+			fprintf(filePtr, "MOV R%d, [R%d]\n", classValReg, RHSVarAddrReg);
+			fprintf(filePtr, "MOV [R%d], R%d\n", LHSVarAddrReg, classValReg);
+
+			freeReg(); // variableAddrReg from getVariableAddress
+			freeReg(); // variableAddrReg from getVariableAddress
+			freeReg(); // classValReg from codeGen
+
+			return 1;
+		}
+
 		int resultRegNo = evalExprTree(filePtr, root->right);
 
 		if (root->left->nodeType == MUL_NODE)
@@ -271,7 +296,9 @@ int codeGen(struct ASTNode *root, FILE *filePtr)
 		}
 		else
 		{
-			fprintf(filePtr, "MOV [R%d], R%d\n", getVariableAddress(filePtr, root->left), resultRegNo);
+			int varAddrReg = getVariableAddress(filePtr, root->left);
+			fprintf(filePtr, "MOV [R%d], R%d\n", varAddrReg, resultRegNo);
+
 			freeReg();
 		}
 		freeReg();
