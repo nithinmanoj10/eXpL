@@ -3,12 +3,13 @@
 
 #include "loopStack.h"
 
-struct loopStackNode* LSHead = NULL;
+struct loopStackNode *LSHead = NULL;
 
-struct loopStackNode* createLSNode(int val) {
+struct loopStackNode *createLSNode(int val)
+{
 
-	struct loopStackNode* newNode;
-	newNode = (struct loopStackNode*)malloc(sizeof(struct loopStackNode));
+	struct loopStackNode *newNode;
+	newNode = (struct loopStackNode *)malloc(sizeof(struct loopStackNode));
 
 	newNode->labelNum = val;
 	newNode->next = NULL;
@@ -16,7 +17,8 @@ struct loopStackNode* createLSNode(int val) {
 	return newNode;
 }
 
-struct loopStackNode* pushLSNode(struct loopStackNode* loopStart, struct loopStackNode* loopEnd) {
+struct loopStackNode *pushLSNode(struct loopStackNode *loopStart, struct loopStackNode *loopEnd)
+{
 
 	if (loopStart == NULL | loopEnd == NULL)
 		return NULL;
@@ -28,15 +30,17 @@ struct loopStackNode* pushLSNode(struct loopStackNode* loopStart, struct loopSta
 	return LSHead;
 }
 
-int getStartLabel() {
+int getStartLabel()
+{
 
 	if (LSHead == NULL)
 		return -1;
-	
+
 	return LSHead->next->labelNum;
 }
 
-int getEndLabel() {
+int getEndLabel()
+{
 
 	if (LSHead == NULL)
 		return -1;
@@ -44,13 +48,14 @@ int getEndLabel() {
 	return LSHead->labelNum;
 }
 
-int popLSNode() {
+int popLSNode()
+{
 
 	if (LSHead == NULL)
 		return -1;
 
-	struct loopStackNode* temp1 = LSHead;
-	struct loopStackNode* temp2 = LSHead->next;
+	struct loopStackNode *temp1 = LSHead;
+	struct loopStackNode *temp2 = LSHead->next;
 
 	LSHead = temp2->next;
 
@@ -62,20 +67,23 @@ int popLSNode() {
 	return 1;
 }
 
-int LSisEmpty()	{
+int LSisEmpty()
+{
 
 	if (LSHead == NULL)
 		return 1;
-	
+
 	return 0;
 }
 
-int printLS() {
+int printLS()
+{
 
-	struct loopStackNode* temp = LSHead;
+	struct loopStackNode *temp = LSHead;
 	printf("\n");
 
-	while (temp != NULL) {
+	while (temp != NULL)
+	{
 		printf("\nLabel End: %d\n", temp->labelNum);
 		temp = temp->next;
 		printf("Label Start: %d\n", temp->labelNum);

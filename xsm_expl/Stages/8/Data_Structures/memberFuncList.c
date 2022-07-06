@@ -59,18 +59,51 @@ struct MemberFuncList *MFLLookup(char *funcName)
     return traversalPtr;
 }
 
-struct MemberFuncList *MemberFuncLookUp(struct ClassTable *classType, char *memberFuncName)
+struct MemberFuncList *MemberFuncLookUp(struct ClassTable *classType, char *memberFuncName, struct ASTNode *funcArgList)
 {
 
     if (classType == NULL)
         return NULL;
 
     struct MemberFuncList *traversalPtr = classType->virtualFunctionPtr;
+    int isValidSignature = 1; // 1 if the signature is same, else 0
 
     while (traversalPtr != NULL)
     {
         if (strcmp(traversalPtr->funcName, memberFuncName) == 0)
-            return traversalPtr;
+        {
+
+            // TODO:
+
+            // // check if the arguments passed match with the function signature
+            // // i.e check if the data type of the arguments are the same and in the same order
+            // // check if the same number of arguments are passed as well
+            // struct ParamStruct *formalParams = traversalPtr->paramList;
+            // struct ParamStruct *actualParams = paramListHead;
+            // isValidSignature = 1;
+
+            // // traverse through both the formal parameters and actual parameters
+            // while (formalParams != NULL && actualParams != NULL)
+            // {
+
+            //     // checking if the data type is the same
+            //     if (formalParams->typeTablePtr != actualParams->typeTablePtr)
+            //     {
+            //         isValidSignature = 0;
+            //         break;
+            //     }
+
+            //     formalParams = formalParams->next;
+            //     actualParams = actualParams->next;
+            // }
+
+            // // checking if the number of arguments passed are the same
+            // if (formalParams != NULL || actualParams != NULL)
+            //     isValidSignature = 0;
+
+            if (isValidSignature)
+                return traversalPtr;
+        }
         traversalPtr = traversalPtr->next;
     }
 
@@ -92,7 +125,7 @@ int verifyClassFuncArgs(struct ASTNode *classVar, struct ASTNode *argList)
         classVarType = (GSTEntry == NULL) ? (classVar->classTablePtr) : (GSTEntry->classTablePtr);
     }
 
-    struct MemberFuncList *classMemFunc = MemberFuncLookUp(classVarType, classMemFuncNode->nodeName);
+    struct MemberFuncList *classMemFunc = MemberFuncLookUp(classVarType, classMemFuncNode->nodeName, argList);
 
     // if its not a member function and a member field
     if (classMemFunc == NULL)
@@ -140,7 +173,7 @@ int getMemFuncLabel(char *classVarName, char *memFuncName)
 
     // get the Member Function List entry for the function
     // named 'memFuncName'
-    struct MemberFuncList *memFuncListEntry = MemberFuncLookUp(classTableEntry, memFuncName);
+    struct MemberFuncList *memFuncListEntry = MemberFuncLookUp(classTableEntry, memFuncName, NULL);
 
     return memFuncListEntry->funcLabel;
 }
@@ -241,8 +274,12 @@ int addChildFunctions(struct ClassTable *childClass)
         // check if the member function already exists
         memFuncNode = searchMemFunction(childClass->virtualFunctionPtr, traversalPtr->funcName);
 
-        if (memFuncNode != NULL)
+        // if the member function already exists , i.e If the child class has
+        // a member function with the same name as one present in the parent class aka function overloading
+        if (memFuncNode != NULL && verifyMemberFunctionSignatures(memFuncNode, traversalPtr) == 1)
         {
+            // if both the child member function and parent member function have the same function signature
+            // we shall overide the member function
             memFuncNode->funcLabel = getLabel();
         }
         else
@@ -274,6 +311,40 @@ struct MemberFuncList *searchMemFunction(struct MemberFuncList *memFunc, char *f
     }
 
     return NULL;
+}
+
+int verifyMemberFunctionSignatures(struct MemberFuncList *func1, struct MemberFuncList *func2)
+{
+
+    // if they don't have the same return type
+    if (func1->funcType != func2->funcType)
+        return 0;
+
+    struct ParamStruct *func1Params = func1->paramList;
+    struct ParamStruct *func2Params = func2->paramList;
+
+    // traversing through each functions parameters list and checking if the
+    // parameter name and return type are the same
+    while (func1Params != NULL && func2Params != NULL)
+    {
+        // if parameter data type isn't same
+        if (func1Params->paramType != func2Params->paramType)
+            return 0;
+
+        // if parameter name isn't same
+        if (strcmp(func1Params->paramName, func2Params->paramName) != 0)
+            return 0;
+
+        func1Params = func1Params->next;
+        func2Params = func2Params->next;
+    }
+
+    // incase the parameter lists are not of the same length, i.e the number
+    // of parameters passed are the not the same
+    if (func1Params != NULL || func2Params != NULL)
+        return 0;
+
+    return 1;
 }
 
 void MFLPrint(char *className)

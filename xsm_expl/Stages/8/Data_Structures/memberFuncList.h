@@ -50,10 +50,11 @@ struct MemberFuncList *MFLLookup(char *funcName);
  *
  *  @param  classType           Pointer to class table entry
  *  @param  memberFuncName      Name of the member function name
+ *  @param  funcArgList         Argument List for the function (needed for function overloading)
  *
  *  @return struct MemberFuncList*
  */
-struct MemberFuncList *MemberFuncLookUp(struct ClassTable *classType, char *memberFuncName);
+struct MemberFuncList *MemberFuncLookUp(struct ClassTable *classType, char *memberFuncName, struct ASTNode *funcArgList);
 
 /**
  *  @brief  Verify whether the right arguments are passed for a class
@@ -125,6 +126,17 @@ int addChildFunctions(struct ClassTable *childClass);
  *  @return struct MemberFuncList*
  */
 struct MemberFuncList *searchMemFunction(struct MemberFuncList *memFunc, char *funcName);
+
+/**
+ *  @brief  Returns 1 if both the functions named 'func1' and 'func2' have the same function
+ *          signature, else returns 0
+ *
+ *  @param  func1   Pointer to Member Function List entry for func1
+ *  @param  func2   Pointer to Member Function List entry for func2
+ *
+ *  @return int
+ */
+int verifyMemberFunctionSignatures(struct MemberFuncList *func1, struct MemberFuncList *func2);
 
 void MFLPrint(char *className);
 

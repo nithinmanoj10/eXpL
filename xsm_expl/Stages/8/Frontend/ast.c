@@ -14,6 +14,7 @@
 #include "../Data_Structures/classTable.h"
 
 int ASTTableSno = 0;
+int sourceLineNumber = 0;
 
 struct ASTNode *TreeCreate(struct TypeTable *typeTablePtr, int nodeType, char *nodeName, int intConstVal, char *strConstVal, struct ASTNode *left, struct ASTNode *middle, struct ASTNode *right)
 {
@@ -585,7 +586,7 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
 
             // find the index of the function being called from the class table entry
             // for that variable
-            int functionIndex = MemberFuncLookUp(GSTLookup(root->nodeName)->classTablePtr, root->right->nodeName)->funcPosition - 1;
+            int functionIndex = MemberFuncLookUp(GSTLookup(root->nodeName)->classTablePtr, root->right->nodeName, root->right->argListHead)->funcPosition - 1;
 
             // get the calling address of the function from the VFT
             int VFTAddrReg = getReg();
@@ -667,7 +668,7 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
             fprintf(filePtr, "PUSH R%d\n", selfHeapAddrReg);
             fprintf(filePtr, "PUSH R%d\n", VFTAddrReg);
 
-            int functionIndex = MemberFuncLookUp(currentClassTable, root->right->nodeName)->funcPosition - 1;
+            int functionIndex = MemberFuncLookUp(currentClassTable, root->right->nodeName, root->right->argListHead)->funcPosition - 1;
 
             fprintf(filePtr, "MOV R%d, R%d\n", funcCallAddrReg, VFTAddrReg);
             fprintf(filePtr, "ADD R%d, %d\n", funcCallAddrReg, functionIndex);
@@ -691,7 +692,7 @@ int evalExprTree(FILE *filePtr, struct ASTNode *root)
         }
 
         // Evaluate each argList node and push it in the stack (in the same order)
-        struct ASTNode *argListHead = root->right->argListHead;
+        struct ASTNode *argListHead = root->argListHead;
         int argValueReg;  // Register where each argument value is stored
         int argCount = 0; // Number of arguments pushed into the stack
 

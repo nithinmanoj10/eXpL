@@ -422,6 +422,11 @@ int codeGenFuncCaller(FILE *filePtr, struct ASTNode *funcNode)
 
 void initStackBP(FILE *filePtr)
 {
+
+	// incase there are no classes defined
+	if (classTableHead == NULL)
+		fprintf(filePtr, "L0:\n");
+
 	int freeStackMem = getFreeStackMemoryValue();
 	fprintf(filePtr, "MOV SP, %d\n", freeStackMem - 1);
 	fprintf(filePtr, "MOV BP, %d\n", freeStackMem);

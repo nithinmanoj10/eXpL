@@ -109,7 +109,7 @@
 
 [()\[\]\{\}]	{return *yytext;}	/* Others */
 [ \t]		{}
-[\r\n]		{}
+[\r\n]		{ ++sourceLineNumber; }
 
 "."			{ return *yytext;}
 ";"			{ return *yytext;}

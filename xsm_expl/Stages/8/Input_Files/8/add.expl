@@ -1,0 +1,17 @@
+decl
+    int sum;
+enddecl
+
+int main() {
+    decl
+        int a, b;
+    enddecl
+
+    begin
+        read(a);
+        read(b);
+        sum = a + b;
+        write(sum);
+        return 1;
+    end;
+}

@@ -156,6 +156,14 @@ TypeName		:	INT							{ $$ = TTLookUp("int"); }
  /* Class Definitions ――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― */
 
 ClassDefBlock	:	CLASS ClassDefList ENDCLASS		{ 
+
+														// printf("yoo bruhuhh\n");														
+
+														// struct ClassTable* traversalPtr = classTableHead;
+														// while(traversalPtr != NULL) {
+														// 	MFLPrint(traversalPtr->className);
+														// }
+
 														CTPrint(); 
 														fprintf(filePtr, "L%d:\n", globalDeclStartLabel);	
 														initVirtualFuncTable(filePtr);
@@ -201,7 +209,6 @@ ClassMembers	:	DECL
 						FieldDeclList
 						MethodDeclList
 					ENDDECL							{
-
 														// if the class is not inheriting from any other function
 														// set the funcLabel for each member function
 														if (currentClassTable->parentPtr == NULL) {
@@ -576,23 +583,7 @@ FDefBlock	:	FDefBlock FDef							{}
 			;
 
 FID			:	ID										{ 
-															// Check for function in GST		
-															if(GSTLookup($1->nodeName) == NULL){
-
-																if (currentClassTable == NULL) {
-																	printf("\nFunction %s() not declared globally\n", $1->nodeName);
-																	exit(1);
-																}
-															
-																// if not in GST, search in current Class Table
-																if (MemberFuncLookUp(currentClassTable, $1->nodeName) == NULL) {
-																	printf("\nFunction %s() not declared in class %s\n", $1->nodeName, currentClassTable->className);
-																	exit(1);
-																}
-
-															}
 															$$ = $1; 
-															setCurrentFuncName($1->nodeName);
 														}
 			;
 
@@ -601,7 +592,7 @@ FDef		:	FuncSign
 															char* currentFuncName = getCurrentFuncName();
 
 															struct GSTNode* funcGSTEntry = GSTLookup(currentFuncName);
-															struct MemberFuncList* MFLEntry = MemberFuncLookUp(currentClassTable, currentFuncName);
+															struct MemberFuncList* MFLEntry = MemberFuncLookUp(currentClassTable, currentFuncName, NULL);
 
 															int funcLabel = (funcGSTEntry == NULL) ? (MFLEntry->funcLabel) : (funcGSTEntry->fLabel);
 
@@ -619,6 +610,28 @@ FDef		:	FuncSign
 			;
 
 FuncSign	:	FuncType FID '(' ParamList ')'			{
+
+															// Check for function in GST		
+															if(GSTLookup($2->nodeName) == NULL){
+
+																if (currentClassTable == NULL) {
+																	printf("\nFunction %s() not declared globally\n", $2->nodeName);
+																	exit(1);
+																}
+															
+																// TODO:
+
+
+																// if not in GST, search in current Class Table
+																if (MemberFuncLookUp(currentClassTable, $2->nodeName, NULL) == NULL) {
+																	printf("\nFunction %s() not declared in class %s\n", $2->nodeName, currentClassTable->className);
+																	exit(1);
+																}
+
+															}
+
+															setCurrentFuncName($2->nodeName);
+
 															verifyFunctionSignature($2->nodeName);
 															LSTAddParams();
 															flushParamList();
@@ -877,7 +890,7 @@ Field			:	Field '.' ID		{
 
 													// check if the field belongs to the class
 													struct FieldList* fieldListEntry = FLLookUp(NULL, lastFieldClassType, $3->nodeName);
-													struct MemberFuncList* funcListEntry = MemberFuncLookUp(lastFieldClassType, $3->nodeName); 
+													struct MemberFuncList* funcListEntry = MemberFuncLookUp(lastFieldClassType, $3->nodeName, $3->argListHead); 
 
 													if (fieldListEntry != NULL){
 														printf("\nIt is a class field member\n");
@@ -957,7 +970,7 @@ Field			:	Field '.' ID		{
 
 													// check if the field belongs to the class
 													struct FieldList* fieldListEntry = FLLookUp(NULL, $1->classTablePtr, $3->nodeName);
-													struct MemberFuncList* funcListEntry = MemberFuncLookUp($1->classTablePtr, $3->nodeName); 
+													struct MemberFuncList* funcListEntry = MemberFuncLookUp($1->classTablePtr, $3->nodeName, $3->argListHead); 
 													$1->nodeType = FIELD_NODE;
 
 													if (fieldListEntry != NULL){
@@ -997,7 +1010,7 @@ Field			:	Field '.' ID		{
 
 												// check if the class field or class method exists
 												struct FieldList* fieldListEntry = FLLookUp(NULL, currentClassTable, $3->nodeName);
-												struct MemberFuncList* funcListEntry = MemberFuncLookUp(currentClassTable, $3->nodeName);
+												struct MemberFuncList* funcListEntry = MemberFuncLookUp(currentClassTable, $3->nodeName, $3->argListHead);
 
 												if (fieldListEntry != NULL) {
 													$3->typeTablePtr = fieldListEntry->type;
@@ -1093,6 +1106,7 @@ expr		: expr PLUS expr		{ $$ =  TreeCreate(typeTableINT, PLUS_NODE, NULL, INT_MA
 										$1->left = $3;	
 										$$ = $1;
 									}
+			|	ID '[' expr ']' '[' expr ']'	{}
 			| AMPERSAND ID			{
 										$2 = lookupID($2);
 										if ($2->typeTablePtr == typeTableINT || $2->typeTablePtr == typeTableINTPtr)
@@ -1138,7 +1152,7 @@ expr		: expr PLUS expr		{ $$ =  TreeCreate(typeTableINT, PLUS_NODE, NULL, INT_MA
 %%
 
 void yyerror(char const *s){
-	printf("\n❌ ast.y | Error: %s, at statement %d\n", s, statementCount);
+	printf("\n❌ ast.y | Error: %s, at line %d\n", s, sourceLineNumber / 2);
 	exit(1);
 }
 

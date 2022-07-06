@@ -55,6 +55,7 @@ int main() {
   decl
   enddecl
   begin
+      write("bruh");
       n=initialize();
       read(n);
       if(n>0) then 

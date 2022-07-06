@@ -230,12 +230,13 @@
  158       | FieldFunction
  159       | ID '(' ArgList ')'
  160       | ID '[' expr ']'
- 161       | AMPERSAND ID
- 162       | MUL ID
- 163       | ID
- 164       | NUM
- 165       | STRING
- 166       | NULL_
+ 161       | ID '[' expr ']' '[' expr ']'
+ 162       | AMPERSAND ID
+ 163       | MUL ID
+ 164       | ID
+ 165       | NUM
+ 166       | STRING
+ 167       | NULL_
 
 state 0
 	$accept : . start $end  (0)
@@ -1960,60 +1961,61 @@ state 189
 	FieldID : ID . '[' expr ']'  (141)
 	expr : ID . '(' ArgList ')'  (159)
 	expr : ID . '[' expr ']'  (160)
-	expr : ID .  (163)
+	expr : ID . '[' expr ']' '[' expr ']'  (161)
+	expr : ID .  (164)
 
 	'('  shift 228
 	'['  shift 229
-	PLUS  reduce 163
-	MINUS  reduce 163
-	MUL  reduce 163
-	DIV  reduce 163
-	MOD  reduce 163
-	THEN  reduce 163
-	DO  reduce 163
-	ENDWHILE  reduce 163
-	AND  reduce 163
-	OR  reduce 163
-	','  reduce 163
-	')'  reduce 163
+	PLUS  reduce 164
+	MINUS  reduce 164
+	MUL  reduce 164
+	DIV  reduce 164
+	MOD  reduce 164
+	THEN  reduce 164
+	DO  reduce 164
+	ENDWHILE  reduce 164
+	AND  reduce 164
+	OR  reduce 164
+	','  reduce 164
+	')'  reduce 164
 	'.'  reduce 140
-	EQ  reduce 163
-	NEQ  reduce 163
-	LT  reduce 163
-	LTE  reduce 163
-	GT  reduce 163
-	GTE  reduce 163
-	';'  reduce 163
-	']'  reduce 163
+	EQ  reduce 164
+	NEQ  reduce 164
+	LT  reduce 164
+	LTE  reduce 164
+	GT  reduce 164
+	GTE  reduce 164
+	';'  reduce 164
+	']'  reduce 164
 
 
 state 190
-	expr : NUM .  (164)
-
-	.  reduce 164
-
-
-state 191
-	expr : STRING .  (165)
+	expr : NUM .  (165)
 
 	.  reduce 165
 
 
-state 192
-	expr : NULL_ .  (166)
+state 191
+	expr : STRING .  (166)
 
 	.  reduce 166
 
 
+state 192
+	expr : NULL_ .  (167)
+
+	.  reduce 167
+
+
 state 193
-	expr : MUL . ID  (162)
+	expr : MUL . ID  (163)
 
 	ID  shift 230
 	.  error
 
 
 state 194
-	expr : AMPERSAND . ID  (161)
+	expr : AMPERSAND . ID  (162)
 
 	ID  shift 231
 	.  error
@@ -2587,6 +2589,7 @@ state 228
 state 229
 	FieldID : ID '[' . expr ']'  (141)
 	expr : ID '[' . expr ']'  (160)
+	expr : ID '[' . expr ']' '[' expr ']'  (161)
 
 	ID  shift 189
 	NUM  shift 190
@@ -2606,15 +2609,15 @@ state 229
 
 
 state 230
-	expr : MUL ID .  (162)
+	expr : MUL ID .  (163)
 
-	.  reduce 162
+	.  reduce 163
 
 
 state 231
-	expr : AMPERSAND ID .  (161)
+	expr : AMPERSAND ID .  (162)
 
-	.  reduce 161
+	.  reduce 162
 
 
 state 232
@@ -3318,6 +3321,7 @@ state 272
 	expr : expr . AND expr  (153)
 	expr : expr . OR expr  (154)
 	expr : ID '[' expr . ']'  (160)
+	expr : ID '[' expr . ']' '[' expr ']'  (161)
 
 	PLUS  shift 234
 	MINUS  shift 235
@@ -4059,7 +4063,9 @@ state 301
 state 302
 	FieldID : ID '[' expr ']' .  (141)
 	expr : ID '[' expr ']' .  (160)
+	expr : ID '[' expr ']' . '[' expr ']'  (161)
 
+	'['  shift 314
 	PLUS  reduce 160
 	MINUS  reduce 160
 	MUL  reduce 160
@@ -4105,7 +4111,7 @@ state 304
 	SELF  shift 153
 	.  error
 
-	Slist  goto 314
+	Slist  goto 315
 	Stmt  goto 155
 	inputStmt  goto 156
 	outputStmt  goto 157
@@ -4159,7 +4165,7 @@ state 309
 state 310
 	MBody : BEGIN_ Slist retStmt END . ';'  (124)
 
-	';'  shift 315
+	';'  shift 316
 	.  error
 
 
@@ -4208,6 +4214,26 @@ state 313
 
 
 state 314
+	expr : ID '[' expr ']' '[' . expr ']'  (161)
+
+	ID  shift 189
+	NUM  shift 190
+	STRING  shift 191
+	NULL_  shift 192
+	MUL  shift 193
+	AMPERSAND  shift 194
+	NOT  shift 195
+	SELF  shift 153
+	'('  shift 196
+	.  error
+
+	expr  goto 317
+	Field  goto 198
+	FieldID  goto 171
+	FieldFunction  goto 199
+
+
+state 315
 	Slist : Slist . Stmt ';'  (29)
 	ifStmt : IF expr THEN Slist ELSE Slist . ENDIF  (49)
 
@@ -4217,7 +4243,7 @@ state 314
 	MUL  shift 145
 	BREAKPOINT  shift 146
 	IF  shift 147
-	ENDIF  shift 316
+	ENDIF  shift 318
 	WHILE  shift 148
 	DO  shift 149
 	BREAK  shift 150
@@ -4245,17 +4271,56 @@ state 314
 	DynamicMemStmt  goto 173
 
 
-state 315
+state 316
 	MBody : BEGIN_ Slist retStmt END ';' .  (124)
 
 	.  reduce 124
 
 
-state 316
+state 317
+	expr : expr . PLUS expr  (142)
+	expr : expr . MINUS expr  (143)
+	expr : expr . MUL expr  (144)
+	expr : expr . DIV expr  (145)
+	expr : expr . MOD expr  (146)
+	expr : expr . EQ expr  (147)
+	expr : expr . NEQ expr  (148)
+	expr : expr . LT expr  (149)
+	expr : expr . LTE expr  (150)
+	expr : expr . GT expr  (151)
+	expr : expr . GTE expr  (152)
+	expr : expr . AND expr  (153)
+	expr : expr . OR expr  (154)
+	expr : ID '[' expr ']' '[' expr . ']'  (161)
+
+	PLUS  shift 234
+	MINUS  shift 235
+	MUL  shift 236
+	DIV  shift 237
+	MOD  shift 238
+	AND  shift 239
+	OR  shift 240
+	EQ  shift 241
+	NEQ  shift 242
+	LT  shift 243
+	LTE  shift 244
+	GT  shift 245
+	GTE  shift 246
+	']'  shift 319
+	.  error
+
+
+state 318
 	ifStmt : IF expr THEN Slist ELSE Slist ENDIF .  (49)
 
 	.  reduce 49
 
 
+state 319
+	expr : ID '[' expr ']' '[' expr ']' .  (161)
+
+	.  reduce 161
+
+
 62 terminals, 72 nonterminals
-167 grammar rules, 317 states
+168 grammar rules, 320 states

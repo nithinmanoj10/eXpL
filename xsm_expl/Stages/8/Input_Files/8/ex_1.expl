@@ -1,0 +1,90 @@
+class
+Person {
+	decl
+		str name;
+		int age;
+		int printDetails();
+		str findName();
+		int createPerson(str name, int age);
+	enddecl
+	int printDetails(){
+		decl
+		enddecl
+		begin
+			write(self.name);
+			write(self.age);
+			return 1;
+		end;
+	}
+	str findName(){
+		decl
+		enddecl
+		begin
+			return self.name;
+		end;
+	}
+	int createPerson(str name, int age){
+		decl
+		enddecl
+		begin
+			self.name=name;
+			self.age=age;
+			return 1;
+		end;
+	}
+}     
+Student extends Person{
+	
+	decl
+		int rollnumber;            
+		str dept;
+		int printDetails(int a);
+		int createStudent(str name, int age,int rollNo, str dept);
+	enddecl
+  	int createStudent(str name, int age,int rollNo, str dept){  
+		decl
+		enddecl
+		begin
+			self.name =name;
+           	self.age = age;
+            self.rollnumber = rollNo;
+            self.dept = dept;
+            return 1;
+		end;
+	}
+	int printDetails(int a){  
+		decl
+		enddecl
+		begin
+			write(self.name);
+			write(self.age);
+			write(self.rollnumber);
+			write(self.dept);
+			return 1;
+		end;
+	}         
+}
+endclass
+
+decl
+    int temp;
+    Student S;
+enddecl
+
+int main() {
+    decl
+        int a, b;
+    enddecl
+
+    begin
+        temp = initialize();
+
+        S = new(Student);
+        write(S);
+
+        write("Inheritenncee");
+
+		breakpoint;
+        return 1;
+    end;
+}

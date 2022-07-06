@@ -1,5 +1,5 @@
 /**
- * Stack Data Structure to know which loop the program 
+ * Stack Data Structure to know which loop the program
  * is currently running in
  */
 
@@ -7,19 +7,20 @@
 
 #define LOOPSTACK_H
 
-struct loopStackNode {
+struct loopStackNode
+{
 	int labelNum;
-	struct loopStackNode* next;
-}lsnode;
+	struct loopStackNode *next;
+} lsnode;
 
 // head of the loop stack
-extern struct loopStackNode* LSHead;
+extern struct loopStackNode *LSHead;
 
 // to create a loopStackNode
-struct loopStackNode* createLSNode(int val);
+struct loopStackNode *createLSNode(int val);
 
 // to insert node into loopstack node
-struct loopStackNode* pushLSNode(struct loopStackNode* loopStart, struct loopStackNode* loopEnd);
+struct loopStackNode *pushLSNode(struct loopStackNode *loopStart, struct loopStackNode *loopEnd);
 
 // to get the start label number of current while loop
 int getStartLabel();

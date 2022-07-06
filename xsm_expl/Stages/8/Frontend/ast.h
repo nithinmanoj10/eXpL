@@ -103,6 +103,7 @@ int printAST(struct ASTNode *root, int sno);
 void printASTTable(struct ASTNode *root, int sno);
 extern int ASTTableSno;
 char *getNodeName(int nodeType);
+extern int sourceLineNumber; // Tells which line in source code
 
 int getVariableAddress(FILE *filePtr, struct ASTNode *root);
 

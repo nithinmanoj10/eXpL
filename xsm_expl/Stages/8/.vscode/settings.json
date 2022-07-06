@@ -8,7 +8,8 @@
     "paramstruct.h": "c",
     "lstable.h": "c",
     "tuplelisttable.h": "c",
-    "limits.h": "c"
+    "limits.h": "c",
+    "typetable.h": "c"
   },
   "C_Cpp.dimInactiveRegions": false,
   "C_Cpp.errorSquiggles": "Disabled"

@@ -51,6 +51,7 @@ int main(){
 		int x,n, temp;
 	enddecl
 	begin
+        write("bruh");
 		x=initialize();
 		obj=new(testfactsum);
         // rdj=new(testfactsum);

@@ -1135,7 +1135,7 @@ case 54:
 /* rule 54 can match eol */
 YY_RULE_SETUP
 #line 112 "ast.l"
-{}
+{ ++sourceLineNumber; }
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
