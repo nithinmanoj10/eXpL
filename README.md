@@ -1,3 +1,1 @@
-# EXPL NITC
-
-## Experimental Language - Write your own Compiler
+![expl logo](https://github.com/nithinmanoj10/eXpL/blob/master/EXPL%20Banner.png?raw=true)
