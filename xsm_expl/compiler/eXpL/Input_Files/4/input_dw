@@ -1,0 +1,7 @@
+begin
+	a = 1;
+	do
+		write(a);
+		a = a + 1;
+	while (a < 10) endwhile;
+end;
