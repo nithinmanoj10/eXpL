@@ -1,0 +1,24 @@
+decl
+    int library(str funcCode, int argOne, int argTwo, int argThree);
+enddecl
+
+int library(str funcCode, int argOne, int argTwo, int argThree) {
+    decl
+        int temp;
+    enddecl
+    begin
+        write("Libraary");
+        return 1;
+    end;
+}
+
+int main() {
+    decl
+        int temp;
+    enddecl
+
+    begin
+        library("alloc", 8, 0, 0);
+        return 1;
+    end;
+}

@@ -1,3 +1,0 @@
-break ast.y:417
-source ../Debugger/pretty_print.py
-run input < ../Input_Files/5/tuple.expl

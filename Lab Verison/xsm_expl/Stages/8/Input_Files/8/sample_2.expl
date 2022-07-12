@@ -1,0 +1,73 @@
+class
+A 
+{
+  decl
+      int i;
+      int f0();
+      int f1();
+  enddecl
+
+  int f0() {
+    decl
+        int c;
+    enddecl
+    begin
+        breakpoint;
+        c = self.f1();    // call to f1() from f0()
+        write(self.i);
+        return 1;
+    end;
+  }
+  int f1() {               
+      decl
+      enddecl
+      begin
+          self.i=0;
+          write("In A F1");        // This is printed when f1() is invoked from an object of class A 
+          return 1;
+      end;
+  }
+}
+B extends A
+{
+  decl
+    int tempb;
+     int f1();      // B overrides f1 
+  enddecl
+
+  int f1() {        
+        decl
+        enddecl
+        begin
+            self.i=1;
+            write("In B F1");   // This is printed when f1() is invoked from an object of class B
+            return 1;
+        end;
+  }
+}
+endclass
+
+decl
+  int n;
+  A obj;
+enddecl
+
+int main() {
+  decl
+    int temp;
+  enddecl
+  begin
+
+        temp = initialize();
+
+      read(n);
+      if(n>0) then 
+        obj = new(A);
+      else
+        obj = new(B);
+       endif;
+    //    breakpoint;
+        n = obj.f0();     // f0() contains a call to f1(). f1() is overriden by class B
+        return 1;
+  end;
+}

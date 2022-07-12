@@ -1,7 +1,0 @@
-Code - Exercise Question Statement : \U0001F4D1
-Stage - Mentioning each stage : \U0001F4C0
-Input - Asking user to input : \U0001F4E5
-Result - Results star : \U00002728
-Diamond - Listing : \U0001F539
-Correct Tick : \U00002705
-Wrong Cross : \U0000274c

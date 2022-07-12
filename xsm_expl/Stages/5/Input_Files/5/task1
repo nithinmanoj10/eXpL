@@ -1,7 +1,0 @@
-decl
-    int result, factorial(int n);
-enddecl
-
-begin
-    write("hello");
-end;

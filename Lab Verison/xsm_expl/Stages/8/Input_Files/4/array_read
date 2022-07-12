@@ -1,0 +1,23 @@
+decl
+    int array[10];
+    int size, count;
+enddecl
+
+begin
+    write("Enter Array Size");
+    read(size);
+
+    count = 0;
+    while (count < size) do
+        read(array[count]);
+        count = count + 1;
+    endwhile;
+
+    write("Printing array");
+
+    count = 0;
+    while (count < size) do
+        write(array[count]);
+        count = count + 1;
+    endwhile;
+end;
