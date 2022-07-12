@@ -1,7 +1,0 @@
-decl
-	int studentMarks[17];
-enddecl
-
-begin
-	studentMarks[6];
-end;

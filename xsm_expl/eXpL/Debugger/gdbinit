@@ -1,0 +1,2 @@
+break ../Functions/stringMan.c:74
+run input < ../Input_Files/8/test.expl

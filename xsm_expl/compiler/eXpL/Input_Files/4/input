@@ -1,9 +1,0 @@
-decl
-	int age[0];
-enddecl
-
-begin
-	
-	read(age[-1]);
-
-end;

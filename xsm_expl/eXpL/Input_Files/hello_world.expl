@@ -1,0 +1,6 @@
+int main() {
+    begin
+        write("Hello World");
+        return 1;
+    end;
+}
